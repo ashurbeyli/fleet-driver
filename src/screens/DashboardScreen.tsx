@@ -37,31 +37,43 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await authService.clearAuthData();
-              setShowMenu(false);
-              navigation.navigate('Login');
-            } catch (error) {
-              console.error('Logout failed:', error);
-              Alert.alert('Error', 'Failed to logout. Please try again.');
-            }
-          },
-        },
-      ]
-    );
+  const handleLogout = async () => {
+    // Use window.confirm for web, Alert for mobile
+    const confirmed = Platform.OS === 'web' 
+      ? window.confirm('Are you sure you want to logout?')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => resolve(false),
+              },
+              {
+                text: 'Logout',
+                style: 'destructive',
+                onPress: () => resolve(true),
+              },
+            ]
+          );
+        });
+
+    if (confirmed) {
+      try {
+        await authService.clearAuthData();
+        setShowMenu(false);
+        navigation.navigate('Login');
+      } catch (error) {
+        console.error('Logout failed:', error);
+        if (Platform.OS === 'web') {
+          alert('Failed to logout. Please try again.');
+        } else {
+          Alert.alert('Error', 'Failed to logout. Please try again.');
+        }
+      }
+    }
   };
 
   const getInitials = (name: string) => {

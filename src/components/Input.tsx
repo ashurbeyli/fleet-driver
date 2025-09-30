@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
     ...DESIGN.shadows.sm,
     ...Platform.select({
       web: {
-        outlineStyle: 'none',
+        outlineStyle: 'none' as any,
         transition: 'all 0.2s ease',
         '&:focus-within': {
-          borderColor: COLORS.primary,
-          boxShadow: `0 0 0 3px ${COLORS.primary}20`,
+          borderColor: COLORS.secondary,
+          boxShadow: `0 0 0 3px ${COLORS.secondary}20`,
         },
       },
     }),

@@ -169,10 +169,10 @@ const styles = StyleSheet.create({
     }),
   },
   inputFocused: {
-    borderColor: COLORS.primary,
+    borderColor: COLORS.secondary,
     ...Platform.select({
       web: {
-        boxShadow: `0 0 0 3px ${COLORS.primary}20`,
+        boxShadow: `0 0 0 3px ${COLORS.secondary}20`,
       },
     }),
   },

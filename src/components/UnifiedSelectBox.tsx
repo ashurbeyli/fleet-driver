@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
         cursor: 'pointer',
         transition: 'all 0.2s ease',
         '&:hover': {
-          borderColor: COLORS.primary,
-          boxShadow: `0 0 0 3px ${COLORS.primary}20`,
+          borderColor: COLORS.secondary,
+          boxShadow: `0 0 0 3px ${COLORS.secondary}20`,
         },
       },
     }),
@@ -358,9 +358,9 @@ const styles = StyleSheet.create({
     }),
   },
   selectedOption: {
-    backgroundColor: COLORS.primary + '08',
+    backgroundColor: COLORS.secondary + '08',
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: COLORS.secondary,
   },
   lastOption: {
     borderBottomWidth: 0,
@@ -372,12 +372,12 @@ const styles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.weights.medium,
   },
   selectedOptionText: {
-    color: COLORS.primary,
+    color: COLORS.secondary,
     fontWeight: TYPOGRAPHY.weights.semibold,
   },
   checkmark: {
     fontSize: 18,
-    color: COLORS.primary,
+    color: COLORS.secondary,
     fontWeight: TYPOGRAPHY.weights.bold,
   },
   errorText: {

@@ -5,34 +5,35 @@ export const APP_CONFIG = {
   description: 'Taxi park fleet driver management app',
 };
 
-// Colors
+// Colors - Dark gray with subtle yellow accents
 export const COLORS = {
-  primary: '#6366F1', // Modern indigo
-  primaryLight: '#818CF8',
-  primaryDark: '#4F46E5',
-  secondary: '#8B5CF6', // Modern purple
-  secondaryLight: '#A78BFA',
-  secondaryDark: '#7C3AED',
+  primary: '#2C3E50', // Dark slate gray (main brand color)
+  primaryLight: '#34495E',
+  primaryDark: '#1A252F',
+  secondary: '#F39C12', // Subtle yellow accent
+  secondaryLight: '#F5B041',
+  secondaryDark: '#D68910',
   success: '#10B981', // Modern emerald
   successLight: '#34D399',
-  warning: '#F59E0B', // Modern amber
-  warningLight: '#FBBF24',
+  warning: '#F39C12', // Subtle amber
+  warningLight: '#F5B041',
   error: '#EF4444', // Modern red
   errorLight: '#F87171',
-  background: '#FAFAFA',
-  backgroundDark: '#F4F4F5',
+  background: '#F8F9FA', // Very light gray
+  backgroundDark: '#ECF0F1', // Light cool gray
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
   text: {
-    primary: '#111827', // Darker for better contrast
-    secondary: '#6B7280',
-    tertiary: '#9CA3AF',
+    primary: '#2C3E50', // Dark slate gray
+    secondary: '#7F8C8D',
+    tertiary: '#95A5A6',
     inverse: '#FFFFFF',
   },
   border: '#E5E7EB',
   borderLight: '#F3F4F6',
-  shadow: 'rgba(0, 0, 0, 0.1)',
-  shadowDark: 'rgba(0, 0, 0, 0.15)',
+  shadow: 'rgba(44, 62, 80, 0.08)', // Dark gray shadow
+  shadowDark: 'rgba(44, 62, 80, 0.15)',
+  accent: '#F39C12', // Yellow accent for highlights
 };
 
 // Spacing
@@ -79,6 +80,7 @@ export const DESIGN = {
     md: 12,
     lg: 16,
     xl: 20,
+    xxl: 28,
     full: 9999,
   },
   shadows: {
@@ -105,10 +107,10 @@ export const DESIGN = {
     },
   },
   gradients: {
-    primary: ['#6366F1', '#8B5CF6'],
-    secondary: ['#8B5CF6', '#A78BFA'],
+    primary: ['#2C3E50', '#34495E'],
+    secondary: ['#F39C12', '#F5B041'],
     success: ['#10B981', '#34D399'],
-    surface: ['#FFFFFF', '#F8FAFC'],
+    surface: ['#FFFFFF', '#F8F9FA'],
   },
 };
 

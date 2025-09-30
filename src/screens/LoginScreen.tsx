@@ -95,77 +95,69 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   // Phone number will be complete with +, e.g., +994704220692
   // No formatting or validation needed for now
 
-  const renderPhoneStep = () => (
-    <View style={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Fleet Driver</Text>
-        <Text style={styles.subtitle}>Control Centre</Text>
-        <Text style={styles.description}>
-          Login to your account to continue
-        </Text>
-      </View>
-
-      <View style={styles.form}>
-        <UnifiedSelectBox
-          label="Select your park"
-          placeholder={
-            isLoadingParks 
-              ? "Loading parks..." 
-              : parks.length === 0 
-                ? "No parks available" 
-                : "Choose your working park"
-          }
-          options={parks}
-          selectedValue={selectedPark}
-          onSelect={(option) => setSelectedPark(option.id)}
-          helpText={
-            parks.length === 0 
-              ? "No parks available. Please check your connection and refresh the page."
-              : "Select the park where you work as a driver"
-          }
-          disabled={isLoadingParks || parks.length === 0}
-        />
-
-        <Input
-          label="Your phone number"
-          placeholder="+994704220692"
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          keyboardType="phone-pad"
-          helpText="Enter your complete phone number with country code (e.g., +994704220692). An SMS will be sent to verify your identity."
-        />
-
-        <Button
-          title="Login"
-          onPress={handlePhoneSubmit}
-          variant="primary"
-          size="large"
-          disabled={!selectedPark || !phoneNumber || parks.length === 0}
-          style={styles.submitButton}
-        />
-      </View>
-    </View>
-  );
-
-
   return (
     <SafeAreaView style={styles.container}>
+      {/* Modern Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <Text style={styles.logo}>Fleet Driver</Text>
+          <Text style={styles.tagline}>Control Centre</Text>
+        </View>
+      </View>
+
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        {renderPhoneStep()}
-        
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            © 2025 Fleet Driver. All Rights Reserved.
+        {/* Welcome Card */}
+        <View style={styles.welcomeCard}>
+          <Text style={styles.welcomeIcon}>👋</Text>
+          <Text style={styles.welcomeTitle}>Welcome Back!</Text>
+          <Text style={styles.welcomeText}>
+            Sign in to access your driver dashboard
           </Text>
-          <View style={styles.footerLinks}>
-            <Text style={styles.footerLink}>Terms of Use</Text>
-            <Text style={styles.footerLink}>Privacy Policy</Text>
-            <Text style={styles.footerLink}>Contact Us</Text>
-          </View>
         </View>
+
+        {/* Login Form Card */}
+        <View style={styles.formCard}>
+          <UnifiedSelectBox
+            label="Your Park"
+            placeholder={
+              isLoadingParks 
+                ? "Loading parks..." 
+                : parks.length === 0 
+                  ? "No parks available" 
+                  : "Select your park"
+            }
+            options={parks}
+            selectedValue={selectedPark}
+            onSelect={(option) => setSelectedPark(option.id)}
+            disabled={isLoadingParks || parks.length === 0}
+          />
+
+          <Input
+            label="Phone Number"
+            placeholder="+994 70 422 06 92"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+          />
+
+          <Button
+            title={isLoading ? "Logging in..." : "Continue"}
+            onPress={handlePhoneSubmit}
+            variant="primary"
+            size="large"
+            disabled={!selectedPark || !phoneNumber || parks.length === 0 || isLoading}
+            style={styles.submitButton}
+          />
+        </View>
+
+        {/* Footer */}
+        <Text style={styles.footerText}>
+          By continuing, you agree to our Terms & Privacy Policy
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -174,79 +166,65 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
-    ...Platform.select({
-      web: {
-        background: `linear-gradient(135deg, ${COLORS.background} 0%, ${COLORS.backgroundDark} 100%)`,
-      },
-    }),
+    backgroundColor: COLORS.backgroundDark,
+  },
+  // Modern Header
+  header: {
+    backgroundColor: COLORS.primary,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.xl,
+  },
+  headerContent: {
+    paddingHorizontal: SPACING.lg,
+    alignItems: 'center',
+  },
+  logo: {
+    fontSize: TYPOGRAPHY.sizes.xxl,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.surface,
+    marginBottom: 4,
+  },
+  tagline: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.xxl,
+    padding: SPACING.lg,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    maxWidth: 480,
-    alignSelf: 'center',
-    width: '100%',
-    ...Platform.select({
-      web: {
-        position: 'relative',
-        overflow: 'visible',
-      },
-    }),
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: SPACING.xxl,
-    paddingHorizontal: SPACING.lg,
-  },
-  title: {
-    fontSize: TYPOGRAPHY.sizes.display,
-    fontWeight: TYPOGRAPHY.weights.extrabold,
-    color: COLORS.text.primary,
-    marginBottom: SPACING.sm,
-    textAlign: 'center',
-    ...Platform.select({
-      web: {
-        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-      },
-    }),
-  },
-  subtitle: {
-    fontSize: TYPOGRAPHY.sizes.xl,
-    fontWeight: TYPOGRAPHY.weights.semibold,
-    color: COLORS.text.secondary,
-    marginBottom: SPACING.lg,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: TYPOGRAPHY.sizes.lg,
-    color: COLORS.text.tertiary,
-    textAlign: 'center',
-    lineHeight: TYPOGRAPHY.sizes.lg * TYPOGRAPHY.lineHeights.relaxed,
-    fontWeight: TYPOGRAPHY.weights.normal,
-  },
-  form: {
-    marginBottom: SPACING.xxl,
+  // Welcome Card
+  welcomeCard: {
     backgroundColor: COLORS.surface,
     borderRadius: DESIGN.borderRadius.xl,
-    padding: SPACING.xxl,
+    padding: SPACING.xl,
+    marginBottom: SPACING.lg,
+    alignItems: 'center',
+    ...DESIGN.shadows.sm,
+  },
+  welcomeIcon: {
+    fontSize: 48,
+    marginBottom: SPACING.md,
+  },
+  welcomeTitle: {
+    fontSize: TYPOGRAPHY.sizes.xl,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.primary,
+    marginBottom: SPACING.xs,
+  },
+  welcomeText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+  },
+  // Form Card
+  formCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: DESIGN.borderRadius.xl,
+    padding: SPACING.xl,
+    marginBottom: SPACING.xl,
     ...DESIGN.shadows.md,
-    ...Platform.select({
-      web: {
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-        position: 'relative',
-        overflow: 'visible',
-        zIndex: 1,
-      },
-    }),
   },
   phoneDisplay: {
     fontSize: TYPOGRAPHY.sizes.lg,
@@ -256,54 +234,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitButton: {
-    marginTop: SPACING.xl,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: SPACING.xl,
-    gap: SPACING.lg,
-  },
-  resendButton: {
-    flex: 0.4,
-  },
-  verifyButton: {
-    flex: 0.55,
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: SPACING.xxl,
-    paddingTop: SPACING.xl,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
+    marginTop: SPACING.lg,
   },
   footerText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+    fontSize: TYPOGRAPHY.sizes.xs,
     color: COLORS.text.tertiary,
-    marginBottom: SPACING.lg,
+    textAlign: 'center',
     fontWeight: TYPOGRAPHY.weights.medium,
-  },
-  footerLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-  },
-  footerLink: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    color: COLORS.primary,
-    marginHorizontal: SPACING.lg,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    ...Platform.select({
-      web: {
-        cursor: 'pointer',
-        transition: 'color 0.2s ease',
-        '&:hover': {
-          color: COLORS.primaryDark,
-        },
-      },
-    }),
+    lineHeight: TYPOGRAPHY.sizes.xs * 1.5,
   },
 });
 
 export default LoginScreen;
+
