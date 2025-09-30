@@ -8,23 +8,27 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button, Input, UnifiedSelectBox } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
-import { parksApi } from '../api';
+import { parksApi, authApi } from '../api';
 import { Park } from '../api/parks';
+import { RootStackParamList } from '../types';
+
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 interface LoginScreenProps {
-  onLoginSuccess?: () => void;
+  onLoginSuccess?: (phoneNumber: string, parkName: string) => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
+  const navigation = useNavigation<LoginScreenNavigationProp>();
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
-  const [step, setStep] = useState<'phone' | 'verification'>('phone');
-  const [verificationCode, setVerificationCode] = useState<string>('');
 
   // Fetch parks from API
   useEffect(() => {
@@ -50,42 +54,46 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       return;
     }
     if (!phoneNumber || phoneNumber.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number');
+      Alert.alert('Error', 'Please enter a valid phone number with country code');
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Call real login API
+      const response = await authApi.login(phoneNumber, selectedPark);
+      
+      if (response.isValid) {
+        // Get selected park name for display
+        const park = parks.find(p => p.id === selectedPark);
+        const parkName = park?.name || 'Selected Park';
+        
+        // Show success message with masked phone and OTP expiry info
+        Alert.alert(
+          'Success', 
+          response.message || `Verification code sent to ${response.maskedPhone || phoneNumber}. Code expires in ${response.otpExpiryMinutes || 5} minutes.`
+        );
+        
+        // Navigate to OTP screen with data
+        navigation.navigate('Otp', {
+          phoneNumber,
+          parkName,
+          parkId: selectedPark,
+        });
+      } else {
+        Alert.alert('Error', response.message || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      Alert.alert('Error', 'Login failed. Please check your connection and try again.');
+    } finally {
       setIsLoading(false);
-      setStep('verification');
-    }, 1500);
-  };
-
-  const handleVerificationSubmit = async () => {
-    if (!verificationCode || verificationCode.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit code');
-      return;
     }
-
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      onLoginSuccess?.();
-    }, 1500);
   };
 
-  const formatPhoneNumber = (text: string) => {
-    // Remove all non-digits
-    const cleaned = text.replace(/\D/g, '');
-    // Format as XXX XXX XXXX
-    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-      return `${match[1]} ${match[2]} ${match[3]}`;
-    }
-    return cleaned;
-  };
+
+  // Phone number will be complete with +, e.g., +994704220692
+  // No formatting or validation needed for now
 
   const renderPhoneStep = () => (
     <View style={styles.content}>
@@ -120,12 +128,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
         <Input
           label="Your phone number"
-          placeholder="5XX XXX XXXX"
+          placeholder="+994704220692"
           value={phoneNumber}
-          onChangeText={(text) => setPhoneNumber(formatPhoneNumber(text))}
+          onChangeText={setPhoneNumber}
           keyboardType="phone-pad"
-          maxLength={11}
-          helpText="Enter the phone number you use to log into your driver account. An SMS will be sent to verify your identity."
+          helpText="Enter your complete phone number with country code (e.g., +994704220692). An SMS will be sent to verify your identity."
         />
 
         <Button
@@ -140,47 +147,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     </View>
   );
 
-  const renderVerificationStep = () => (
-    <View style={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Verification Code</Text>
-        <Text style={styles.subtitle}>
-          Enter the 6-digit code sent to your phone
-        </Text>
-        <Text style={styles.phoneDisplay}>+90 {phoneNumber}</Text>
-      </View>
-
-      <View style={styles.form}>
-        <Input
-          label="SMS Code"
-          placeholder="Enter 6-digit code"
-          value={verificationCode}
-          onChangeText={setVerificationCode}
-          keyboardType="numeric"
-          maxLength={6}
-          helpText="Verification code sent to your phone number. You can request a new code in 10:00 minutes."
-        />
-
-        <View style={styles.buttonRow}>
-          <Button
-            title="Resend Code"
-            onPress={() => setStep('phone')}
-            variant="outline"
-            size="medium"
-            style={styles.resendButton}
-          />
-          <Button
-            title="Verify"
-            onPress={handleVerificationSubmit}
-            variant="primary"
-            size="large"
-            disabled={verificationCode.length !== 6}
-            style={styles.verifyButton}
-          />
-        </View>
-      </View>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -188,7 +154,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {step === 'phone' ? renderPhoneStep() : renderVerificationStep()}
+        {renderPhoneStep()}
         
         <View style={styles.footer}>
           <Text style={styles.footerText}>

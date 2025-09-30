@@ -2,6 +2,11 @@
 export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
+  Otp: {
+    phoneNumber: string;
+    parkName: string;
+    parkId: string;
+  };
   Dashboard: undefined;
   // Add more screens as needed
 };
