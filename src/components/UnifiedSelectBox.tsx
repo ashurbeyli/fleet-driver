@@ -128,7 +128,7 @@ const UnifiedSelectBox: React.FC<UnifiedSelectBoxProps> = ({
               Platform.OS === 'web' && styles.webModalContent
             ]}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select City</Text>
+                <Text style={styles.modalTitle}>Select Option</Text>
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={handleClose}

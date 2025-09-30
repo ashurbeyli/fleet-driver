@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,30 +10,43 @@ import {
 } from 'react-native';
 import { Button, Input, UnifiedSelectBox } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { parksApi } from '../api';
+import { Park } from '../api/parks';
 
 interface LoginScreenProps {
   onLoginSuccess?: () => void;
 }
 
-const CITIES = [
-  { id: 'ankara', label: 'Ankara', value: 'ankara' },
-  { id: 'istanbul', label: 'Istanbul', value: 'istanbul' },
-  { id: 'izmir', label: 'İzmir', value: 'izmir' },
-  { id: 'antalya', label: 'Antalya', value: 'antalya' },
-  { id: 'mersin', label: 'Mersin', value: 'mersin' },
-  { id: 'adana', label: 'Adana', value: 'adana' },
-];
-
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
-  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [parks, setParks] = useState<Park[]>([]);
+  const [selectedPark, setSelectedPark] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
   const [step, setStep] = useState<'phone' | 'verification'>('phone');
   const [verificationCode, setVerificationCode] = useState<string>('');
 
+  // Fetch parks from API
+  useEffect(() => {
+    const fetchParks = async () => {
+      try {
+        setIsLoadingParks(true);
+        const parksData = await parksApi.getParks();
+        setParks(parksData);
+      } catch (error) {
+        console.error('Failed to fetch parks:', error);
+        Alert.alert('Error', 'Failed to load parks. Please check your connection and try again.');
+      } finally {
+        setIsLoadingParks(false);
+      }
+    };
+
+    fetchParks();
+  }, []);
+
   const handlePhoneSubmit = async () => {
-    if (!selectedCity) {
-      Alert.alert('Error', 'Please select a city');
+    if (!selectedPark) {
+      Alert.alert('Error', 'Please select a park');
       return;
     }
     if (!phoneNumber || phoneNumber.length < 10) {
@@ -86,12 +99,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
       <View style={styles.form}>
         <UnifiedSelectBox
-          label="Select your city"
-          placeholder="Choose your working city"
-          options={CITIES}
-          selectedValue={selectedCity}
-          onSelect={(option) => setSelectedCity(option.id)}
-          helpText="Select the city where you work as a driver"
+          label="Select your park"
+          placeholder={
+            isLoadingParks 
+              ? "Loading parks..." 
+              : parks.length === 0 
+                ? "No parks available" 
+                : "Choose your working park"
+          }
+          options={parks}
+          selectedValue={selectedPark}
+          onSelect={(option) => setSelectedPark(option.id)}
+          helpText={
+            parks.length === 0 
+              ? "No parks available. Please check your connection and refresh the page."
+              : "Select the park where you work as a driver"
+          }
+          disabled={isLoadingParks || parks.length === 0}
         />
 
         <Input
@@ -109,7 +133,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           onPress={handlePhoneSubmit}
           variant="primary"
           size="large"
-          disabled={!selectedCity || !phoneNumber}
+          disabled={!selectedPark || !phoneNumber || parks.length === 0}
           style={styles.submitButton}
         />
       </View>
