@@ -63,18 +63,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       // Call real login API
       const response = await authApi.login(phoneNumber, selectedPark);
       
-      if (response.success) {
+      if (response.isValid) {
         // Get selected park name for display
         const park = parks.find(p => p.id === selectedPark);
         const parkName = park?.name || 'Selected Park';
         
-        // Show success message and navigate to OTP screen
-        Alert.alert('Success', response.message || `Verification code sent to ${phoneNumber}`);
+        // Show success message with masked phone and OTP expiry info
+        Alert.alert(
+          'Success', 
+          response.message || `Verification code sent to ${response.maskedPhone || phoneNumber}. Code expires in ${response.otpExpiryMinutes || 5} minutes.`
+        );
         
         // Navigate to OTP screen with data
         navigation.navigate('Otp', {
           phoneNumber,
           parkName,
+          parkId: selectedPark,
         });
       } else {
         Alert.alert('Error', response.message || 'Login failed. Please try again.');

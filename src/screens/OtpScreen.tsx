@@ -14,6 +14,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button, OtpInput } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { RootStackParamList } from '../types';
+import { authApi } from '../api';
+import { authService } from '../services/authService';
 
 type OtpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Otp'>;
 type OtpScreenRouteProp = RouteProp<RootStackParamList, 'Otp'>;
@@ -25,6 +27,7 @@ const OtpScreen: React.FC = () => {
   // Get data from route params
   const phoneNumber = route.params?.phoneNumber || '';
   const parkName = route.params?.parkName || '';
+  const parkId = route.params?.parkId || '';
   const [otp, setOtp] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -52,8 +55,10 @@ const OtpScreen: React.FC = () => {
   };
 
   const handleOtpComplete = (completedOtp: string) => {
+    // Don't auto-verify, just clear error
+    // User will click the verify button when ready
     if (completedOtp.length === 6) {
-      handleVerifyOtp();
+      setError('');
     }
   };
 
@@ -63,24 +68,68 @@ const OtpScreen: React.FC = () => {
       return;
     }
 
+    if (!parkId) {
+      setError('Park information is missing. Please go back and login again.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
-      // Simulate API call
+      // TODO: Replace with real API call
+      // const response = await authApi.verifyOtp(phoneNumber, parkId, otp);
+      
+      // Mock successful response for now
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Mock verification - replace with actual API call
-      if (otp === '123456') {
-        Alert.alert('Success', 'OTP verified successfully!');
+      const mockResponse = {
+        isValid: true,
+        message: 'OTP verified successfully',
+        accessToken: 'mock-access-token-12345',
+        refreshToken: 'mock-refresh-token-67890',
+        driver: {
+          id: 'driver-123',
+          contractorProfileId: 'contractor-456',
+          phone: phoneNumber,
+          name: 'Test Driver',
+          parkId: parkId,
+          parkName: parkName,
+          status: 1,
+          isVerified: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isAgreed: true,
+          agreedAt: new Date().toISOString(),
+        },
+        parkId: parkId,
+      };
+      
+      if (mockResponse.isValid) {
+        // Save authentication data to storage (works on both web and mobile)
+        await authService.saveAuthData({
+          accessToken: mockResponse.accessToken,
+          refreshToken: mockResponse.refreshToken,
+          driver: mockResponse.driver,
+          parkId: mockResponse.parkId,
+        });
+        
+        console.log('Authentication successful! Data saved to storage.');
+        
+        // Show success message with driver name
+        Alert.alert(
+          'Success', 
+          mockResponse.message || `Welcome ${mockResponse.driver.name}! You're now logged in.`
+        );
+        
         // Navigate to dashboard
         navigation.navigate('Dashboard');
       } else {
-        setError('Invalid verification code. Please try again.');
+        setError(mockResponse.message || 'Invalid verification code. Please try again.');
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
-      setError('Verification failed. Please try again.');
+      setError('Verification failed. Please check your code and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -147,8 +196,7 @@ const OtpScreen: React.FC = () => {
               onPress={handleVerifyOtp}
               variant="primary"
               size="large"
-              isLoading={isLoading}
-              disabled={otp.length !== 6}
+              disabled={otp.length !== 6 || isLoading}
               style={styles.verifyButton}
             />
 

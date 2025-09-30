@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Otp: {
     phoneNumber: string;
     parkName: string;
+    parkId: string;
   };
   Dashboard: undefined;
   // Add more screens as needed

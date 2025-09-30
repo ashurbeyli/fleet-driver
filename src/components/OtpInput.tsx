@@ -1,13 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   Platform,
-  TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 interface OtpInputProps {
   length?: number;
@@ -29,48 +31,56 @@ const OtpInput: React.FC<OtpInputProps> = ({
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const inputRefs = useRef<TextInput[]>([]);
 
+  // Only call onComplete when we reach the required length, not on every change
+  const previousLengthRef = useRef<number>(0);
+  
   useEffect(() => {
-    if (value.length === length && onComplete) {
+    if (value.length === length && onComplete && previousLengthRef.current < length) {
       onComplete(value);
     }
+    previousLengthRef.current = value.length;
   }, [value, length, onComplete]);
 
-  const handleTextChange = (text: string, index: number) => {
-    const newValue = value.split('');
-    
-    // Only allow single digit
-    if (text.length > 1) {
-      text = text.slice(-1);
-    }
-    
+  const handleTextChange = useCallback((text: string, index: number) => {
     // Only allow numbers
-    if (!/^\d*$/.test(text)) {
+    if (text && !/^\d$/.test(text)) {
       return;
     }
-
+    
+    const newValue = value.split('');
+    
+    // Pad array to correct length if needed
+    while (newValue.length < length) {
+      newValue.push('');
+    }
+    
     newValue[index] = text;
-    const newOtp = newValue.join('').slice(0, length);
+    const newOtp = newValue.join('').replace(/[^\d]/g, '').slice(0, length);
+    
     onChangeText(newOtp);
 
-    // Auto-focus next input
+    // Auto-focus next input only if we added a digit
     if (text && index < length - 1) {
-      inputRefs.current[index + 1]?.focus();
+      // Small delay to ensure state is updated before focusing
+      setTimeout(() => {
+        inputRefs.current[index + 1]?.focus();
+      }, 10);
     }
-  };
+  }, [value, length, onChangeText]);
 
-  const handleKeyPress = (key: string, index: number) => {
+  const handleKeyPress = useCallback((key: string, index: number) => {
     if (key === 'Backspace' && !value[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
-  };
+  }, [value]);
 
-  const handleFocus = (index: number) => {
+  const handleFocus = useCallback((index: number) => {
     setFocusedIndex(index);
-  };
+  }, []);
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     setFocusedIndex(-1);
-  };
+  }, []);
 
   const renderInput = (index: number) => {
     const digit = value[index] || '';
@@ -114,32 +124,47 @@ const OtpInput: React.FC<OtpInputProps> = ({
   );
 };
 
+// Calculate responsive input size
+const getInputSize = () => {
+  const containerPadding = SPACING.xl * 2; // Form padding
+  const availableWidth = screenWidth > 480 ? 480 : screenWidth - containerPadding - (SPACING.xl * 2);
+  const totalGaps = 5 * 8; // 5 gaps of 8px
+  const inputWidth = Math.floor((availableWidth - totalGaps) / 6);
+  const inputSize = Math.min(Math.max(inputWidth, 40), 56); // Between 40 and 56
+  return inputSize;
+};
+
+const inputSize = getInputSize();
+
 const styles = StyleSheet.create({
   container: {
     marginBottom: SPACING.lg,
+    alignItems: 'center',
   },
   inputsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: SPACING.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
   },
   input: {
-    width: 48,
-    height: 56,
+    width: inputSize,
+    height: inputSize,
+    marginHorizontal: 4,
     borderWidth: 1.5,
     borderColor: COLORS.borderLight,
     borderRadius: DESIGN.borderRadius.md,
     backgroundColor: COLORS.surface,
-    fontSize: TYPOGRAPHY.sizes.xl,
+    fontSize: Platform.OS === 'web' ? TYPOGRAPHY.sizes.xl : Math.min(TYPOGRAPHY.sizes.xl, inputSize * 0.5),
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
     textAlign: 'center',
     ...DESIGN.shadows.sm,
     ...Platform.select({
       web: {
-        outlineStyle: 'none',
+        outlineStyle: 'none' as any,
         transition: 'all 0.2s ease',
-        cursor: 'text',
+        cursor: 'text' as any,
       },
     }),
   },
