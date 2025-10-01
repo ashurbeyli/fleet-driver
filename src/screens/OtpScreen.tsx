@@ -72,41 +72,15 @@ const OtpScreen: React.FC = () => {
     setError('');
 
     try {
-      // TODO: Replace with real API call
-      // const response = await authApi.verifyOtp(phoneNumber, parkId, otp);
+      const response = await authApi.verifyOtp(phoneNumber, parkId, otp);
       
-      // Mock successful response for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockResponse = {
-        isValid: true,
-        message: 'OTP verified successfully',
-        accessToken: 'mock-access-token-12345',
-        refreshToken: 'mock-refresh-token-67890',
-        driver: {
-          id: 'driver-123',
-          contractorProfileId: 'contractor-456',
-          phone: phoneNumber,
-          name: 'Test Driver',
-          parkId: parkId,
-          parkName: parkName,
-          status: 1,
-          isVerified: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isAgreed: true,
-          agreedAt: new Date().toISOString(),
-        },
-        parkId: parkId,
-      };
-      
-      if (mockResponse.isValid) {
+      if (response.isValid) {
         // Save authentication data to storage (works on both web and mobile)
         await authService.saveAuthData({
-          accessToken: mockResponse.accessToken,
-          refreshToken: mockResponse.refreshToken,
-          driver: mockResponse.driver,
-          parkId: mockResponse.parkId,
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+          driver: response.driver,
+          parkId: response.parkId,
         });
         
         console.log('Authentication successful! Data saved to storage.');
@@ -114,13 +88,13 @@ const OtpScreen: React.FC = () => {
         // Show success message with driver name
         Alert.alert(
           'Success', 
-          mockResponse.message || `Welcome ${mockResponse.driver.name}! You're now logged in.`
+          response.message || `Welcome ${response.driver.name}! You're now logged in.`
         );
         
         // Navigate to dashboard
         navigation.navigate('Dashboard');
       } else {
-        setError(mockResponse.message || 'Invalid verification code. Please try again.');
+        setError(response.message || 'Invalid verification code. Please try again.');
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
