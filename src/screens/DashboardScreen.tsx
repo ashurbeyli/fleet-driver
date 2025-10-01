@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
 import { usersApi, type BalanceResponse } from '../api';
@@ -66,36 +67,36 @@ const DashboardScreen: React.FC = () => {
               <Text style={styles.loadingText}>Loading balance...</Text>
             </View>
           ) : balance ? (
-            <View style={styles.balanceCardsContainer}>
+            <View style={styles.balanceCardsRow}>
               {/* Total Balance Card */}
-              <View style={[styles.balanceCard, styles.totalBalanceCard]}>
-                <View style={styles.balanceCardHeader}>
-                  <Text style={styles.balanceCardIcon}>💰</Text>
-                  <Text style={styles.balanceCardTitle}>Total Balance</Text>
+              <View style={styles.balanceCard}>
+                <View style={styles.balanceIconContainer}>
+                  <Ionicons name="wallet" size={24} color={COLORS.primary} />
                 </View>
-                <Text style={styles.balanceCardValue}>
+                <Text style={styles.balanceLabel}>Total</Text>
+                <Text style={styles.balanceValue}>
                   ${balance.totalBalance.toFixed(2)}
                 </Text>
               </View>
 
               {/* Withdrawable Balance Card */}
-              <View style={[styles.balanceCard, styles.withdrawableCard]}>
-                <View style={styles.balanceCardHeader}>
-                  <Text style={styles.balanceCardIcon}>✅</Text>
-                  <Text style={styles.balanceCardTitle}>Withdrawable</Text>
+              <View style={styles.balanceCard}>
+                <View style={styles.balanceIconContainer}>
+                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
                 </View>
-                <Text style={styles.balanceCardValue}>
+                <Text style={styles.balanceLabel}>Available</Text>
+                <Text style={styles.balanceValue}>
                   ${balance.withdrawableBalance.toFixed(2)}
                 </Text>
               </View>
 
               {/* Blocked Balance Card */}
-              <View style={[styles.balanceCard, styles.blockedCard]}>
-                <View style={styles.balanceCardHeader}>
-                  <Text style={styles.balanceCardIcon}>🔒</Text>
-                  <Text style={styles.balanceCardTitle}>Blocked</Text>
+              <View style={styles.balanceCard}>
+                <View style={styles.balanceIconContainer}>
+                  <Ionicons name="lock-closed" size={24} color="#FF9800" />
                 </View>
-                <Text style={styles.balanceCardValue}>
+                <Text style={styles.balanceLabel}>Blocked</Text>
+                <Text style={styles.balanceValue}>
                   ${balance.blockedBalance.toFixed(2)}
                 </Text>
               </View>
@@ -158,44 +159,41 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
     marginBottom: SPACING.md,
   },
-  balanceCardsContainer: {
-    gap: SPACING.md,
+  balanceCardsRow: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    marginHorizontal: -2,
   },
   balanceCard: {
+    flex: 1,
     backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.xl,
-    padding: SPACING.lg,
-    ...DESIGN.shadows.md,
-  },
-  totalBalanceCard: {
-    backgroundColor: COLORS.primary,
-  },
-  withdrawableCard: {
-    backgroundColor: '#4CAF50',
-  },
-  blockedCard: {
-    backgroundColor: '#FF9800',
-  },
-  balanceCardHeader: {
-    flexDirection: 'row',
+    borderRadius: DESIGN.borderRadius.lg,
+    padding: SPACING.md,
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginHorizontal: 2,
+    ...DESIGN.shadows.sm,
   },
-  balanceCardIcon: {
-    fontSize: 24,
-    marginRight: SPACING.xs,
+  balanceIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.backgroundDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.xs,
   },
-  balanceCardTitle: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+  balanceLabel: {
+    fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.semibold,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: COLORS.text.secondary,
+    marginBottom: 4,
+    textAlign: 'center',
   },
-  balanceCardValue: {
-    fontSize: TYPOGRAPHY.sizes.xxxl || 32,
-    fontWeight: TYPOGRAPHY.weights.extrabold,
-    color: COLORS.surface,
+  balanceValue: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.primary,
+    textAlign: 'center',
   },
   loadingContainer: {
     backgroundColor: COLORS.surface,
