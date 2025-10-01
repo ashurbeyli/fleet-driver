@@ -16,6 +16,14 @@ export interface BalanceResponse {
   balanceDetails: BalanceDetails;
 }
 
+export interface UserInfoResponse {
+  hireDate: string;
+  phone: string;
+  licenseNumber: string;
+  status: string;
+  city: string;
+}
+
 export const getBalance = async (): Promise<BalanceResponse> => {
   try {
     // Get access token from storage
@@ -39,7 +47,31 @@ export const getBalance = async (): Promise<BalanceResponse> => {
   }
 };
 
+export const getUserInfo = async (): Promise<UserInfoResponse> => {
+  try {
+    // Get access token from storage
+    const accessToken = await storage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    
+    if (!accessToken) {
+      throw new Error('No access token found. Please login again.');
+    }
+
+    const response = await apiClient.request<UserInfoResponse>('/api/v1/users/me/info', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+    
+    return response;
+  } catch (error) {
+    console.error('Failed to fetch user info:', error);
+    throw error;
+  }
+};
+
 export default {
   getBalance,
+  getUserInfo,
 };
 

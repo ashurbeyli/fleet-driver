@@ -11,41 +11,45 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
+import { usersApi, type UserInfoResponse } from '../api';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [driver, setDriver] = useState<Driver | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
+  const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(true);
 
   useEffect(() => {
     loadDriverData();
+    loadUserInfo();
   }, []);
 
   const loadDriverData = async () => {
     try {
-      setIsLoading(true);
+      // Load cached driver data immediately (fast, no loading indicator needed)
       const driverData = await authService.getDriver();
       setDriver(driverData);
     } catch (error) {
       console.error('Failed to load driver data:', error);
+    }
+  };
+
+  const loadUserInfo = async () => {
+    try {
+      setIsLoadingUserInfo(true);
+      // Fetch user info in the background
+      const userInfoData = await usersApi.getUserInfo();
+      setUserInfo(userInfoData);
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingUserInfo(false);
     }
   };
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,16 +92,6 @@ const ProfileScreen: React.FC = () => {
           </View>
 
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Status</Text>
-            <View style={styles.statusValueContainer}>
-              <View style={[styles.statusIndicator, driver?.status === 1 && styles.statusActive]} />
-              <Text style={styles.detailValue}>
-                {driver?.status === 1 ? 'Active' : 'Inactive'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Agreement</Text>
             <Text style={styles.detailValue}>
               {driver?.isAgreed ? '✓ Agreed' : '✗ Not Agreed'}
@@ -110,6 +104,60 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.detailValue}>
                 {new Date(driver.agreedAt).toLocaleDateString()}
               </Text>
+            </View>
+          )}
+        </View>
+
+        {/* User Info Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>User Info</Text>
+          
+          {isLoadingUserInfo ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading user info...</Text>
+            </View>
+          ) : userInfo ? (
+            <>
+              {userInfo.hireDate && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Hire Date</Text>
+                  <Text style={styles.detailValue}>
+                    {new Date(userInfo.hireDate).toLocaleDateString()}
+                  </Text>
+                </View>
+              )}
+
+              {userInfo.phone && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Phone</Text>
+                  <Text style={styles.detailValue}>{userInfo.phone}</Text>
+                </View>
+              )}
+
+              {userInfo.licenseNumber && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>License Number</Text>
+                  <Text style={styles.detailValue}>{userInfo.licenseNumber}</Text>
+                </View>
+              )}
+
+              {userInfo.status && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Status</Text>
+                  <Text style={styles.detailValue}>{userInfo.status}</Text>
+                </View>
+              )}
+
+              {userInfo.city && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>City</Text>
+                  <Text style={styles.detailValue}>{userInfo.city}</Text>
+                </View>
+              )}
+            </>
+          ) : (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Failed to load user info</Text>
             </View>
           )}
         </View>
@@ -148,14 +196,22 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingVertical: SPACING.xl,
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: TYPOGRAPHY.sizes.md,
+    fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.medium,
     color: COLORS.text.secondary,
+  },
+  errorContainer: {
+    paddingVertical: SPACING.xl,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: COLORS.error,
   },
   profileHeader: {
     alignItems: 'center',
@@ -244,22 +300,6 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
     flex: 1,
     textAlign: 'right',
-  },
-  statusValueContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    flex: 1,
-  },
-  statusIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.text.tertiary,
-    marginRight: 6,
-  },
-  statusActive: {
-    backgroundColor: '#4CAF50',
   },
   footer: {
     alignItems: 'center',
