@@ -6,7 +6,8 @@ import { RootStackParamList } from '../types';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OtpScreen from '../screens/OtpScreen';
-import DashboardScreen from '../screens/DashboardScreen';
+import TabNavigator from './TabNavigator';
+import ProfileScreen from '../screens/ProfileScreen';
 import { authService } from '../services/authService';
 import { COLORS } from '../constants';
 
@@ -57,7 +58,8 @@ const AppNavigator: React.FC = () => {
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Otp" component={OtpScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Dashboard" component={TabNavigator} />
+        <Stack.Screen name="ProfileDetails" component={ProfileScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         {/* Add more screens here as needed */}
       </Stack.Navigator>

@@ -8,24 +8,20 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
-import { RootStackParamList } from '../types';
 import { authService, Driver } from '../services/authService';
-
-type DashboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
+import { usersApi, type BalanceResponse } from '../api';
 
 const DashboardScreen: React.FC = () => {
-  const navigation = useNavigation<DashboardScreenNavigationProp>();
   const [driver, setDriver] = useState<Driver | null>(null);
-  const [showMenu, setShowMenu] = useState(false);
+  const [balance, setBalance] = useState<BalanceResponse | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
 
-  // Load driver data on mount
+  // Load driver data and balance on mount
   useEffect(() => {
     loadDriverData();
+    loadBalance();
   }, []);
 
   const loadDriverData = async () => {
@@ -37,153 +33,81 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    // Use window.confirm for web, Alert for mobile
-    const confirmed = Platform.OS === 'web' 
-      ? window.confirm('Are you sure you want to logout?')
-      : await new Promise<boolean>((resolve) => {
-          Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
-            [
-              {
-                text: 'Cancel',
-                style: 'cancel',
-                onPress: () => resolve(false),
-              },
-              {
-                text: 'Logout',
-                style: 'destructive',
-                onPress: () => resolve(true),
-              },
-            ]
-          );
-        });
-
-    if (confirmed) {
-      try {
-        await authService.clearAuthData();
-        setShowMenu(false);
-        navigation.navigate('Login');
-      } catch (error) {
-        console.error('Logout failed:', error);
-        if (Platform.OS === 'web') {
-          alert('Failed to logout. Please try again.');
-        } else {
-          Alert.alert('Error', 'Failed to logout. Please try again.');
-        }
+  const loadBalance = async () => {
+    try {
+      setIsLoadingBalance(true);
+      const balanceData = await usersApi.getBalance();
+      setBalance(balanceData);
+    } catch (error) {
+      console.error('Failed to load balance:', error);
+      // Show error alert
+      if (Platform.OS === 'web') {
+        console.error('Failed to load balance data');
+      } else {
+        Alert.alert('Error', 'Failed to load balance data. Please try again.');
       }
+    } finally {
+      setIsLoadingBalance(false);
     }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Modern Header with Gradient */}
-      <View style={styles.header}>
-        <View style={styles.headerGradient}>
-          <View style={styles.headerContent}>
-            <View style={styles.headerLeft}>
-              <Text style={styles.greeting}>Hello! 👋</Text>
-              <Text style={styles.driverName}>{driver?.name || 'Driver'}</Text>
-            </View>
-            
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={() => setShowMenu(true)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {driver ? getInitials(driver.name) : 'FD'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-          
-          {/* Park Info Card */}
-          {driver && (
-            <View style={styles.parkCard}>
-              <Text style={styles.parkLabel}>Current Park</Text>
-              <Text style={styles.parkValue}>{driver.parkName}</Text>
-            </View>
-          )}
-        </View>
-      </View>
-
-      {/* Profile Menu Modal */}
-      <Modal
-        visible={showMenu}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowMenu(false)}
-      >
-        <TouchableOpacity
-          style={styles.menuOverlay}
-          activeOpacity={1}
-          onPress={() => setShowMenu(false)}
-        >
-          <View style={styles.menuContainer}>
-            {/* Menu Handle */}
-            <View style={styles.menuHandle} />
-            
-            <View style={styles.menuHeader}>
-              <View style={styles.menuAvatar}>
-                <Text style={styles.menuAvatarText}>
-                  {driver ? getInitials(driver.name) : 'FD'}
-                </Text>
-              </View>
-              <Text style={styles.menuName}>{driver?.name || 'Driver'}</Text>
-              <Text style={styles.menuPhone}>{driver?.phone || ''}</Text>
-              <View style={styles.statusBadge}>
-                <View style={styles.statusDot} />
-                <Text style={styles.statusText}>Active</Text>
-              </View>
-            </View>
-
-            <View style={styles.menuContent}>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleLogout}
-                activeOpacity={0.7}
-              >
-                <View style={styles.menuItemIconContainer}>
-                  <Text style={styles.menuItemIcon}>🚪</Text>
-                </View>
-                <View style={styles.menuItemContent}>
-                  <Text style={styles.menuItemText}>Logout</Text>
-                  <Text style={styles.menuItemSubtext}>Sign out from your account</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Quick Stats Cards */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statIcon}>🚗</Text>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Today's Trips</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statIcon}>💰</Text>
-            <Text style={styles.statValue}>$0</Text>
-            <Text style={styles.statLabel}>Earnings</Text>
-          </View>
+        {/* Balance Cards */}
+        <View style={styles.balanceSection}>
+          <Text style={styles.sectionTitle}>Your Balance</Text>
+          
+          {isLoadingBalance ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading balance...</Text>
+            </View>
+          ) : balance ? (
+            <View style={styles.balanceCardsContainer}>
+              {/* Total Balance Card */}
+              <View style={[styles.balanceCard, styles.totalBalanceCard]}>
+                <View style={styles.balanceCardHeader}>
+                  <Text style={styles.balanceCardIcon}>💰</Text>
+                  <Text style={styles.balanceCardTitle}>Total Balance</Text>
+                </View>
+                <Text style={styles.balanceCardValue}>
+                  ${balance.totalBalance.toFixed(2)}
+                </Text>
+              </View>
+
+              {/* Withdrawable Balance Card */}
+              <View style={[styles.balanceCard, styles.withdrawableCard]}>
+                <View style={styles.balanceCardHeader}>
+                  <Text style={styles.balanceCardIcon}>✅</Text>
+                  <Text style={styles.balanceCardTitle}>Withdrawable</Text>
+                </View>
+                <Text style={styles.balanceCardValue}>
+                  ${balance.withdrawableBalance.toFixed(2)}
+                </Text>
+              </View>
+
+              {/* Blocked Balance Card */}
+              <View style={[styles.balanceCard, styles.blockedCard]}>
+                <View style={styles.balanceCardHeader}>
+                  <Text style={styles.balanceCardIcon}>🔒</Text>
+                  <Text style={styles.balanceCardTitle}>Blocked</Text>
+                </View>
+                <Text style={styles.balanceCardValue}>
+                  ${balance.blockedBalance.toFixed(2)}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Failed to load balance</Text>
+              <TouchableOpacity onPress={loadBalance} style={styles.retryButton}>
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Main Content */}
@@ -220,217 +144,94 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundDark,
   },
-  // Modern Header
-  header: {
-    backgroundColor: COLORS.primary,
-  },
-  headerGradient: {
-    paddingTop: SPACING.md,
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.xl,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.lg,
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  greeting: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 4,
-  },
-  driverName: {
-    fontSize: TYPOGRAPHY.sizes.xxl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.surface,
-  },
-  profileButton: {
-    marginTop: 4,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  avatarText: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.surface,
-  },
-  parkCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  parkLabel: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    fontWeight: TYPOGRAPHY.weights.semibold,
-    color: 'rgba(255, 255, 255, 0.7)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  parkValue: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.semibold,
-    color: COLORS.surface,
-  },
-  // Menu Modal
-  menuOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'flex-end',
-  },
-  menuContainer: {
-    backgroundColor: COLORS.surface,
-    borderTopLeftRadius: DESIGN.borderRadius.xxl,
-    borderTopRightRadius: DESIGN.borderRadius.xxl,
-    paddingBottom: Platform.OS === 'ios' ? SPACING.xxl : SPACING.lg,
-  },
-  menuHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: COLORS.borderLight,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: SPACING.sm,
-    marginBottom: SPACING.md,
-  },
-  menuHeader: {
-    alignItems: 'center',
-    paddingTop: SPACING.lg,
-    paddingHorizontal: SPACING.xl,
-    paddingBottom: SPACING.xl,
-  },
-  menuAvatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.md,
-    ...DESIGN.shadows.md,
-  },
-  menuAvatarText: {
-    fontSize: TYPOGRAPHY.sizes.xxl,
-    fontWeight: TYPOGRAPHY.weights.extrabold,
-    color: COLORS.surface,
-  },
-  menuName: {
-    fontSize: TYPOGRAPHY.sizes.xl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.text.primary,
-    marginBottom: 4,
-  },
-  menuPhone: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: COLORS.text.tertiary,
-    marginBottom: SPACING.sm,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.backgroundDark,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    borderRadius: DESIGN.borderRadius.full,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#4CAF50',
-    marginRight: 6,
-  },
-  statusText: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    fontWeight: TYPOGRAPHY.weights.semibold,
-    color: COLORS.text.secondary,
-  },
-  menuContent: {
-    paddingHorizontal: SPACING.lg,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.backgroundDark,
-    borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.lg,
-  },
-  menuItemIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: DESIGN.borderRadius.md,
-    backgroundColor: '#FFEBEE',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
-  },
-  menuItemIcon: {
-    fontSize: 24,
-  },
-  menuItemContent: {
-    flex: 1,
-  },
-  menuItemText: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.semibold,
-    color: COLORS.error,
-    marginBottom: 2,
-  },
-  menuItemSubtext: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: COLORS.text.tertiary,
-  },
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
   },
-  // Stats Cards
-  statsContainer: {
-    flexDirection: 'row',
+  // Balance Section
+  balanceSection: {
     marginBottom: SPACING.lg,
-    marginHorizontal: -4,
   },
-  statCard: {
-    flex: 1,
+  sectionTitle: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.primary,
+    marginBottom: SPACING.md,
+  },
+  balanceCardsContainer: {
+    gap: SPACING.md,
+  },
+  balanceCard: {
     backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.lg,
+    borderRadius: DESIGN.borderRadius.xl,
     padding: SPACING.lg,
-    marginHorizontal: 4,
+    ...DESIGN.shadows.md,
+  },
+  totalBalanceCard: {
+    backgroundColor: COLORS.primary,
+  },
+  withdrawableCard: {
+    backgroundColor: '#4CAF50',
+  },
+  blockedCard: {
+    backgroundColor: '#FF9800',
+  },
+  balanceCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  balanceCardIcon: {
+    fontSize: 24,
+    marginRight: SPACING.xs,
+  },
+  balanceCardTitle: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.semibold,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  balanceCardValue: {
+    fontSize: TYPOGRAPHY.sizes.xxxl || 32,
+    fontWeight: TYPOGRAPHY.weights.extrabold,
+    color: COLORS.surface,
+  },
+  loadingContainer: {
+    backgroundColor: COLORS.surface,
+    borderRadius: DESIGN.borderRadius.xl,
+    padding: SPACING.xxl,
     alignItems: 'center',
     ...DESIGN.shadows.sm,
   },
-  statIcon: {
-    fontSize: 32,
-    marginBottom: SPACING.sm,
-  },
-  statValue: {
-    fontSize: TYPOGRAPHY.sizes.xxl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.text.primary,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: TYPOGRAPHY.sizes.xs,
+  loadingText: {
+    fontSize: TYPOGRAPHY.sizes.md,
     fontWeight: TYPOGRAPHY.weights.medium,
     color: COLORS.text.secondary,
-    textAlign: 'center',
+  },
+  errorContainer: {
+    backgroundColor: COLORS.surface,
+    borderRadius: DESIGN.borderRadius.xl,
+    padding: SPACING.xxl,
+    alignItems: 'center',
+    ...DESIGN.shadows.sm,
+  },
+  errorText: {
+    fontSize: TYPOGRAPHY.sizes.md,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: COLORS.error,
+    marginBottom: SPACING.md,
+  },
+  retryButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.sm,
+    borderRadius: DESIGN.borderRadius.lg,
+  },
+  retryButtonText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.semibold,
+    color: COLORS.surface,
   },
   // Main Content Card
   mainCard: {
@@ -517,17 +318,6 @@ const styles = StyleSheet.create({
     lineHeight: TYPOGRAPHY.sizes.md * TYPOGRAPHY.lineHeights.relaxed,
     marginBottom: SPACING.xl,
     fontWeight: TYPOGRAPHY.weights.normal,
-  },
-  featuresList: {
-    alignSelf: 'stretch',
-    paddingLeft: SPACING.xl,
-  },
-  featureItem: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    color: COLORS.text.secondary,
-    marginBottom: SPACING.sm,
-    lineHeight: TYPOGRAPHY.sizes.md * TYPOGRAPHY.lineHeights.relaxed,
-    fontWeight: TYPOGRAPHY.weights.medium,
   },
   footer: {
     alignItems: 'center',

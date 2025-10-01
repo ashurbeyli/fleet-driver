@@ -8,6 +8,7 @@ export type RootStackParamList = {
     parkId: string;
   };
   Dashboard: undefined;
+  ProfileDetails: undefined;
   // Add more screens as needed
 };
 
