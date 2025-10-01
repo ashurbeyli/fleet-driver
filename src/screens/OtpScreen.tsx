@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, OtpInput } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { RootStackParamList } from '../types';
@@ -50,15 +51,19 @@ const OtpScreen: React.FC = () => {
   };
 
   const handleOtpComplete = (completedOtp: string) => {
-    // Don't auto-verify, just clear error
-    // User will click the verify button when ready
+    // Auto-verify when 6 digits are entered
     if (completedOtp.length === 6) {
       setError('');
+      setOtp(completedOtp);
+      // Automatically trigger verification
+      handleVerifyOtp(completedOtp);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (otp.length !== 6) {
+  const handleVerifyOtp = async (otpCode?: string) => {
+    const codeToVerify = otpCode || otp;
+    
+    if (codeToVerify.length !== 6) {
       setError('Please enter a valid 6-digit verification code.');
       return;
     }
@@ -72,7 +77,7 @@ const OtpScreen: React.FC = () => {
     setError('');
 
     try {
-      const response = await authApi.verifyOtp(phoneNumber, parkId, otp);
+      const response = await authApi.verifyOtp(phoneNumber, parkId, codeToVerify);
       
       if (response.isValid) {
         // Save authentication data to storage (works on both web and mobile)
@@ -129,33 +134,30 @@ const OtpScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Modern Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Verification</Text>
-          <Text style={styles.headerSubtitle}>Enter verification code</Text>
-        </View>
-        <View style={styles.headerSpacer} />
-      </View>
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Back Button */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.text.primary} />
+        </TouchableOpacity>
+
+
         {/* Info Card */}
         <View style={styles.infoCard}>
-          <Text style={styles.infoIcon}>📱</Text>
+          <View style={styles.infoIconContainer}>
+            <Ionicons name="phone-portrait" size={32} color={COLORS.primary} />
+          </View>
           <Text style={styles.infoTitle}>Code sent to</Text>
           <Text style={styles.phoneNumber}>{phoneNumber}</Text>
           <View style={styles.parkBadge}>
+            <Ionicons name="location" size={16} color={COLORS.text.secondary} />
             <Text style={styles.parkBadgeText}>{parkName}</Text>
           </View>
         </View>
@@ -189,14 +191,6 @@ const OtpScreen: React.FC = () => {
             )}
           </View>
 
-          <Button
-            title={isLoading ? "Verifying..." : "Verify & Continue"}
-            onPress={handleVerifyOtp}
-            variant="primary"
-            size="large"
-            disabled={otp.length !== 6 || isLoading}
-            style={styles.verifyButton}
-          />
         </View>
 
         {/* Help Text */}
@@ -213,44 +207,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundDark,
   },
-  // Modern Header
-  header: {
-    backgroundColor: COLORS.primary,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-  },
-  backIcon: {
-    fontSize: 28,
-    color: COLORS.surface,
-    fontWeight: TYPOGRAPHY.weights.bold,
-  },
-  headerContent: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: TYPOGRAPHY.sizes.xl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.surface,
-    marginBottom: 2,
-  },
-  headerSubtitle: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  headerSpacer: {
-    width: 60, // Balance the back button width
-  },
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
+  },
+  // Back Button
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.lg,
+    ...DESIGN.shadows.sm,
   },
   // Info Card
   infoCard: {
@@ -261,8 +231,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...DESIGN.shadows.sm,
   },
-  infoIcon: {
-    fontSize: 48,
+  infoIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.backgroundDark,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: SPACING.md,
   },
   infoTitle: {
@@ -278,6 +253,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   parkBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.backgroundDark,
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
@@ -287,6 +264,7 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.text.secondary,
+    marginLeft: 4,
   },
   // OTP Card
   otpCard: {
@@ -321,9 +299,6 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.primary,
-  },
-  verifyButton: {
-    marginTop: 0,
   },
   helpText: {
     fontSize: TYPOGRAPHY.sizes.xs,

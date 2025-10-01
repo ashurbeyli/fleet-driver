@@ -100,17 +100,15 @@ const MenuScreen: React.FC = () => {
     }
   };
 
-  const menuItems: MenuItem[] = [
-    { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
-    { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: false },
-    { id: '3', title: 'Vehicles', icon: 'car-outline', functional: false },
-    { id: '4', title: 'Ratings', icon: 'star-outline', functional: false },
-    { id: '5', title: 'Invite a friend', icon: 'people-outline', functional: false },
-    { id: '6', title: 'News', icon: 'newspaper-outline', functional: false },
-    { id: '7', title: 'FAQ', icon: 'help-circle-outline', functional: false },
-    { id: '8', title: 'Contact us', icon: 'call-outline', functional: false },
-    { id: '9', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
-  ];
+      const menuItems: MenuItem[] = [
+        { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
+        { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: false },
+        { id: '3', title: 'Vehicles', icon: 'car-outline', functional: false },
+        { id: '4', title: 'Ratings', icon: 'star-outline', functional: false },
+        { id: '5', title: 'Invite a friend', icon: 'people-outline', functional: false },
+        { id: '6', title: 'News', icon: 'newspaper-outline', functional: false },
+        { id: '7', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
+      ];
 
   if (isLoading) {
     return (

@@ -7,9 +7,11 @@ import {
   Platform,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, Input, UnifiedSelectBox } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { parksApi, authApi } from '../api';
@@ -97,26 +99,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Modern Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.logo}>Fleet Driver</Text>
-          <Text style={styles.tagline}>Control Centre</Text>
-        </View>
-      </View>
-
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Welcome Card */}
-        <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeIcon}>👋</Text>
-          <Text style={styles.welcomeTitle}>Welcome Back!</Text>
-          <Text style={styles.welcomeText}>
-            Sign in to access your driver dashboard
-          </Text>
+        {/* Logo Section */}
+        <View style={styles.logoSection}>
+          <View style={styles.logoContainer}>
+            <Ionicons name="car" size={48} color={COLORS.primary} />
+          </View>
+          <Text style={styles.logo}>Fleet Driver</Text>
+          <Text style={styles.tagline}>Control Centre</Text>
         </View>
 
         {/* Login Form Card */}
@@ -168,55 +162,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundDark,
   },
-  // Modern Header
-  header: {
-    backgroundColor: COLORS.primary,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.xl,
+  scrollContent: {
+    flexGrow: 1,
+    padding: SPACING.lg,
   },
-  headerContent: {
-    paddingHorizontal: SPACING.lg,
+  // Logo Section
+  logoSection: {
     alignItems: 'center',
+    paddingVertical: SPACING.xxl,
+    marginBottom: SPACING.lg,
+  },
+  logoContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.md,
+    ...DESIGN.shadows.md,
   },
   logo: {
     fontSize: TYPOGRAPHY.sizes.xxl,
     fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.surface,
+    color: COLORS.text.primary,
     marginBottom: 4,
   },
   tagline: {
     fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.medium,
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: SPACING.lg,
-  },
-  // Welcome Card
-  welcomeCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.xl,
-    padding: SPACING.xl,
-    marginBottom: SPACING.lg,
-    alignItems: 'center',
-    ...DESIGN.shadows.sm,
-  },
-  welcomeIcon: {
-    fontSize: 48,
-    marginBottom: SPACING.md,
-  },
-  welcomeTitle: {
-    fontSize: TYPOGRAPHY.sizes.xl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.text.primary,
-    marginBottom: SPACING.xs,
-  },
-  welcomeText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.medium,
     color: COLORS.text.secondary,
-    textAlign: 'center',
   },
   // Form Card
   formCard: {

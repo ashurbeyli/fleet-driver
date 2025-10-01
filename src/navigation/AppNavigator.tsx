@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../types';
 import WelcomeScreen from '../screens/WelcomeScreen';
@@ -8,6 +7,7 @@ import LoginScreen from '../screens/LoginScreen';
 import OtpScreen from '../screens/OtpScreen';
 import TabNavigator from './TabNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
+import ContactScreen from '../screens/ContactScreen';
 import { authService } from '../services/authService';
 import { COLORS } from '../constants';
 
@@ -49,21 +49,20 @@ const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={isAuthenticated ? 'Dashboard' : 'Login'}
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Otp" component={OtpScreen} />
-        <Stack.Screen name="Dashboard" component={TabNavigator} />
-        <Stack.Screen name="ProfileDetails" component={ProfileScreen} />
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        {/* Add more screens here as needed */}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator
+      initialRouteName={isAuthenticated ? 'Dashboard' : 'Login'}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Otp" component={OtpScreen} />
+      <Stack.Screen name="Dashboard" component={TabNavigator} />
+      <Stack.Screen name="ProfileDetails" component={ProfileScreen} />
+      <Stack.Screen name="Contact" component={ContactScreen} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      {/* Add more screens here as needed */}
+    </Stack.Navigator>
   );
 };
 

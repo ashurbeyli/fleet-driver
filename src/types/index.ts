@@ -9,6 +9,7 @@ export type RootStackParamList = {
   };
   Dashboard: undefined;
   ProfileDetails: undefined;
+  Contact: undefined;
   // Add more screens as needed
 };
 
