@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { Header } from '../components';
 
 const ContactScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -104,18 +105,11 @@ const ContactScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color={COLORS.text.primary} />
-        </TouchableOpacity>
 
 
         {/* Support Options */}
@@ -214,16 +208,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.lg,
-    ...DESIGN.shadows.sm,
+    paddingTop: Platform.OS === 'web' ? 100 : 80, // More padding for web to avoid overlap
   },
   section: {
     marginBottom: SPACING.xl,
