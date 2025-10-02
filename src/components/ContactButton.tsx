@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, TouchableOpacity, Animated } from 'react-native';
+import { View, TouchableOpacity, Animated, Text, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, DESIGN } from '../constants';
 
 interface ContactButtonProps {
   onPress: () => void;
@@ -9,129 +8,88 @@ interface ContactButtonProps {
 }
 
 const ContactButton: React.FC<ContactButtonProps> = ({ onPress, style }) => {
-  // Animation for contact button
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const flashAnim = useRef(new Animated.Value(1)).current;
 
-  // Start contact button animations
   useEffect(() => {
-    // Bubble animation - create expanding circles
-    const createBubbleAnimation = (delay: number) => {
-      const bubbleAnim = new Animated.Value(0);
-      const opacityAnim = new Animated.Value(1);
-      
-      return Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.parallel([
-            Animated.timing(bubbleAnim, {
-              toValue: 1,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-              toValue: 0,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-          ]),
-        ])
-      );
-    };
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulseAnimation.start();
 
-    // Start multiple bubble animations with different delays
-    const bubble1 = createBubbleAnimation(0);
-    const bubble2 = createBubbleAnimation(500);
-    const bubble3 = createBubbleAnimation(1000);
-
-    bubble1.start();
-    bubble2.start();
-    bubble3.start();
-
-    return () => {
-      bubble1.stop();
-      bubble2.stop();
-      bubble3.stop();
-    };
+    return () => pulseAnimation.stop();
   }, []);
 
   return (
-    <View style={[styles.contactButtonContainer, style]}>
-      {/* Bubble circles */}
+    <View style={[styles.container, style]}>
       <Animated.View
         style={[
           styles.bubble,
           {
             transform: [{ scale: pulseAnim }],
-            opacity: flashAnim,
           },
         ]}
       />
-      <Animated.View
-        style={[
-          styles.bubble,
-          {
-            transform: [{ scale: pulseAnim }],
-            opacity: flashAnim,
-          },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.bubble,
-          {
-            transform: [{ scale: pulseAnim }],
-            opacity: flashAnim,
-          },
-        ]}
-      />
-      
-      {/* Main button */}
       <TouchableOpacity
-        style={styles.contactButton}
+        style={styles.button}
         onPress={onPress}
-        activeOpacity={0.7}
+        activeOpacity={0.8}
       >
-        <Animated.View
-          style={{
-            opacity: flashAnim,
-          }}
-        >
-          <Ionicons name="call" size={20} color="#4CAF50" />
-        </Animated.View>
+        <Ionicons name="chatbubble-outline" size={14} color="#333" />
+        <Text style={styles.text}>Support</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = {
-  contactButtonContainer: {
+  container: {
     position: 'absolute' as const,
-    top: 60,
-    right: SPACING.lg,
-    width: 48,
-    height: 48,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+    top: Platform.OS === 'web' ? 10 : 70,
+    right: 20,
     zIndex: 1000,
   },
-  contactButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  button: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: 'row' as const,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
-    ...DESIGN.shadows.sm,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  text: {
+    fontSize: 12,
+    fontWeight: '500' as const,
+    color: '#333',
+    marginLeft: 6,
   },
   bubble: {
     position: 'absolute' as const,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    backgroundColor: 'transparent',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 20,
   },
 };
 

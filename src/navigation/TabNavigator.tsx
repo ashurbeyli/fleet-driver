@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Platform, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants';
-import DashboardScreen from '../screens/DashboardScreen';
+import DashboardScreen from '../screens/DashboardScreen/DashboardScreen';
 import MenuScreen from '../screens/MenuScreen';
 
 const Tab = createBottomTabNavigator();
@@ -39,7 +39,7 @@ const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
-              name={focused ? "cash" : "cash-outline"} 
+              name={focused ? "wallet" : "wallet-outline"} 
               size={size} 
               color={color} 
             />

@@ -10,6 +10,7 @@ export type RootStackParamList = {
   Dashboard: undefined;
   ProfileDetails: undefined;
   Contact: undefined;
+  Agreement: undefined;
   // Add more screens as needed
 };
 

@@ -6,12 +6,14 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
 import { usersApi, type UserInfoResponse } from '../api';
+import { Header } from '../components';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -23,6 +25,13 @@ const ProfileScreen: React.FC = () => {
     loadDriverData();
     loadUserInfo();
   }, []);
+
+  // Refresh driver data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadDriverData();
+    }, [])
+  );
 
   const loadDriverData = async () => {
     try {
@@ -53,18 +62,11 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={28} color={COLORS.text.primary} />
-        </TouchableOpacity>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarLarge}>
@@ -98,14 +100,6 @@ const ProfileScreen: React.FC = () => {
             </Text>
           </View>
 
-          {driver?.agreedAt && (
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Agreed At</Text>
-              <Text style={styles.detailValue}>
-                {new Date(driver.agreedAt).toLocaleDateString()}
-              </Text>
-            </View>
-          )}
         </View>
 
         {/* User Info Card */}
@@ -165,11 +159,6 @@ const ProfileScreen: React.FC = () => {
         {/* App Info */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Fleet Driver v1.0.0</Text>
-          {driver?.createdAt && (
-            <Text style={styles.footerText}>
-              Member since {new Date(driver.createdAt).toLocaleDateString()}
-            </Text>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -181,19 +170,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundDark,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.md,
-    ...DESIGN.shadows.sm,
-  },
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
+    paddingTop: Platform.OS === 'web' ? 100 : 80, // More padding for web to avoid overlap
   },
   loadingContainer: {
     paddingVertical: SPACING.xl,

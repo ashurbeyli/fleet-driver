@@ -8,16 +8,19 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
-import { authService, Driver } from '../services/authService';
-import { usersApi, type BalanceResponse } from '../api';
+import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
+import { authService, Driver } from '../../services/authService';
+import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
+import { AgreementWidget } from './widgets';
 
 const DashboardScreen: React.FC = () => {
   const [driver, setDriver] = useState<Driver | null>(null);
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Load driver data and balance on mount
   useEffect(() => {
@@ -52,11 +55,58 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Fetch both balance and user data in parallel
+      const [balanceData, userData] = await Promise.all([
+        usersApi.getBalance(),
+        usersApi.getUserMe()
+      ]);
+      
+      // Update balance
+      setBalance(balanceData);
+      
+      // Update driver data in storage and state
+      await authService.updateDriverData({
+        id: userData.id,
+        phone: userData.phone,
+        name: userData.name,
+        parkName: userData.parkName,
+        isVerified: userData.isVerified,
+        isAgreed: userData.isAgreed,
+      });
+      
+      // Reload driver data to update state
+      const updatedDriver = await authService.getDriver();
+      setDriver(updatedDriver);
+      
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+      // Still try to load balance as fallback
+      try {
+        await loadBalance();
+      } catch (balanceError) {
+        console.error('Failed to refresh balance:', balanceError);
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
+          />
+        }
       >
         {/* Balance Cards */}
         <View style={styles.balanceSection}>
@@ -110,6 +160,9 @@ const DashboardScreen: React.FC = () => {
             </View>
           )}
         </View>
+
+        {/* Agreement Widget - Only show if not agreed */}
+        {driver && !driver.isAgreed && <AgreementWidget />}
 
         {/* Main Content */}
         <View style={styles.mainCard}>

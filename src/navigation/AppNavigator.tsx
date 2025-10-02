@@ -8,6 +8,7 @@ import OtpScreen from '../screens/OtpScreen';
 import TabNavigator from './TabNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
 import ContactScreen from '../screens/ContactScreen';
+import AgreementScreen from '../screens/AgreementScreen';
 import { authService } from '../services/authService';
 import { COLORS } from '../constants';
 
@@ -60,6 +61,7 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="Dashboard" component={TabNavigator} />
       <Stack.Screen name="ProfileDetails" component={ProfileScreen} />
       <Stack.Screen name="Contact" component={ContactScreen} />
+      <Stack.Screen name="Agreement" component={AgreementScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       {/* Add more screens here as needed */}
     </Stack.Navigator>

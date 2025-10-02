@@ -28,7 +28,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
-  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('+994558563260');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
 
@@ -69,12 +69,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         // Get selected park name for display
         const park = parks.find(p => p.id === selectedPark);
         const parkName = park?.name || 'Selected Park';
-        
-        // Show success message with masked phone and OTP expiry info
-        Alert.alert(
-          'Success', 
-          response.message || `Verification code sent to ${response.maskedPhone || phoneNumber}. Code expires in ${response.otpExpiryMinutes || 5} minutes.`
-        );
         
         // Navigate to OTP screen with data
         navigation.navigate('Otp', {

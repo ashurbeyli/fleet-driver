@@ -92,6 +92,10 @@ const MenuScreen: React.FC = () => {
         // Navigate to Profile screen (we'll use the old ProfileScreen as a detailed view)
         navigation.navigate('ProfileDetails');
         break;
+      case 'agreement':
+        // Navigate to Agreement screen
+        navigation.navigate('Agreement');
+        break;
       case 'logout':
         handleLogout();
         break;
@@ -102,7 +106,7 @@ const MenuScreen: React.FC = () => {
 
       const menuItems: MenuItem[] = [
         { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
-        { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: false },
+        { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
         { id: '3', title: 'Vehicles', icon: 'car-outline', functional: false },
         { id: '4', title: 'Ratings', icon: 'star-outline', functional: false },
         { id: '5', title: 'Invite a friend', icon: 'people-outline', functional: false },
@@ -182,11 +186,6 @@ const MenuScreen: React.FC = () => {
         {/* App Info */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Fleet Driver v1.0.0</Text>
-          {driver?.createdAt && (
-            <Text style={styles.footerText}>
-              Member since {new Date(driver.createdAt).toLocaleDateString()}
-            </Text>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>

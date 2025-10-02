@@ -24,22 +24,14 @@ export interface VerifyOtpResponse {
   isValid: boolean;
   message: string;
   accessToken: string;
-  refreshToken: string;
   driver: {
     id: string;
-    contractorProfileId: string;
     phone: string;
     name: string;
-    parkId: string;
     parkName: string;
-    status: number;
     isVerified: boolean;
-    createdAt: string;
-    updatedAt: string;
     isAgreed: boolean;
-    agreedAt: string;
   };
-  parkId: string;
 }
 
 export const login = async (phoneNumber: string, parkId: string): Promise<LoginResponse> => {
