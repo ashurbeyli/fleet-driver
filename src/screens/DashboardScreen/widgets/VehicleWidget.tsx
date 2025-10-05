@@ -114,7 +114,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: DESIGN.borderRadius.lg,
     padding: SPACING.md,
-    marginBottom: SPACING.md,
+    flex: 2,
+    marginHorizontal: SPACING.xs,
     ...DESIGN.shadows.sm,
   },
   header: {

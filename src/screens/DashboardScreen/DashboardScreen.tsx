@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
 import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
-import { AgreementWidget, VehicleWidget } from './widgets';
+import { AgreementWidget, VehicleWidget, RankingsWidget, BonusWidget, InviteFriendWidget, NewsWidget } from './widgets';
 
 const DashboardScreen: React.FC = () => {
   const [driver, setDriver] = useState<Driver | null>(null);
@@ -164,8 +164,20 @@ const DashboardScreen: React.FC = () => {
         {/* Agreement Widget - Only show if not agreed */}
         {driver && !driver.isAgreed && <AgreementWidget />}
 
-        {/* Vehicle Status Widget */}
-        <VehicleWidget />
+        {/* Top Row - Vehicle and Invite widgets side by side */}
+        <View style={styles.topRow}>
+          <VehicleWidget />
+          <InviteFriendWidget />
+        </View>
+
+        {/* Bonus Challenge Widget */}
+        <BonusWidget />
+
+        {/* Second Row: Rankings and News */}
+        <View style={styles.secondRow}>
+          <NewsWidget />
+          <RankingsWidget />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -261,6 +273,16 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.surface,
+  },
+  // Top Row Layout
+  topRow: {
+    flexDirection: 'row',
+    marginBottom: SPACING.md,
+  },
+  // Second Row Layout
+  secondRow: {
+    flexDirection: 'row',
+    marginBottom: SPACING.md,
   },
 });
 
