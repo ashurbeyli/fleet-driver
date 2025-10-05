@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants';
 import DashboardScreen from '../screens/DashboardScreen/DashboardScreen';
 import MenuScreen from '../screens/MenuScreen';
+import BonusScreen from '../screens/BonusScreen';
+import WithdrawScreen from '../screens/WithdrawScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +37,7 @@ const TabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Withdraw"
-        component={DashboardScreen}
+        component={WithdrawScreen}
         options={{
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
@@ -48,7 +50,7 @@ const TabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Bonuses"
-        component={DashboardScreen}
+        component={BonusScreen}
         options={{
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
