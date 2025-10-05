@@ -28,7 +28,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
-  const [phoneNumber, setPhoneNumber] = useState<string>('+994558563260');
+  const [phoneNumber, setPhoneNumber] = useState<string>('+994703868682');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
 

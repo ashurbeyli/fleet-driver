@@ -6,6 +6,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OtpScreen from '../screens/OtpScreen';
 import TabNavigator from './TabNavigator';
+import VehiclesScreen from '../screens/VehiclesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ContactScreen from '../screens/ContactScreen';
 import AgreementScreen from '../screens/AgreementScreen';
@@ -59,6 +60,7 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
       <Stack.Screen name="Dashboard" component={TabNavigator} />
+      <Stack.Screen name="Vehicles" component={VehiclesScreen} />
       <Stack.Screen name="ProfileDetails" component={ProfileScreen} />
       <Stack.Screen name="Contact" component={ContactScreen} />
       <Stack.Screen name="Agreement" component={AgreementScreen} />

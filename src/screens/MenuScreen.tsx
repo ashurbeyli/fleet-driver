@@ -96,6 +96,10 @@ const MenuScreen: React.FC = () => {
         // Navigate to Agreement screen
         navigation.navigate('Agreement');
         break;
+      case 'vehicles':
+        // Navigate to Vehicles screen
+        navigation.navigate('Vehicles');
+        break;
       case 'logout':
         handleLogout();
         break;
@@ -107,7 +111,7 @@ const MenuScreen: React.FC = () => {
       const menuItems: MenuItem[] = [
         { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
         { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
-        { id: '3', title: 'Vehicles', icon: 'car-outline', functional: false },
+        { id: '3', title: 'Vehicle Change', icon: 'car-outline', functional: true, action: 'vehicles' },
         { id: '4', title: 'Ratings', icon: 'star-outline', functional: false },
         { id: '5', title: 'Invite a friend', icon: 'people-outline', functional: false },
         { id: '6', title: 'News', icon: 'newspaper-outline', functional: false },

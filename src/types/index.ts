@@ -8,6 +8,7 @@ export type RootStackParamList = {
     parkId: string;
   };
   Dashboard: undefined;
+  Vehicles: undefined;
   ProfileDetails: undefined;
   Contact: undefined;
   Agreement: undefined;

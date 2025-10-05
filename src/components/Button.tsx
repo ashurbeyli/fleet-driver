@@ -72,10 +72,10 @@ const styles = StyleSheet.create({
   },
   // Variants
   primary: {
-    backgroundColor: COLORS.secondary, // Use yellow accent for primary buttons
+    backgroundColor: COLORS.primary, // Use dark gray for primary buttons
     ...Platform.select({
       web: {
-        background: `linear-gradient(135deg, ${COLORS.secondary} 0%, ${COLORS.secondaryDark} 100%)`,
+        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)`,
       },
     }),
   },
