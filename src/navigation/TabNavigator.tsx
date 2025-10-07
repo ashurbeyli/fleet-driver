@@ -6,6 +6,7 @@ import { COLORS, TYPOGRAPHY, SPACING } from '../constants';
 import DashboardScreen from '../screens/DashboardScreen/DashboardScreen';
 import MenuScreen from '../screens/MenuScreen';
 import BonusScreen from '../screens/BonusScreen';
+import ChallengesScreen from '../screens/ChallengesScreen';
 import WithdrawScreen from '../screens/WithdrawScreen';
 
 const Tab = createBottomTabNavigator();
@@ -36,12 +37,12 @@ const TabNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen
-        name="Withdraw"
-        component={WithdrawScreen}
+        name="Bonuses"
+        component={BonusScreen}
         options={{
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
-              name={focused ? "wallet" : "wallet-outline"} 
+              name={focused ? "gift" : "gift-outline"} 
               size={size} 
               color={color} 
             />
@@ -49,12 +50,25 @@ const TabNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen
-        name="Bonuses"
-        component={BonusScreen}
+        name="Challenges"
+        component={ChallengesScreen}
         options={{
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
-              name={focused ? "gift" : "gift-outline"} 
+              name={focused ? "trophy" : "trophy-outline"} 
+              size={size} 
+              color={color} 
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Withdraw"
+        component={WithdrawScreen}
+        options={{
+          tabBarIcon: ({ color, focused, size }) => (
+            <Ionicons 
+              name={focused ? "wallet" : "wallet-outline"} 
               size={size} 
               color={color} 
             />
