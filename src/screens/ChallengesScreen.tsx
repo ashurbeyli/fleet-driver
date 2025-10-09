@@ -8,16 +8,23 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
+  RefreshControl,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { challengesApi } from '../api';
+import type { Challenge, ChallengesResponse } from '../api';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const ChallengesScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [challengesData, setChallengesData] = useState<ChallengesResponse | null>(null);
   const [activeTab, setActiveTab] = useState<'rankings' | 'challenges'>('challenges');
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0); // Start with last month
   const scrollViewRef = useRef<ScrollView>(null);
@@ -248,13 +255,34 @@ const ChallengesScreen: React.FC = () => {
     );
   };
 
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+  const fetchChallenges = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      setError(null);
+      const response = await challengesApi.getChallenges();
+      setChallengesData(response);
+    } catch (err) {
+      console.error('Error fetching challenges:', err);
+      setError('Failed to load challenges. Please try again.');
+    } finally {
+      if (isRefresh) {
+        setIsRefreshing(false);
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
 
-    return () => clearTimeout(timer);
+  const onRefresh = () => {
+    fetchChallenges(true);
+  };
+
+  useEffect(() => {
+    fetchChallenges();
   }, []);
 
   useEffect(() => {
@@ -269,13 +297,27 @@ const ChallengesScreen: React.FC = () => {
     }
   }, []);
 
-  const renderChallengeCard = (challenge: any) => {
-    const progressPercentage = (challenge.progress / challenge.target) * 100;
-    const isCompleted = challenge.status === 'completed';
-    const remaining = challenge.target - challenge.progress;
+  const formatTimeLeft = (seconds: number) => {
+    if (seconds <= 0) return 'Expired';
+    
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  };
+
+  const renderChallengeCard = (challenge: Challenge, index: number) => {
+    const { currentLevel } = challenge;
+    const progressPercentage = currentLevel.progressPercentage;
+    const isCompleted = currentLevel.ridesRemaining === 0;
+    const remaining = currentLevel.ridesRemaining;
+    const timeLeft = formatTimeLeft(challenge.timeLeftSeconds);
 
     return (
-      <View key={challenge.id} style={styles.challengeCard}>
+      <View key={index} style={styles.challengeCard}>
         {/* Header with icon and title */}
         <View style={styles.challengeHeader}>
           <View style={styles.challengeIconContainer}>
@@ -288,16 +330,16 @@ const ChallengesScreen: React.FC = () => {
         <View style={styles.challengeInfo}>
           <View style={styles.milestoneContainer}>
             <Text style={styles.milestoneText}>
-              {challenge.description}
+              {challenge.subtitle}
             </Text>
             <Text style={styles.progressText}>
-              {challenge.progress}/{challenge.target} completed
+              {challenge.driverRideCount}/{currentLevel.rideCountThreshold} completed
             </Text>
           </View>
           
           <View style={styles.bonusContainer}>
             <Text style={styles.bonusLabel}>Bonus:</Text>
-            <Text style={styles.bonusAmount}>${challenge.reward}</Text>
+            <Text style={styles.bonusAmount}>${currentLevel.bonusAmount}</Text>
           </View>
         </View>
 
@@ -331,11 +373,11 @@ const ChallengesScreen: React.FC = () => {
               {isCompleted ? 'Challenge completed!' : `${remaining} more rides to go`}
             </Text>
           </View>
-          {challenge.timeLeft && !isCompleted && (
+          {challenge.timeLeftSeconds > 0 && !isCompleted && (
             <View style={styles.timeInfo}>
               <Ionicons name="time" size={16} color={COLORS.text.secondary} />
               <Text style={styles.timeText}>
-                {challenge.timeLeft} left
+                {timeLeft} left
               </Text>
             </View>
           )}
@@ -344,10 +386,11 @@ const ChallengesScreen: React.FC = () => {
     );
   };
 
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
+      <Header showBackButton={false} />
       
       {/* Tab Buttons */}
       <View style={styles.tabContainer}>
@@ -357,12 +400,12 @@ const ChallengesScreen: React.FC = () => {
           activeOpacity={0.7}
         >
           <Ionicons 
-            name="gift" 
+            name="flag" 
             size={20} 
             color={activeTab === 'challenges' ? COLORS.primary : COLORS.text.tertiary} 
           />
           <Text style={[styles.tabText, activeTab === 'challenges' && styles.activeTabText]}>
-            Challenges
+            Goals
           </Text>
         </TouchableOpacity>
 
@@ -385,6 +428,14 @@ const ChallengesScreen: React.FC = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
+          />
+        }
       >
         {activeTab === 'rankings' ? (
           <>
@@ -403,10 +454,37 @@ const ChallengesScreen: React.FC = () => {
           </>
         ) : (
           <>
-            {/* Challenges List */}
+            {/* Goals List */}
             <View style={styles.challengesSection}>
-              <Text style={styles.sectionTitle}>Active Challenges</Text>
-              {mockChallengesData.challenges.map(renderChallengeCard)}
+              <Text style={styles.sectionTitle}>Active Goals</Text>
+              {isLoading ? (
+                <View style={styles.emptyState}>
+                  <Ionicons name="hourglass-outline" size={48} color={COLORS.text.secondary} />
+                  <Text style={styles.emptyStateText}>Loading goals...</Text>
+                </View>
+              ) : error ? (
+                <View style={styles.emptyState}>
+                  <Ionicons name="alert-circle-outline" size={48} color={COLORS.text.secondary} />
+                  <Text style={styles.emptyStateText}>{error}</Text>
+                  <TouchableOpacity
+                    onPress={() => fetchChallenges()}
+                    style={styles.retryButton}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.retryButtonText}>Retry</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : challengesData?.challenges && challengesData.challenges.length > 0 ? (
+                challengesData.challenges.map(renderChallengeCard)
+              ) : (
+                <View style={styles.emptyState}>
+                  <Ionicons name="flag-outline" size={48} color={COLORS.text.secondary} />
+                  <Text style={styles.emptyStateText}>No goals available</Text>
+                  <Text style={styles.emptyStateSubtext}>
+                    Check back later for new goals
+                  </Text>
+                </View>
+              )}
             </View>
           </>
         )}
@@ -717,6 +795,36 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.xs,
     color: COLORS.text.secondary,
     marginLeft: SPACING.xs,
+  },
+  retryButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: DESIGN.borderRadius.md,
+    marginTop: SPACING.md,
+  },
+  retryButtonText: {
+    fontSize: TYPOGRAPHY.sizes.md,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: '#fff',
+    textAlign: 'center',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xl,
+  },
+  emptyStateText: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: COLORS.text.primary,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+  emptyStateSubtext: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.lg,
   },
 });
 
