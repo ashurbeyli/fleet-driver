@@ -20,9 +20,7 @@ export interface Challenge {
   currentLevel: ChallengeLevel;
 }
 
-export interface ChallengesResponse {
-  challenges: Challenge[];
-}
+export type ChallengesResponse = Challenge[];
 
 export const getChallenges = async (): Promise<ChallengesResponse> => {
   try {
