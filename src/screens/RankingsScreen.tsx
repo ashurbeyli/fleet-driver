@@ -141,13 +141,42 @@ const RankingsScreen: React.FC = () => {
     }
     
     const currentUserEntry = entries.find(entry => entry.isMe);
-    const top3Entries = entries.filter(entry => entry.rank <= 3);
-    const last3Entries = entries.slice(-3); // Get last 3 entries including current user
-    const isUserInTop3 = currentUserEntry && currentUserEntry.rank <= 3;
-    const isUserRank4 = currentUserEntry && currentUserEntry.rank === 4;
-    const isUserInLast3 = currentUserEntry && currentUserEntry.rank >= entries[entries.length - 3].rank;
-    const isUserLastPosition = currentUserEntry && currentUserEntry.rank === entries[entries.length - 1].rank;
-    const isUser4thFromLast = currentUserEntry && currentUserEntry.rank === entries[entries.length - 4].rank;
+    if (!currentUserEntry) return null;
+
+    const userRank = currentUserEntry.rank;
+    const totalEntries = entries.length;
+    const isUserInTop3 = userRank <= 3;
+    const isUserRank4 = userRank === 4;
+    const isUserInLast3 = userRank >= totalEntries - 2; // Last 3 places (including user)
+    const isUser4thFromLast = userRank === totalEntries - 3; // 4th from last
+
+    // Determine what to show based on user's position
+    let topEntries = [];
+    let bottomEntries = [];
+    let showUserInMiddle = false;
+
+    if (isUserInTop3) {
+      // Scenario 1: First 3 places, ..., last 3 places
+      topEntries = entries.filter(entry => entry.rank <= 3);
+      bottomEntries = entries.slice(-3);
+    } else if (isUserRank4) {
+      // Scenario 2: First 4 places, ..., last 3 places
+      topEntries = entries.filter(entry => entry.rank <= 4);
+      bottomEntries = entries.slice(-3);
+    } else if (isUser4thFromLast) {
+      // Scenario 3: First 3 places, ..., last 4 places
+      topEntries = entries.filter(entry => entry.rank <= 3);
+      bottomEntries = entries.slice(-4);
+    } else if (isUserInLast3) {
+      // Scenario 4: First 3 places, ..., last 3 places
+      topEntries = entries.filter(entry => entry.rank <= 3);
+      bottomEntries = entries.slice(-3);
+    } else {
+      // Scenario 5: First 3 places, ..., me, ..., last 3 places
+      topEntries = entries.filter(entry => entry.rank <= 3);
+      bottomEntries = entries.slice(-3);
+      showUserInMiddle = true;
+    }
 
     return (
       <View key={competition.competitionId} style={styles.monthContent}>
@@ -164,23 +193,20 @@ const RankingsScreen: React.FC = () => {
               <Text style={styles.headerText}>Orders</Text>
             </View>
             
-            {/* Top 3 entries */}
-            {top3Entries.map(renderLeaderboardEntry)}
+            {/* Top entries */}
+            {topEntries.map(renderLeaderboardEntry)}
             
-            {/* Separator after top 3 if user is in top 3 OR if user is in last 3 */}
-            {(isUserInTop3 || isUserInLast3) && last3Entries.length > 0 && renderSeparator('separator-top3')}
+            {/* Separator after top entries if there are bottom entries */}
+            {bottomEntries.length > 0 && renderSeparator('separator-top')}
             
-            {/* Separator before current user if they're not in top 3 AND not rank 4 AND not in last 3 */}
-            {currentUserEntry && currentUserEntry.rank > 3 && !isUserRank4 && !isUserInLast3 && renderSeparator('separator-1')}
+            {/* Current user in middle (only for scenario 5) */}
+            {showUserInMiddle && renderLeaderboardEntry(currentUserEntry)}
             
-            {/* Current user if not in top 3 AND not in last 3 */}
-            {currentUserEntry && currentUserEntry.rank > 3 && !isUserInLast3 && renderLeaderboardEntry(currentUserEntry)}
+            {/* Separator after user in middle */}
+            {showUserInMiddle && renderSeparator('separator-bottom')}
             
-            {/* Separator after current user before last 3 entries (only if user is not in last 3 AND not 4th from last) */}
-            {currentUserEntry && currentUserEntry.rank > 3 && last3Entries.length > 0 && !isUserInLast3 && !isUser4thFromLast && renderSeparator('separator-2')}
-            
-            {/* Last 3 entries with dynamic positioning */}
-            {last3Entries
+            {/* Bottom entries with dynamic positioning */}
+            {bottomEntries
               .sort((a, b) => a.rank - b.rank) // Sort by rank to maintain proper order
               .map(renderLeaderboardEntry)}
           </View>
