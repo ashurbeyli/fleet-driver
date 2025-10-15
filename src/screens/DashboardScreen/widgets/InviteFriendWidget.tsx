@@ -1,36 +1,60 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../../constants';
 import { RootStackParamList } from '../../../types';
+import { invitationsApi, type Invitation } from '../../../api';
 
 type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
 
 interface InviteFriendWidgetProps {
   onInvitePress?: () => void;
+  refreshKey?: number;
 }
 
-const InviteFriendWidget: React.FC<InviteFriendWidgetProps> = ({ onInvitePress }) => {
+const InviteFriendWidget: React.FC<InviteFriendWidgetProps> = ({ onInvitePress, refreshKey }) => {
   const navigation = useNavigation<DashboardNavigationProp>();
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - will be replaced with real implementation later
-  const mockInviteData = {
-    totalInvites: 3,
-    totalEarnings: 45,
-    pendingInvites: 1,
-    nextReward: 10, // Next reward amount
+  const loadInvitations = async () => {
+    try {
+      setIsLoading(true);
+      const data = await invitationsApi.getInvitations();
+      setInvitations(data);
+    } catch (error) {
+      console.error('Failed to load invitations:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  useEffect(() => {
+    loadInvitations();
+  }, [refreshKey]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadInvitations();
+    }, [])
+  );
+
+  // Calculate statistics from invitations
+  const totalInvites = invitations.length;
+  const totalEarnings = invitations.reduce((sum, inv) => sum + inv.totalBonusesEarned, 0);
+  const completedInvites = invitations.filter(inv => inv.isCompleted).length;
+  const registeredInvites = invitations.filter(inv => inv.isRegistered).length;
+
   const handleInvitePress = () => {
-    // TODO: Navigate to invite screen when implemented
-    console.log('Navigate to invite friends screen');
+    navigation.navigate('InviteFriend');
     onInvitePress?.();
   };
 
@@ -46,15 +70,29 @@ const InviteFriendWidget: React.FC<InviteFriendWidgetProps> = ({ onInvitePress }
         </View>
       </View>
       
-      <View style={styles.inviteInfo}>
-        <Text style={styles.earningsText}>${mockInviteData.totalEarnings}</Text>
-        <Text style={styles.invitesText}>{mockInviteData.totalInvites} friends</Text>
-      </View>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color={COLORS.primary} />
+        </View>
+      ) : (
+        <>
+          <View style={styles.inviteInfo}>
+            <Text style={styles.earningsText}>${totalEarnings}</Text>
+            <Text style={styles.invitesText}>{totalInvites} friends</Text>
+          </View>
 
-      <View style={styles.rewardContainer}>
-        <Ionicons name="gift" size={12} color="#F39C12" />
-        <Text style={styles.rewardText}>+${mockInviteData.nextReward}</Text>
-      </View>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Ionicons name="person-add" size={12} color="#10B981" />
+              <Text style={styles.statText}>{registeredInvites} joined</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Ionicons name="checkmark-circle" size={12} color="#F39C12" />
+              <Text style={styles.statText}>{completedInvites} completed</Text>
+            </View>
+          </View>
+        </>
+      )}
     </TouchableOpacity>
   );
 };
@@ -105,17 +143,26 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.xs,
     color: COLORS.text.secondary,
   },
-  rewardContainer: {
+  loadingContainer: {
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: SPACING.xs,
+  },
+  statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(243, 156, 18, 0.1)',
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
     paddingHorizontal: SPACING.xs,
     paddingVertical: 2,
     borderRadius: DESIGN.borderRadius.sm,
   },
-  rewardText: {
+  statText: {
     fontSize: TYPOGRAPHY.sizes.xs,
-    color: '#F39C12',
+    color: COLORS.text.secondary,
     fontWeight: TYPOGRAPHY.weights.medium,
     marginLeft: 4,
   },

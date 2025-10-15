@@ -26,6 +26,7 @@ interface UnifiedSelectBoxProps {
   error?: string;
   helpText?: string;
   style?: any;
+  buttonStyle?: any;
   disabled?: boolean;
 }
 
@@ -38,6 +39,7 @@ const UnifiedSelectBox: React.FC<UnifiedSelectBoxProps> = ({
   error,
   helpText,
   style,
+  buttonStyle,
   disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -164,6 +166,7 @@ const UnifiedSelectBox: React.FC<UnifiedSelectBoxProps> = ({
             styles.selectButton,
             error && styles.selectButtonError,
             disabled && styles.selectButtonDisabled,
+            buttonStyle,
           ]}
           onPress={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}

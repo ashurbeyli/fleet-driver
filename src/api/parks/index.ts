@@ -9,6 +9,7 @@ export interface Park {
 
 // API response interface based on Swagger documentation
 export interface ApiPark {
+  id: string;
   parkId: string;
   name: string;
   city: string;
@@ -22,7 +23,7 @@ export const getParks = async (): Promise<Park[]> => {
     // API returns direct array: [{ parkId: "string", name: "string", city: "string" }]
     if (Array.isArray(response)) {
       return response.map((park: ApiPark) => ({
-        id: park.parkId,
+        id: park.id,
         name: park.name,
         value: park.parkId,
         label: park.name,

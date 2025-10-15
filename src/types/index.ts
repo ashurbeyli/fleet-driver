@@ -12,6 +12,7 @@ export type RootStackParamList = {
   ProfileDetails: undefined;
   Contact: undefined;
   Agreement: undefined;
+  InviteFriend: undefined;
   // Add more screens as needed
 };
 

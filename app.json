@@ -1,32 +1,57 @@
 {
   "expo": {
-    "name": "fleet-driver",
+    "name": "Fleet Driver",
     "slug": "fleet-driver",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "description": "Fleet Driver Control Centre - Manage your deliveries and track performance",
+    "privacy": "unlisted",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.fleet-driver"
+      "bundleIdentifier": "com.fleetdriver.app",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.fleetdriver.app",
+      "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f0b20b2f-7e9f-477c-9130-970a8f03f348"
+      }
+    },
+    "owner": "fleet-driver",
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/f0b20b2f-7e9f-477c-9130-970a8f03f348"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }

@@ -180,7 +180,7 @@ const DashboardScreen: React.FC = () => {
         {/* Second Row: Rankings and News */}
         <View style={styles.secondRow}>
           <NewsWidget />
-          <InviteFriendWidget />
+          <InviteFriendWidget refreshKey={refreshKey} />
         </View>
       </ScrollView>
     </SafeAreaView>

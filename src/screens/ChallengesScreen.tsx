@@ -77,7 +77,7 @@ const ChallengesScreen: React.FC = () => {
       {/* Render active screen */}
       <View style={styles.screenContainer}>
         {activeTab === 'challenges' ? <GoalsScreen /> : <RankingsScreen />}
-      </View>
+            </View>
     </SafeAreaView>
   );
 };
