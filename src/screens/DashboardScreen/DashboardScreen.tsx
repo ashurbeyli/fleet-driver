@@ -14,13 +14,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
 import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
-import { AgreementWidget, VehicleWidget, RankingsWidget, BonusWidget, InviteFriendWidget, NewsWidget } from './widgets';
+import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget, NewsWidget } from './widgets';
 
 const DashboardScreen: React.FC = () => {
   const [driver, setDriver] = useState<Driver | null>(null);
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Load driver data and balance on mount
   useEffect(() => {
@@ -80,6 +81,9 @@ const DashboardScreen: React.FC = () => {
       // Reload driver data to update state
       const updatedDriver = await authService.getDriver();
       setDriver(updatedDriver);
+      
+      // Increment refresh key to trigger widget refresh
+      setRefreshKey(prev => prev + 1);
       
     } catch (error) {
       console.error('Failed to refresh data:', error);
@@ -164,19 +168,19 @@ const DashboardScreen: React.FC = () => {
         {/* Agreement Widget - Only show if not agreed */}
         {driver && !driver.isAgreed && <AgreementWidget />}
 
-        {/* Top Row - Vehicle and Invite widgets side by side */}
+        {/* Top Row - Vehicle and Rankings widgets side by side */}
         <View style={styles.topRow}>
           <VehicleWidget />
-          <InviteFriendWidget />
+          <RankingsWidget key={refreshKey} />
         </View>
 
-        {/* Bonus Challenge Widget */}
-        <BonusWidget />
+        {/* Goal Challenge Widget */}
+        <GoalWidget key={refreshKey} />
 
         {/* Second Row: Rankings and News */}
         <View style={styles.secondRow}>
           <NewsWidget />
-          <RankingsWidget />
+          <InviteFriendWidget refreshKey={refreshKey} />
         </View>
       </ScrollView>
     </SafeAreaView>

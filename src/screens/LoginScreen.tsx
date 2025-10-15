@@ -28,7 +28,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
-  const [phoneNumber, setPhoneNumber] = useState<string>('+994703868682');
+  const [phoneNumber, setPhoneNumber] = useState<string>('+994704220692');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
 
@@ -62,19 +62,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
     setIsLoading(true);
     try {
-      // Call real login API
-      const response = await authApi.login(phoneNumber, selectedPark);
+      // Get selected park object to extract the correct data
+      const park = parks.find(p => p.id === selectedPark);
+      if (!park) {
+        Alert.alert('Error', 'Selected park not found');
+        return;
+      }
+      
+      // Call real login API with park.id (internal ID)
+      const response = await authApi.login(phoneNumber, park.id);
       
       if (response.isValid) {
-        // Get selected park name for display
-        const park = parks.find(p => p.id === selectedPark);
-        const parkName = park?.name || 'Selected Park';
+        const parkName = park.name || 'Selected Park';
         
         // Navigate to OTP screen with data
         navigation.navigate('Otp', {
           phoneNumber,
           parkName,
-          parkId: selectedPark,
+          parkId: park.id, // Use park.id (internal ID)
         });
       } else {
         Alert.alert('Error', response.message || 'Login failed. Please try again.');

@@ -7,128 +7,119 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Alert,
+  RefreshControl,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { bonusesApi } from '../api';
+import type { Bonus, BonusesResponse } from '../api';
 
 const BonusScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-
-  // Mock data - will be replaced with real implementation later
-  const mockBonusData = {
-    totalEarnings: 450,
-    availableBonus: 120,
-    completedChallenges: 3,
-    activeChallenges: 2,
-    challenges: [
-      {
-        id: '1',
-        title: 'Weekend Warrior',
-        description: 'Complete 20 rides this weekend',
-        progress: 15,
-        target: 20,
-        reward: 50,
-        timeLeft: '2 days',
-        status: 'active',
-      },
-      {
-        id: '2',
-        title: 'Early Bird',
-        description: 'Complete 10 rides before 8 AM',
-        progress: 7,
-        target: 10,
-        reward: 30,
-        timeLeft: '5 days',
-        status: 'active',
-      },
-      {
-        id: '3',
-        title: 'Perfect Week',
-        description: 'Complete 50 rides in 7 days',
-        progress: 50,
-        target: 50,
-        reward: 100,
-        timeLeft: 'Completed',
-        status: 'completed',
-      },
-    ],
-  };
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bonusesData, setBonusesData] = useState<BonusesResponse | null>(null);
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    fetchBonuses();
   }, []);
 
-  const renderChallengeCard = (challenge: any) => {
-    const progressPercentage = (challenge.progress / challenge.target) * 100;
-    const isCompleted = challenge.status === 'completed';
+  const fetchBonuses = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      setError(null);
+      const response = await bonusesApi.getBonuses();
+      setBonusesData(response);
+    } catch (err) {
+      console.error('Error fetching bonuses:', err);
+      setError('Failed to load bonuses. Please try again.');
+    } finally {
+      if (isRefresh) {
+        setIsRefreshing(false);
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
 
-    return (
-      <View key={challenge.id} style={styles.challengeCard}>
-        <View style={styles.challengeHeader}>
-          <View style={styles.challengeInfo}>
-            <Text style={styles.challengeTitle}>{challenge.title}</Text>
-            <Text style={styles.challengeDescription}>{challenge.description}</Text>
-          </View>
-          <View style={styles.rewardContainer}>
-            <Text style={styles.rewardAmount}>${challenge.reward}</Text>
-          </View>
-        </View>
+  const onRefresh = () => {
+    fetchBonuses(true);
+  };
 
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${progressPercentage}%`,
-                  backgroundColor: isCompleted ? '#10B981' : COLORS.secondary,
-                },
-              ]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {challenge.progress}/{challenge.target}
-          </Text>
-        </View>
+  const handleClaimBonus = async (bonus: Bonus, bonusIndex: number) => {
+    if (!bonusesData || bonus.isClaimed) return;
+    
+    // Check if bonus has an ID, if not, we can't claim it
+    if (!bonus.id) {
+      Alert.alert(
+        'Claim Failed',
+        'This bonus cannot be claimed. Missing bonus ID.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
+    try {
+      const response = await bonusesApi.claimBonus(bonus.id);
+      
+      if (response.success) {
+        // Update the local state with the new data
+        setBonusesData(prev => {
+          if (!prev) return prev;
+          
+          return {
+            ...prev,
+            unclaimedBonusCount: response.unclaimedBonusCount,
+            unclaimedBonusTotalAmount: response.unclaimedBonusTotalAmount,
+            bonuses: prev.bonuses.map((b, index) => 
+              index === bonusIndex ? { ...b, isClaimed: true } : b
+            )
+          };
+        });
+        
+        Alert.alert(
+          'Bonus Claimed!',
+          `Successfully claimed $${response.claimedAmount} bonus!`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Claim Failed',
+          response.message || 'Failed to claim bonus. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error claiming bonus:', error);
+      Alert.alert(
+        'Claim Failed',
+        'Failed to claim bonus. Please check your connection and try again.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
 
-        <View style={styles.challengeFooter}>
-          <View style={styles.timeContainer}>
-            <Ionicons
-              name={isCompleted ? 'checkmark-circle' : 'time'}
-              size={16}
-              color={isCompleted ? '#10B981' : COLORS.text.tertiary}
-            />
-            <Text
-              style={[
-                styles.timeText,
-                { color: isCompleted ? '#10B981' : COLORS.text.tertiary },
-              ]}
-            >
-              {challenge.timeLeft}
-            </Text>
-          </View>
-          {isCompleted && (
-            <View style={styles.completedBadge}>
-              <Text style={styles.completedText}>Completed</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar style="light" backgroundColor={COLORS.primary} />
-        <Header />
+        <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
+        <Header showBackButton={false} />
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading bonuses...</Text>
         </View>
@@ -136,53 +127,110 @@ const BonusScreen: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
+        <Header showBackButton={false} />
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>{error}</Text>
+          <TouchableOpacity
+            onPress={() => fetchBonuses()}
+            style={styles.retryButton}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
+      <Header showBackButton={false} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
+          />
+        }
       >
         {/* Summary Cards */}
         <View style={styles.summarySection}>
           <View style={styles.summaryCard}>
-            <View style={styles.summaryIconContainer}>
-              <Ionicons name="trophy" size={24} color="#F39C12" />
-            </View>
+            <Ionicons name="ticket" size={20} color="#F39C12" />
             <View style={styles.summaryContent}>
-              <Text style={styles.summaryLabel}>Total Earnings</Text>
-              <Text style={styles.summaryValue}>${mockBonusData.totalEarnings}</Text>
+              <Text style={styles.summaryValue}>
+                {bonusesData?.unclaimedBonusCount || 0}
+              </Text>
+              <Text style={styles.summaryLabel}>Unclaimed</Text>
             </View>
           </View>
 
           <View style={styles.summaryCard}>
-            <View style={styles.summaryIconContainer}>
-              <Ionicons name="gift" size={24} color="#10B981" />
-            </View>
+            <Ionicons name="gift" size={20} color="#10B981" />
             <View style={styles.summaryContent}>
-              <Text style={styles.summaryLabel}>Available Bonus</Text>
-              <Text style={styles.summaryValue}>${mockBonusData.availableBonus}</Text>
+              <Text style={styles.summaryValue}>
+                ${bonusesData?.unclaimedBonusTotalAmount || 0}
+              </Text>
+              <Text style={styles.summaryLabel}>Bonus</Text>
             </View>
           </View>
         </View>
 
-        {/* Challenge Stats */}
-        <View style={styles.statsSection}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{mockBonusData.completedChallenges}</Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{mockBonusData.activeChallenges}</Text>
-            <Text style={styles.statLabel}>Active</Text>
-          </View>
-        </View>
-
-        {/* Challenges List */}
-        <View style={styles.challengesSection}>
-          <Text style={styles.sectionTitle}>Challenges</Text>
-          {mockBonusData.challenges.map(renderChallengeCard)}
+        {/* Bonuses */}
+        <View style={styles.bonusesSection}>
+          <Text style={styles.sectionTitle}>Bonuses</Text>
+          {bonusesData?.bonuses && bonusesData.bonuses.length > 0 ? (
+            bonusesData.bonuses.map((bonus, index) => (
+              <View key={bonus.id || index} style={styles.couponCard}>
+                <View style={styles.couponHeader}>
+                  <View style={styles.couponInfo}>
+                    <Text style={styles.couponTitle}>{bonus.title}</Text>
+                    <Text style={styles.couponDescription}>{bonus.subtitle}</Text>
+                    <Text style={styles.couponMeta}>
+                      Achieved {formatDate(bonus.achievedAt)}
+                    </Text>
+                  </View>
+                  <View style={styles.couponAmountContainer}>
+                    <Text style={styles.couponAmount}>${bonus.bonusAmount}</Text>
+                  </View>
+                </View>
+                <View style={styles.couponFooter}>
+                  {bonus.isClaimed ? (
+                    <View style={styles.claimedBadge}>
+                      <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                      <Text style={styles.claimedText}>Claimed</Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => handleClaimBonus(bonus, index)}
+                      style={styles.claimButton}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="download" size={16} color="#fff" />
+                      <Text style={styles.claimButtonText}>Claim</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="gift-outline" size={48} color={COLORS.text.secondary} />
+              <Text style={styles.emptyStateText}>No bonuses available</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Complete challenges and referrals to earn bonuses
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -212,65 +260,33 @@ const styles = StyleSheet.create({
   summarySection: {
     flexDirection: 'row',
     gap: SPACING.md,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.lg,
   },
   summaryCard: {
     flex: 1,
     backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.lg,
+    borderRadius: DESIGN.borderRadius.md,
+    padding: SPACING.md,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: SPACING.sm,
     ...DESIGN.shadows.sm,
-  },
-  summaryIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.backgroundDark,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
   },
   summaryContent: {
     flex: 1,
   },
   summaryLabel: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+    fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.medium,
     color: COLORS.text.secondary,
-    marginBottom: 4,
+    marginTop: 2,
   },
   summaryValue: {
     fontSize: TYPOGRAPHY.sizes.xl,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
   },
-  statsSection: {
-    flexDirection: 'row',
-    gap: SPACING.md,
-    marginBottom: SPACING.xl,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.lg,
-    alignItems: 'center',
-    ...DESIGN.shadows.sm,
-  },
-  statNumber: {
-    fontSize: TYPOGRAPHY.sizes.xxl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.primary,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: COLORS.text.secondary,
-  },
-  challengesSection: {
+  bonusesSection: {
     marginBottom: SPACING.xl,
   },
   sectionTitle: {
@@ -279,89 +295,109 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
     marginBottom: SPACING.lg,
   },
-  challengeCard: {
+  couponCard: {
     backgroundColor: COLORS.surface,
     borderRadius: DESIGN.borderRadius.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
     ...DESIGN.shadows.sm,
   },
-  challengeHeader: {
+  couponHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: SPACING.md,
   },
-  challengeInfo: {
+  couponInfo: {
     flex: 1,
     marginRight: SPACING.md,
   },
-  challengeTitle: {
+  couponTitle: {
     fontSize: TYPOGRAPHY.sizes.md,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
     marginBottom: 4,
   },
-  challengeDescription: {
+  couponDescription: {
     fontSize: TYPOGRAPHY.sizes.sm,
     color: COLORS.text.secondary,
-    lineHeight: TYPOGRAPHY.sizes.sm * 1.4,
+    marginBottom: 4,
   },
-  rewardContainer: {
-    backgroundColor: 'rgba(243, 156, 18, 0.1)',
+  couponMeta: {
+    fontSize: TYPOGRAPHY.sizes.xs,
+    color: COLORS.text.tertiary,
+  },
+  couponAmountContainer: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderRadius: DESIGN.borderRadius.md,
   },
-  rewardAmount: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.secondary,
-  },
-  progressContainer: {
-    marginBottom: SPACING.md,
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: COLORS.backgroundDark,
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: SPACING.xs,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: COLORS.text.secondary,
-    textAlign: 'right',
-  },
-  challengeFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  timeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  timeText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    marginLeft: 4,
-  },
-  completedBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
-    borderRadius: DESIGN.borderRadius.sm,
-  },
-  completedText: {
-    fontSize: TYPOGRAPHY.sizes.xs,
+  couponAmount: {
+    fontSize: TYPOGRAPHY.sizes.lg,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: '#10B981',
+  },
+  couponFooter: {
+    alignItems: 'flex-end',
+  },
+  claimButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: DESIGN.borderRadius.md,
+  },
+  claimButtonText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: '#fff',
+  },
+  claimedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: DESIGN.borderRadius.sm,
+  },
+  claimedText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.semibold,
+    color: '#10B981',
+  },
+  retryButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderRadius: DESIGN.borderRadius.md,
+    marginTop: SPACING.md,
+  },
+  retryButtonText: {
+    fontSize: TYPOGRAPHY.sizes.md,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: '#fff',
+    textAlign: 'center',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xl,
+  },
+  emptyStateText: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.primary,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+  emptyStateSubtext: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.lg,
   },
 });
 

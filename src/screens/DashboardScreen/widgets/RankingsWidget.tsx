@@ -1,36 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../../constants';
-import { RootStackParamList } from '../../../types';
+import { rankingApi, type RankingResponse } from '../../../api';
 
-type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
+type TabParamList = {
+  Home: undefined;
+  Bonuses: undefined;
+  Challenges: { openTab?: 'rankings' | 'challenges' } | undefined;
+  Withdraw: undefined;
+  Menu: undefined;
+};
+
+type RankingsWidgetNavigationProp = BottomTabNavigationProp<TabParamList, 'Home'>;
 
 interface RankingsWidgetProps {
   onRankingsPress?: () => void;
 }
 
 const RankingsWidget: React.FC<RankingsWidgetProps> = ({ onRankingsPress }) => {
-  const navigation = useNavigation<DashboardNavigationProp>();
+  const navigation = useNavigation<RankingsWidgetNavigationProp>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [rankingData, setRankingData] = useState<RankingResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - will be replaced with real implementation later
-  const mockRankingData = {
-    currentPosition: 3,
-    totalDrivers: 156,
-    points: 2450,
-    rankChange: '+2', // +2 means moved up 2 positions
+  useEffect(() => {
+    fetchRanking();
+  }, []);
+
+  const fetchRanking = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await rankingApi.getRanking();
+      setRankingData(data);
+    } catch (err) {
+      console.error('Failed to fetch ranking:', err);
+      setError('Failed to load ranking');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRankingsPress = () => {
-    // TODO: Navigate to rankings screen when implemented
-    console.log('Navigate to rankings screen');
+    // Force navigation by going to Home first, then Challenges
+    navigation.navigate('Home');
+    setTimeout(() => {
+      navigation.navigate('Challenges', { openTab: 'rankings' });
+    }, 100);
     onRankingsPress?.();
   };
 
@@ -55,51 +80,105 @@ const RankingsWidget: React.FC<RankingsWidgetProps> = ({ onRankingsPress }) => {
     return 'th';
   };
 
+  // Loading state - show header with loading content
+  if (isLoading) {
+    return (
+      <View style={styles.widget}>
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Ionicons 
+              name="trophy-outline" 
+              size={18} 
+              color={COLORS.primary} 
+            />
+          </View>
+          <Text style={styles.title}>Rank</Text>
+          <View style={styles.arrowContainer}>
+            <Ionicons name="chevron-forward" size={14} color={COLORS.text.tertiary} />
+          </View>
+        </View>
+        
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // Error state - show header with error content
+  if (error) {
+    return (
+      <TouchableOpacity style={styles.widget} onPress={fetchRanking} activeOpacity={0.7}>
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Ionicons 
+              name="trophy-outline" 
+              size={18} 
+              color={COLORS.primary} 
+            />
+          </View>
+          <Text style={styles.title}>Rank</Text>
+          <View style={styles.arrowContainer}>
+            <Ionicons name="chevron-forward" size={14} color={COLORS.text.tertiary} />
+          </View>
+        </View>
+        
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={20} color={COLORS.error} />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  // No data state
+  if (!rankingData) {
+    return null;
+  }
+
   return (
     <TouchableOpacity style={styles.widget} onPress={handleRankingsPress} activeOpacity={0.7}>
       <View style={styles.header}>
         <View style={styles.iconContainer}>
           <Ionicons 
-            name={getRankIcon(mockRankingData.currentPosition)} 
-            size={20} 
-            color={getRankColor(mockRankingData.currentPosition)} 
+            name={getRankIcon(rankingData.currentPosition)} 
+            size={18} 
+            color={getRankColor(rankingData.currentPosition)} 
           />
         </View>
-        <Text style={styles.title}>Driver Rankings</Text>
+        <Text style={styles.title}>Rank</Text>
         <View style={styles.arrowContainer}>
-          <Ionicons name="chevron-forward" size={16} color={COLORS.text.tertiary} />
+          <Ionicons name="chevron-forward" size={14} color={COLORS.text.tertiary} />
         </View>
       </View>
       
-      <View style={styles.rankingInfo}>
-        <View style={styles.positionContainer}>
-          <Text style={styles.positionNumber}>{mockRankingData.currentPosition}</Text>
-          <Text style={styles.positionSuffix}>{getRankSuffix(mockRankingData.currentPosition)}</Text>
-        </View>
-        
-        <View style={styles.detailsContainer}>
-          <Text style={styles.detailsText}>
-            out of {mockRankingData.totalDrivers} drivers
+      <View style={styles.rankContent}>
+        <View style={styles.rankRow}>
+          <Text style={[
+            styles.positionNumber,
+            rankingData.currentPosition >= 1000 && styles.positionNumberSmall
+          ]}>
+            {rankingData.currentPosition}
           </Text>
-          <View style={styles.pointsContainer}>
-            <Text style={styles.pointsLabel}>Points:</Text>
-            <Text style={styles.pointsValue}>{mockRankingData.points.toLocaleString()}</Text>
+          <View style={styles.suffixContainer}>
+            {rankingData.change !== 0 && (
+              <Ionicons 
+                name={rankingData.change > 0 ? "trending-up" : "trending-down"} 
+                size={14} 
+                color={rankingData.change > 0 ? "#10B981" : "#EF4444"} 
+                style={styles.changeIcon}
+              />
+            )}
+            <Text style={[
+              styles.positionSuffix,
+              rankingData.currentPosition >= 1000 && styles.positionSuffixSmall
+            ]}>
+              {getRankSuffix(rankingData.currentPosition)}
+            </Text>
           </View>
         </View>
       </View>
-
-      {mockRankingData.rankChange && (
-        <View style={styles.rankChangeContainer}>
-          <Ionicons 
-            name="trending-up" 
-            size={14} 
-            color="#10B981" 
-          />
-          <Text style={styles.rankChangeText}>
-            Moved up {mockRankingData.rankChange.replace('+', '')} positions this week
-          </Text>
-        </View>
-      )}
     </TouchableOpacity>
   );
 };
@@ -109,9 +188,33 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: DESIGN.borderRadius.lg,
     padding: SPACING.md,
-    flex: 2, // Takes 2/3 of the space
-    marginHorizontal: SPACING.xs,
+    flex: 1,
+    marginLeft: SPACING.xs,
     ...DESIGN.shadows.sm,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.sm,
+    gap: SPACING.sm,
+  },
+  loadingText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: COLORS.text.secondary,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.sm,
+    gap: SPACING.xs,
+  },
+  errorText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    color: COLORS.error,
+    textAlign: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -119,16 +222,16 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: COLORS.backgroundDark,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: SPACING.sm,
+    marginRight: SPACING.xs,
   },
   title: {
-    fontSize: TYPOGRAPHY.sizes.md,
+    fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.text.primary,
     flex: 1,
@@ -137,64 +240,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rankingInfo: {
-    flexDirection: 'row',
+  rankContent: {
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    justifyContent: 'center',
+    paddingVertical: SPACING.xs,
   },
-  positionContainer: {
+  rankRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    marginRight: SPACING.md,
+    alignItems: 'flex-start',
+    gap: 2,
+  },
+  suffixContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: 2,
+  },
+  changeIcon: {
+    marginTop: 0,
   },
   positionNumber: {
-    fontSize: TYPOGRAPHY.sizes.xxl,
+    fontSize: 36,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.primary,
-    lineHeight: TYPOGRAPHY.sizes.xxl,
+  },
+  positionNumberSmall: {
+    fontSize: 28,
   },
   positionSuffix: {
-    fontSize: TYPOGRAPHY.sizes.lg,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.primary,
-    marginLeft: 2,
-  },
-  detailsContainer: {
-    flex: 1,
-  },
-  detailsText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+    fontSize: 16,
+    fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.text.secondary,
-    marginBottom: 2,
+    marginTop: 2,
   },
-  pointsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pointsLabel: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    color: COLORS.text.tertiary,
-    marginRight: SPACING.xs,
-  },
-  pointsValue: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.text.primary,
-  },
-  rankChangeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    borderRadius: DESIGN.borderRadius.sm,
-    marginTop: SPACING.xs,
-  },
-  rankChangeText: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    color: '#10B981',
-    fontWeight: TYPOGRAPHY.weights.medium,
-    marginLeft: SPACING.xs,
+  positionSuffixSmall: {
+    fontSize: 12,
   },
 });
 

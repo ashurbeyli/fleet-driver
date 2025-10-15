@@ -100,6 +100,10 @@ const MenuScreen: React.FC = () => {
         // Navigate to Vehicles screen
         navigation.navigate('Vehicles');
         break;
+      case 'invite-friend':
+        // Navigate to Invite Friend screen
+        navigation.navigate('InviteFriend');
+        break;
       case 'logout':
         handleLogout();
         break;
@@ -112,10 +116,9 @@ const MenuScreen: React.FC = () => {
         { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
         { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
         { id: '3', title: 'Vehicle Change', icon: 'car-outline', functional: true, action: 'vehicles' },
-        { id: '4', title: 'Ratings', icon: 'star-outline', functional: false },
-        { id: '5', title: 'Invite a friend', icon: 'people-outline', functional: false },
-        { id: '6', title: 'News', icon: 'newspaper-outline', functional: false },
-        { id: '7', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
+        { id: '4', title: 'Invite a friend', icon: 'people-outline', functional: true, action: 'invite-friend' },
+        { id: '5', title: 'News', icon: 'newspaper-outline', functional: false },
+        { id: '6', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
       ];
 
   if (isLoading) {
