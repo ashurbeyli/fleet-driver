@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Fleet Driver",
-    "slug": "fleet-driver",
+    "slug": "ridexgo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,7 +24,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fleetdriver.app",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -42,10 +45,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "f0b20b2f-7e9f-477c-9130-970a8f03f348"
+        "projectId": "0ecd654b-6ee7-485b-af0b-f058dfcf3a36"
       }
     },
-    "owner": "fleet-driver",
+    "owner": "jamal.salmanzade",
     "updates": {
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/f0b20b2f-7e9f-477c-9130-970a8f03f348"
