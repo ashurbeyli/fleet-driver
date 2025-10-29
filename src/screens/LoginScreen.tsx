@@ -28,7 +28,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
-  const [phoneNumber, setPhoneNumber] = useState<string>('+994704220692');
+  const [phoneNumber, setPhoneNumber] = useState<string>('+');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
 
@@ -108,7 +108,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           <View style={styles.logoContainer}>
             <Ionicons name="car" size={48} color={COLORS.primary} />
           </View>
-          <Text style={styles.logo}>Fleet Driver</Text>
+          <Text style={styles.logo}>RidexGo</Text>
           <Text style={styles.tagline}>Control Centre</Text>
         </View>
 

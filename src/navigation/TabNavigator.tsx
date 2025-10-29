@@ -7,7 +7,7 @@ import DashboardScreen from '../screens/DashboardScreen/DashboardScreen';
 import MenuScreen from '../screens/MenuScreen';
 import BonusScreen from '../screens/BonusScreen';
 import ChallengesScreen from '../screens/ChallengesScreen';
-import WithdrawScreen from '../screens/WithdrawScreen';
+// import WithdrawScreen from '../screens/WithdrawScreen'; // Commented out - not implemented yet
 
 const Tab = createBottomTabNavigator();
 
@@ -56,19 +56,6 @@ const TabNavigator: React.FC = () => {
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
               name={focused ? "trophy" : "trophy-outline"} 
-              size={size} 
-              color={color} 
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Withdraw"
-        component={WithdrawScreen}
-        options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons 
-              name={focused ? "wallet" : "wallet-outline"} 
               size={size} 
               color={color} 
             />

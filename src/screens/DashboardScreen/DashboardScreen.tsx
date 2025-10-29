@@ -14,7 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
 import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
-import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget, NewsWidget } from './widgets';
+import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget } from './widgets';
+// import { NewsWidget } from './widgets'; // Commented out - not implemented yet
 
 const DashboardScreen: React.FC = () => {
   const [driver, setDriver] = useState<Driver | null>(null);
@@ -179,7 +180,7 @@ const DashboardScreen: React.FC = () => {
 
         {/* Second Row: Rankings and News */}
         <View style={styles.secondRow}>
-          <NewsWidget />
+          {/* <NewsWidget /> */}
           <InviteFriendWidget refreshKey={refreshKey} />
         </View>
       </ScrollView>

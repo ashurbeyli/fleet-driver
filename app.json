@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Fleet Driver",
+    "name": "RidexGo",
     "slug": "ridexgo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "description": "Fleet Driver Control Centre - Manage your deliveries and track performance",
+    "description": "RidexGo Control Centre - Manage your deliveries and track performance",
     "privacy": "unlisted",
     "platforms": [
       "ios",

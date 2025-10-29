@@ -1,4 +1,4 @@
-# Fleet Driver App
+# RidexGo App
 
 A cross-platform taxi park fleet driver management application built with React Native and Expo. The app supports Web, iOS, and Android platforms with a unified codebase.
 

@@ -17,7 +17,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Fleet Driver</Text>
+          <Text style={styles.title}>RidexGo</Text>
           <Text style={styles.subtitle}>
             Your reliable partner for taxi fleet management
           </Text>

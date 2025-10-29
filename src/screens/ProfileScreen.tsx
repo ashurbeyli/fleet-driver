@@ -158,7 +158,7 @@ const ProfileScreen: React.FC = () => {
 
         {/* App Info */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Fleet Driver v1.0.0</Text>
+          <Text style={styles.footerText}>RidexGo v1.0.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

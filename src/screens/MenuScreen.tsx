@@ -117,7 +117,7 @@ const MenuScreen: React.FC = () => {
         { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
         { id: '3', title: 'Vehicle Change', icon: 'car-outline', functional: true, action: 'vehicles' },
         { id: '4', title: 'Invite a friend', icon: 'people-outline', functional: true, action: 'invite-friend' },
-        { id: '5', title: 'News', icon: 'newspaper-outline', functional: false },
+        // { id: '5', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
         { id: '6', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
       ];
 
@@ -192,7 +192,7 @@ const MenuScreen: React.FC = () => {
 
         {/* App Info */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Fleet Driver v1.0.0</Text>
+          <Text style={styles.footerText}>RidexGo v1.0.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

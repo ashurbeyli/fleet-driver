@@ -38,7 +38,7 @@ const ContactScreen: React.FC = () => {
 
   const handleWhatsApp = () => {
     const phoneNumber = '994501234567'; // Replace with actual WhatsApp number
-    const message = 'Hello, I need support with Fleet Driver app';
+    const message = 'Hello, I need support with RidexGo app';
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(url)
@@ -57,51 +57,51 @@ const ContactScreen: React.FC = () => {
       });
   };
 
-  const handleSocialLink = (url: string, platform: string) => {
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) {
-          Linking.openURL(url);
-        } else {
-          Alert.alert('Error', `Unable to open ${platform}`);
-        }
-      })
-      .catch((err) => {
-        console.error(`Error opening ${platform}:`, err);
-        Alert.alert('Error', `Unable to open ${platform}`);
-      });
-  };
+  // const handleSocialLink = (url: string, platform: string) => {
+  //   Linking.canOpenURL(url)
+  //     .then((supported) => {
+  //       if (supported) {
+  //         Linking.openURL(url);
+  //       } else {
+  //         Alert.alert('Error', `Unable to open ${platform}`);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.error(`Error opening ${platform}:`, err);
+  //       Alert.alert('Error', `Unable to open ${platform}`);
+  //     });
+  // }; // Commented out - Follow Us section not implemented yet
 
-  const handleFAQ = () => {
-    Alert.alert('FAQ', 'FAQ feature coming soon!');
-  };
+  // const handleFAQ = () => {
+  //   Alert.alert('FAQ', 'FAQ feature coming soon!');
+  // }; // Commented out - FAQ not implemented yet
 
-  const socialLinks = [
-    {
-      name: 'Facebook',
-      icon: 'logo-facebook',
-      url: 'https://facebook.com/fleetdriver',
-      color: '#1877F2',
-    },
-    {
-      name: 'Instagram',
-      icon: 'logo-instagram',
-      url: 'https://instagram.com/fleetdriver',
-      color: '#E4405F',
-    },
-    {
-      name: 'Twitter',
-      icon: 'logo-twitter',
-      url: 'https://twitter.com/fleetdriver',
-      color: '#1DA1F2',
-    },
-    {
-      name: 'LinkedIn',
-      icon: 'logo-linkedin',
-      url: 'https://linkedin.com/company/fleetdriver',
-      color: '#0077B5',
-    },
-  ];
+  // const socialLinks = [
+  //   {
+  //     name: 'Facebook',
+  //     icon: 'logo-facebook',
+  //     url: 'https://facebook.com/fleetdriver',
+  //     color: '#1877F2',
+  //   },
+  //   {
+  //     name: 'Instagram',
+  //     icon: 'logo-instagram',
+  //     url: 'https://instagram.com/fleetdriver',
+  //     color: '#E4405F',
+  //   },
+  //   {
+  //     name: 'Twitter',
+  //     icon: 'logo-twitter',
+  //     url: 'https://twitter.com/fleetdriver',
+  //     color: '#1DA1F2',
+  //   },
+  //   {
+  //     name: 'LinkedIn',
+  //     icon: 'logo-linkedin',
+  //     url: 'https://linkedin.com/company/fleetdriver',
+  //     color: '#0077B5',
+  //   },
+  // ]; // Commented out - Follow Us section not implemented yet
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,51 +149,14 @@ const ContactScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* FAQ Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Help & Information</Text>
-          
-          <TouchableOpacity
-            style={styles.faqCard}
-            onPress={handleFAQ}
-            activeOpacity={0.7}
-          >
-            <View style={styles.faqIconContainer}>
-              <Ionicons name="help-circle" size={24} color={COLORS.primary} />
-            </View>
-            <View style={styles.faqContent}>
-              <Text style={styles.faqTitle}>Frequently Asked Questions</Text>
-              <Text style={styles.faqDescription}>Find answers to common questions</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} />
-          </TouchableOpacity>
-        </View>
+        {/* FAQ Section - commented out - not implemented yet */}
 
-        {/* Social Links */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Follow Us</Text>
-          
-          <View style={styles.socialGrid}>
-            {socialLinks.map((social, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.socialCard}
-                onPress={() => handleSocialLink(social.url, social.name)}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.socialIconContainer, { backgroundColor: social.color }]}>
-                  <Ionicons name={social.icon as any} size={24} color="white" />
-                </View>
-                <Text style={styles.socialName}>{social.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        {/* Social Links - commented out - will add later */}
 
         {/* App Info */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Fleet Driver v1.0.0</Text>
-          <Text style={styles.footerText}>© 2024 Fleet Driver. All rights reserved.</Text>
+          <Text style={styles.footerText}>RidexGo v1.0.0</Text>
+          <Text style={styles.footerText}>© 2024 RidexGo. All rights reserved.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

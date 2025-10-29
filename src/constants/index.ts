@@ -1,6 +1,6 @@
 // App configuration
 export const APP_CONFIG = {
-  name: 'Fleet Driver',
+  name: 'RidexGo',
   version: '1.0.0',
   description: 'Taxi park fleet driver management app',
 };
