@@ -24,7 +24,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fleetdriver.app",
-      "buildNumber": "1",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
