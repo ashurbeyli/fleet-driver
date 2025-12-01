@@ -14,12 +14,14 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { Header } from '../components';
+import { useConfig } from '../contexts/ConfigContext';
 
 const ContactScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { links } = useConfig();
 
   const handleCallSupport = () => {
-    const phoneNumber = '+994501234567'; // Replace with actual support number
+    const phoneNumber = links.callCenterNumber || '+994501234567';
     const url = `tel:${phoneNumber}`;
     
     Linking.canOpenURL(url)
@@ -37,8 +39,23 @@ const ContactScreen: React.FC = () => {
   };
 
   const handleWhatsApp = () => {
-    const phoneNumber = '994501234567'; // Replace with actual WhatsApp number
+    // Extract phone number from whatsApp link (may contain full URL or just number)
+    const whatsAppLink = links.whatsAppLink || '994501234567';
+    // Check if it's a full URL or just a phone number
+    const phoneNumber = whatsAppLink.includes('wa.me') || whatsAppLink.includes('whatsapp') 
+      ? whatsAppLink 
+      : whatsAppLink.replace(/[^0-9]/g, '');
     const message = 'Hello, I need support with RidexGo app';
+    
+    // If it's already a full URL, use it as is
+    if (whatsAppLink.includes('wa.me') || whatsAppLink.includes('whatsapp')) {
+      Linking.openURL(whatsAppLink).catch((err) => {
+        console.error('Error opening WhatsApp:', err);
+        Alert.alert('Error', 'Unable to open WhatsApp');
+      });
+      return;
+    }
+    
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     
     Linking.canOpenURL(url)
@@ -57,51 +74,41 @@ const ContactScreen: React.FC = () => {
       });
   };
 
-  // const handleSocialLink = (url: string, platform: string) => {
-  //   Linking.canOpenURL(url)
-  //     .then((supported) => {
-  //       if (supported) {
-  //         Linking.openURL(url);
-  //       } else {
-  //         Alert.alert('Error', `Unable to open ${platform}`);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.error(`Error opening ${platform}:`, err);
-  //       Alert.alert('Error', `Unable to open ${platform}`);
-  //     });
-  // }; // Commented out - Follow Us section not implemented yet
+  const handleSocialLink = (url: string, platform: string) => {
+    if (!url) {
+      Alert.alert('Error', `${platform} link is not configured`);
+      return;
+    }
 
-  // const handleFAQ = () => {
-  //   Alert.alert('FAQ', 'FAQ feature coming soon!');
-  // }; // Commented out - FAQ not implemented yet
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert('Error', `Unable to open ${platform}`);
+        }
+      })
+      .catch((err) => {
+        console.error(`Error opening ${platform}:`, err);
+        Alert.alert('Error', `Unable to open ${platform}`);
+      });
+  };
 
-  // const socialLinks = [
-  //   {
-  //     name: 'Facebook',
-  //     icon: 'logo-facebook',
-  //     url: 'https://facebook.com/fleetdriver',
-  //     color: '#1877F2',
-  //   },
-  //   {
-  //     name: 'Instagram',
-  //     icon: 'logo-instagram',
-  //     url: 'https://instagram.com/fleetdriver',
-  //     color: '#E4405F',
-  //   },
-  //   {
-  //     name: 'Twitter',
-  //     icon: 'logo-twitter',
-  //     url: 'https://twitter.com/fleetdriver',
-  //     color: '#1DA1F2',
-  //   },
-  //   {
-  //     name: 'LinkedIn',
-  //     icon: 'logo-linkedin',
-  //     url: 'https://linkedin.com/company/fleetdriver',
-  //     color: '#0077B5',
-  //   },
-  // ]; // Commented out - Follow Us section not implemented yet
+  // Build social links array from config - only include links that are provided
+  const socialLinks = [
+    ...(links.facebookLink ? [{
+      name: 'Facebook',
+      icon: 'logo-facebook' as keyof typeof Ionicons.glyphMap,
+      url: links.facebookLink,
+      color: '#1877F2',
+    }] : []),
+    ...(links.instagramLink ? [{
+      name: 'Instagram',
+      icon: 'logo-instagram' as keyof typeof Ionicons.glyphMap,
+      url: links.instagramLink,
+      color: '#E4405F',
+    }] : []),
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,7 +134,7 @@ const ContactScreen: React.FC = () => {
             </View>
             <View style={styles.supportContent}>
               <Text style={styles.supportTitle}>Call Support</Text>
-              <Text style={styles.supportDescription}>+994 50 123 45 67</Text>
+              <Text style={styles.supportDescription}>{links.callCenterNumber || '+994 50 123 45 67'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} />
           </TouchableOpacity>
@@ -149,9 +156,27 @@ const ContactScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* FAQ Section - commented out - not implemented yet */}
-
-        {/* Social Links - commented out - will add later */}
+        {/* Social Links - Only show if there are links from config */}
+        {socialLinks.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Follow Us</Text>
+            <View style={styles.socialGrid}>
+              {socialLinks.map((social) => (
+                <TouchableOpacity
+                  key={social.name}
+                  style={styles.socialCard}
+                  onPress={() => handleSocialLink(social.url, social.name)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.socialIconContainer, { backgroundColor: social.color }]}>
+                    <Ionicons name={social.icon} size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.socialName}>{social.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* App Info */}
         <View style={styles.footer}>

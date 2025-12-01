@@ -1,0 +1,44 @@
+import apiClient from '../config';
+
+export interface ConfigLinks {
+  whatsAppLink: string;
+  facebookLink: string;
+  instagramLink: string;
+  callCenterNumber: string;
+}
+
+export interface ConfigFeatures {
+  bonuses: boolean;
+  challenges: boolean;
+  rankings: boolean;
+  invitations: boolean;
+  vehicle: boolean;
+  withdrawal: boolean;
+}
+
+export interface AppConfig {
+  links: ConfigLinks;
+  features: ConfigFeatures;
+}
+
+/**
+ * Get application configuration including external links and feature flags
+ */
+export const getConfigs = async (): Promise<AppConfig> => {
+  try {
+    const response = await apiClient.request<AppConfig>('/api/v1/Configs', {
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    console.error('Failed to fetch configs:', error);
+    throw error;
+  }
+};
+
+const configsApi = {
+  getConfigs,
+};
+
+export default configsApi;
+

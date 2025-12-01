@@ -8,6 +8,7 @@ export { default as challengesApi } from './challenges';
 export { default as leaderboardsApi } from './leaderboards';
 export { default as rankingApi } from './ranking';
 export { default as invitationsApi } from './invitations';
+export { default as configsApi } from './configs';
 export { apiClient, type ApiResponse } from './config';
 export type { Vehicle, SearchVehicle } from './vehicles';
 export type { BalanceResponse, BalanceDetails, UserInfoResponse, UserMeResponse } from './users';
@@ -17,3 +18,4 @@ export type { Challenge, ChallengeLevel, ChallengesResponse } from './challenges
 export type { LeaderboardEntry, LeaderboardCompetition, LeaderboardsResponse } from './leaderboards';
 export type { RankingResponse } from './ranking';
 export type { InvitationPlatform, InvitationsPlatformsResponse, Invitation, SendInvitationRequest, SendInvitationResponse } from './invitations';
+export type { AppConfig, ConfigLinks, ConfigFeatures } from './configs';

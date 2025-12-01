@@ -14,10 +14,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
 import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
+import { useConfig } from '../../contexts/ConfigContext';
 import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget } from './widgets';
 // import { NewsWidget } from './widgets'; // Commented out - not implemented yet
 
 const DashboardScreen: React.FC = () => {
+  const { features } = useConfig();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
@@ -170,19 +172,23 @@ const DashboardScreen: React.FC = () => {
         {driver && !driver.isAgreed && <AgreementWidget />}
 
         {/* Top Row - Vehicle and Rankings widgets side by side */}
-        <View style={styles.topRow}>
-          <VehicleWidget />
-          <RankingsWidget key={refreshKey} />
-        </View>
+        {(features.vehicle || features.rankings) && (
+          <View style={styles.topRow}>
+            {features.vehicle && <VehicleWidget />}
+            {features.rankings && <RankingsWidget key={refreshKey} />}
+          </View>
+        )}
 
         {/* Goal Challenge Widget */}
-        <GoalWidget key={refreshKey} />
+        {features.challenges && <GoalWidget key={refreshKey} />}
 
-        {/* Second Row: Rankings and News */}
-        <View style={styles.secondRow}>
-          {/* <NewsWidget /> */}
-          <InviteFriendWidget refreshKey={refreshKey} />
-        </View>
+        {/* Second Row: Invitations */}
+        {features.invitations && (
+          <View style={styles.secondRow}>
+            {/* <NewsWidget /> */}
+            <InviteFriendWidget refreshKey={refreshKey} />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

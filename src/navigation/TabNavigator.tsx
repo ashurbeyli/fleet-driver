@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Platform, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants';
+import { useConfig } from '../contexts/ConfigContext';
 import DashboardScreen from '../screens/DashboardScreen/DashboardScreen';
 import MenuScreen from '../screens/MenuScreen';
 import BonusScreen from '../screens/BonusScreen';
@@ -12,6 +13,8 @@ import ChallengesScreen from '../screens/ChallengesScreen';
 const Tab = createBottomTabNavigator();
 
 const TabNavigator: React.FC = () => {
+  const { features } = useConfig();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -36,32 +39,36 @@ const TabNavigator: React.FC = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="Bonuses"
-        component={BonusScreen}
-        options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons 
-              name={focused ? "gift" : "gift-outline"} 
-              size={size} 
-              color={color} 
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Challenges"
-        component={ChallengesScreen}
-        options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons 
-              name={focused ? "trophy" : "trophy-outline"} 
-              size={size} 
-              color={color} 
-            />
-          ),
-        }}
-      />
+      {features.bonuses && (
+        <Tab.Screen
+          name="Bonuses"
+          component={BonusScreen}
+          options={{
+            tabBarIcon: ({ color, focused, size }) => (
+              <Ionicons 
+                name={focused ? "gift" : "gift-outline"} 
+                size={size} 
+                color={color} 
+              />
+            ),
+          }}
+        />
+      )}
+      {features.challenges && (
+        <Tab.Screen
+          name="Challenges"
+          component={ChallengesScreen}
+          options={{
+            tabBarIcon: ({ color, focused, size }) => (
+              <Ionicons 
+                name={focused ? "trophy" : "trophy-outline"} 
+                size={size} 
+                color={color} 
+              />
+            ),
+          }}
+        />
+      )}
       <Tab.Screen
         name="Menu"
         component={MenuScreen}

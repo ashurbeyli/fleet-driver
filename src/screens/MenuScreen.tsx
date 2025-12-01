@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
+import { useConfig } from '../contexts/ConfigContext';
 
 interface MenuItem {
   id: string;
@@ -24,6 +25,7 @@ interface MenuItem {
 
 const MenuScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { features } = useConfig();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -115,8 +117,8 @@ const MenuScreen: React.FC = () => {
       const menuItems: MenuItem[] = [
         { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
         { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
-        { id: '3', title: 'Vehicle Change', icon: 'car-outline', functional: true, action: 'vehicles' },
-        { id: '4', title: 'Invite a friend', icon: 'people-outline', functional: true, action: 'invite-friend' },
+        ...(features.vehicle ? [{ id: '3', title: 'Vehicle Change', icon: 'car-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'vehicles' }] : []),
+        ...(features.invitations ? [{ id: '4', title: 'Invite a friend', icon: 'people-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'invite-friend' }] : []),
         // { id: '5', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
         { id: '6', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
       ];
