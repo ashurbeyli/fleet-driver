@@ -11,6 +11,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ContactScreen from '../screens/ContactScreen';
 import AgreementScreen from '../screens/AgreementScreen';
 import InviteFriendScreen from '../screens/InviteFriendScreen';
+import WithdrawDetailsScreen from '../screens/WithdrawDetailsScreen';
 import { authService } from '../services/authService';
 import { COLORS } from '../constants';
 
@@ -66,6 +67,7 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="Contact" component={ContactScreen} />
       <Stack.Screen name="Agreement" component={AgreementScreen} />
       <Stack.Screen name="InviteFriend" component={InviteFriendScreen} />
+      <Stack.Screen name="WithdrawDetails" component={WithdrawDetailsScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       {/* Add more screens here as needed */}
     </Stack.Navigator>

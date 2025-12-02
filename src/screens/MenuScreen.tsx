@@ -118,9 +118,9 @@ const MenuScreen: React.FC = () => {
         { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
         { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
         ...(features.vehicle ? [{ id: '3', title: 'Vehicle Change', icon: 'car-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'vehicles' }] : []),
-        ...(features.invitations ? [{ id: '4', title: 'Invite a friend', icon: 'people-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'invite-friend' }] : []),
-        // { id: '5', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
-        { id: '6', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
+        ...(features.invitations ? [{ id: '5', title: 'Invite a friend', icon: 'people-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'invite-friend' }] : []),
+        // { id: '6', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
+        { id: '7', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
       ];
 
   if (isLoading) {

@@ -13,6 +13,10 @@ export type RootStackParamList = {
   Contact: undefined;
   Agreement: undefined;
   InviteFriend: undefined;
+  Withdraw: undefined;
+  WithdrawDetails: {
+    amount: string;
+  };
   // Add more screens as needed
 };
 

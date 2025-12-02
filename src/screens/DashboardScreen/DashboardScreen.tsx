@@ -15,7 +15,7 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
 import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
 import { useConfig } from '../../contexts/ConfigContext';
-import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget } from './widgets';
+import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget, WithdrawWidget } from './widgets';
 // import { NewsWidget } from './widgets'; // Commented out - not implemented yet
 
 const DashboardScreen: React.FC = () => {
@@ -115,58 +115,8 @@ const DashboardScreen: React.FC = () => {
           />
         }
       >
-        {/* Balance Cards */}
-        <View style={styles.balanceSection}>
-          <Text style={styles.sectionTitle}>Your Balance</Text>
-          
-          {isLoadingBalance ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading balance...</Text>
-            </View>
-          ) : balance ? (
-            <View style={styles.balanceCardsRow}>
-              {/* Total Balance Card */}
-              <View style={styles.balanceCard}>
-                <View style={styles.balanceIconContainer}>
-                  <Ionicons name="wallet" size={24} color={COLORS.primary} />
-                </View>
-                <Text style={styles.balanceLabel}>Total</Text>
-                <Text style={styles.balanceValue}>
-                  ${balance.totalBalance.toFixed(2)}
-                </Text>
-              </View>
-
-              {/* Withdrawable Balance Card */}
-              <View style={styles.balanceCard}>
-                <View style={styles.balanceIconContainer}>
-                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-                </View>
-                <Text style={styles.balanceLabel}>Available</Text>
-                <Text style={styles.balanceValue}>
-                  ${balance.withdrawableBalance.toFixed(2)}
-                </Text>
-              </View>
-
-              {/* Blocked Balance Card */}
-              <View style={styles.balanceCard}>
-                <View style={styles.balanceIconContainer}>
-                  <Ionicons name="lock-closed" size={24} color="#FF9800" />
-                </View>
-                <Text style={styles.balanceLabel}>Blocked</Text>
-                <Text style={styles.balanceValue}>
-                  ${balance.blockedBalance.toFixed(2)}
-                </Text>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>Failed to load balance</Text>
-              <TouchableOpacity onPress={loadBalance} style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>Retry</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+        {/* Withdraw Widget - Only show if withdrawal feature is enabled */}
+        {features.withdrawal && <WithdrawWidget />}
 
         {/* Agreement Widget - Only show if not agreed */}
         {driver && !driver.isAgreed && <AgreementWidget />}
