@@ -70,6 +70,7 @@ export interface Translations {
     resendSuccess: string;
     resendFailed: string;
     verificationFailed: string;
+    verifying: string;
     codeSentTo: string;
     yourPhone: string;
     resendCodeIn: string;
@@ -338,6 +339,7 @@ export const translations: Record<Language, Translations> = {
       resendSuccess: 'Doğrulama kodu yeniden gönderildi.',
       resendFailed: 'Kod yeniden gönderilemedi. Lütfen tekrar deneyin.',
       verificationFailed: 'Doğrulama başarısız. Lütfen kodunuzu kontrol edip tekrar deneyin.',
+      verifying: 'Doğrulanıyor...',
       codeSentTo: 'Kod gönderildi',
       yourPhone: 'telefonunuza',
       resendCodeIn: 'Kodu yeniden gönder',
@@ -576,6 +578,7 @@ export const translations: Record<Language, Translations> = {
       resendSuccess: 'Verification code has been resent.',
       resendFailed: 'Failed to resend code. Please try again.',
       verificationFailed: 'Verification failed. Please check your code and try again.',
+      verifying: 'Verifying...',
       codeSentTo: 'Code sent to',
       yourPhone: 'your phone',
       resendCodeIn: 'Resend code in',

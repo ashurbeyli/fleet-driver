@@ -7,6 +7,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -200,16 +201,26 @@ const WithdrawOtpScreen: React.FC = () => {
         </View>
 
         {/* OTP Input Card */}
-        <OtpInputCard
-          key={otpKey}
-          phoneNumber={phoneNumber}
-          onComplete={handleOtpComplete}
-          onResend={handleResendOtp}
-          error={error}
-          disabled={isLoading}
-          resendTimer={resendTimer}
-          length={6}
-        />
+        <View style={styles.otpContainer}>
+          <OtpInputCard
+            key={otpKey}
+            phoneNumber={phoneNumber}
+            onComplete={handleOtpComplete}
+            onResend={handleResendOtp}
+            error={error}
+            disabled={isLoading}
+            resendTimer={resendTimer}
+            length={6}
+          />
+          
+          {/* Loading Overlay */}
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+              <Text style={styles.loadingText}>{t.otp.verifying}</Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -276,6 +287,28 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: COLORS.borderLight,
     marginVertical: SPACING.xs / 2,
+  },
+  otpContainer: {
+    position: 'relative',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: DESIGN.borderRadius.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  loadingText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    color: COLORS.text.secondary,
+    fontWeight: TYPOGRAPHY.weights.medium,
+    marginLeft: SPACING.xs,
   },
 });
 
