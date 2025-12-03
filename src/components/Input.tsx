@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   TextInput,
   View,
@@ -41,12 +41,15 @@ const Input: React.FC<InputProps> = ({
   multiline = false,
   numberOfLines = 1,
 }) => {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       
       <View style={[
         styles.inputContainer,
+        isFocused && !error && styles.inputFocused,
         error && styles.inputError,
         disabled && styles.inputDisabled,
       ]}>
@@ -65,6 +68,8 @@ const Input: React.FC<InputProps> = ({
           editable={!disabled}
           multiline={multiline}
           numberOfLines={numberOfLines}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           {...Platform.select({
             web: {
               autoComplete: keyboardType === 'email-address' ? 'email' : 'off',
@@ -102,22 +107,18 @@ const styles = StyleSheet.create({
     ...DESIGN.shadows.sm,
     ...Platform.select({
       web: {
-        outlineStyle: 'none' as any,
-        transition: 'all 0.2s ease',
-        '&:focus-within': {
-          borderColor: COLORS.secondary,
-          boxShadow: `0 0 0 3px ${COLORS.secondary}20`,
-        },
+        outline: 'none',
+        outlineStyle: 'none',
       },
     }),
   },
+  inputFocused: {
+    borderColor: '#3B82F6', // Blue color for focus state
+    borderWidth: 1.5,
+  },
   inputError: {
     borderColor: COLORS.error,
-    ...Platform.select({
-      web: {
-        boxShadow: `0 0 0 3px ${COLORS.error}20`,
-      },
-    }),
+    borderWidth: 1.5,
   },
   inputDisabled: {
     backgroundColor: COLORS.backgroundDark,

@@ -33,6 +33,11 @@ export interface UserMeResponse {
   isAgreed: boolean;
 }
 
+export interface BankDetailsResponse {
+  iban: string;
+  accountHolderName: string;
+}
+
 export const getBalance = async (): Promise<BalanceResponse> => {
   try {
     // Get access token from storage
@@ -102,9 +107,22 @@ export const getUserMe = async (): Promise<UserMeResponse> => {
   }
 };
 
+export const getBankDetails = async (): Promise<BankDetailsResponse> => {
+  try {
+    const response = await apiClient.request<BankDetailsResponse>('/api/v1/Users/me/bank-details', {
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    console.error('Failed to fetch bank details:', error);
+    throw error;
+  }
+};
+
 export default {
   getBalance,
   getUserInfo,
   getUserMe,
+  getBankDetails,
 };
 

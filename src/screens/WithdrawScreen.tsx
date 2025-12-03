@@ -9,78 +9,86 @@ import {
   Platform,
   Alert,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Header, Button, Input } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
-import { usersApi, type BalanceResponse } from '../api';
+import { usersApi, withdrawalsApi, type BalanceResponse, type WithdrawalHistoryItem } from '../api';
 
 const WithdrawScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [amountError, setAmountError] = useState<string>('');
+  const [withdrawalHistory, setWithdrawalHistory] = useState<WithdrawalHistoryItem[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   useEffect(() => {
     loadBalance();
+    loadWithdrawalHistory();
   }, []);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadBalance();
+      loadWithdrawalHistory();
+    }, [])
+  );
 
   const loadBalance = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingBalance(true);
       const balanceData = await usersApi.getBalance();
       setBalance(balanceData);
     } catch (error) {
       console.error('Failed to load balance:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingBalance(false);
     }
   };
 
-  // Mock data - will be replaced with real implementation later
-  const mockWithdrawData = {
-    availableBalance: balance?.withdrawableBalance || 0,
-    pendingWithdrawals: 150.00,
-    totalEarnings: balance?.totalBalance || 0,
-    withdrawalHistory: [
-      {
-        id: '1',
-        amount: 200.00,
-        date: '2024-01-15',
-        status: 'completed',
-        method: 'Bank Transfer',
-      },
-      {
-        id: '2',
-        amount: 150.00,
-        date: '2024-01-10',
-        status: 'completed',
-        method: 'Bank Transfer',
-      },
-      {
-        id: '3',
-        amount: 100.00,
-        date: '2024-01-05',
-        status: 'pending',
-        method: 'Bank Transfer',
-      },
-    ],
-    quickAmounts: [50, 100, 200, 500],
-    minWithdrawal: 25,
-    maxWithdrawal: 1000,
+  const loadWithdrawalHistory = async () => {
+    try {
+      setIsLoadingHistory(true);
+      const history = await withdrawalsApi.getWithdrawalHistory(1, 20);
+      setWithdrawalHistory(history);
+    } catch (error) {
+      console.error('Failed to load withdrawal history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
   };
 
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+  // Helper function to get status display info
+  const getStatusInfo = (status: number) => {
+    switch (status) {
+      case 1: // MoneySent
+        return { text: 'Completed', color: '#10B981', icon: 'checkmark-circle' as const };
+      case 2: // AwaitingOtpVerification
+        return { text: 'Pending', color: '#F39C12', icon: 'time' as const };
+      case 3: // Failed
+        return { text: 'Failed', color: '#EF4444', icon: 'close-circle' as const };
+      case 4: // FailedOtp
+        return { text: 'Failed', color: '#EF4444', icon: 'close-circle' as const };
+      default:
+        return { text: 'Unknown', color: COLORS.text.secondary, icon: 'help-circle' as const };
+    }
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch {
+      return dateString;
+    }
+  };
 
   const handleCustomAmountChange = (amount: string) => {
     setCustomAmount(amount);
@@ -141,41 +149,29 @@ const WithdrawScreen: React.FC = () => {
     navigation.navigate('WithdrawDetails', { amount: customAmount });
   };
 
-  const renderHistoryItem = (item: any) => {
-    const statusColor = item.status === 'completed' ? '#10B981' : '#F39C12';
-    const statusIcon = item.status === 'completed' ? 'checkmark-circle' : 'time';
+  const renderHistoryItem = (item: WithdrawalHistoryItem) => {
+    const statusInfo = getStatusInfo(item.status);
+    const amountInDollars = item.amount;
 
     return (
       <View key={item.id} style={styles.historyItem}>
         <View style={styles.historyIconContainer}>
-          <Ionicons name="card" size={20} color={COLORS.primary} />
+          <Ionicons name="card" size={16} color={COLORS.primary} />
         </View>
         <View style={styles.historyContent}>
-          <Text style={styles.historyAmount}>${item.amount.toFixed(2)}</Text>
-          <Text style={styles.historyMethod}>{item.method}</Text>
-          <Text style={styles.historyDate}>{item.date}</Text>
+          <Text style={styles.historyAmount}>${amountInDollars.toFixed(2)}</Text>
+          <Text style={styles.historyMethod}>{item.receiverName || 'Bank Transfer'}</Text>
+          <Text style={styles.historyDate}>{formatDate(item.createdAt)}</Text>
         </View>
         <View style={styles.historyStatus}>
-          <Ionicons name={statusIcon} size={16} color={statusColor} />
-          <Text style={[styles.historyStatusText, { color: statusColor }]}>
-            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+          <Ionicons name={statusInfo.icon} size={14} color={statusInfo.color} />
+          <Text style={[styles.historyStatusText, { color: statusInfo.color }]}>
+            {statusInfo.text}
           </Text>
         </View>
       </View>
     );
   };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="light" backgroundColor={COLORS.primary} />
-        <Header />
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading withdrawal options...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -189,44 +185,69 @@ const WithdrawScreen: React.FC = () => {
         <View style={styles.balanceSection}>
           <Text style={styles.sectionTitle}>Your Balance</Text>
           
-          {balance ? (
-            <View style={styles.balanceCardsRow}>
-              {/* Total Balance Card */}
-              <View style={styles.balanceCard}>
-                <View style={styles.balanceIconCircle}>
-                  <Ionicons name="wallet" size={24} color={COLORS.primary} />
+          <View style={styles.balanceCardsRow}>
+            {isLoadingBalance ? (
+              <>
+                {/* Loading Placeholder Cards */}
+                <View style={styles.balanceCard}>
+                  <View style={styles.balanceIconCircle}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                  <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceValue}>--</Text>
                 </View>
-                <Text style={styles.balanceLabel}>Total</Text>
-                <Text style={styles.balanceValue}>
-                  ${balance.totalBalance.toFixed(2)}
-                </Text>
-              </View>
+                <View style={styles.balanceCard}>
+                  <View style={styles.balanceIconCircle}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                  <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceValue}>--</Text>
+                </View>
+                <View style={styles.balanceCard}>
+                  <View style={styles.balanceIconCircle}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                  <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceValue}>--</Text>
+                </View>
+              </>
+            ) : balance ? (
+              <>
+                {/* Total Balance Card */}
+                <View style={styles.balanceCard}>
+                  <View style={styles.balanceIconCircle}>
+                    <Ionicons name="wallet" size={20} color={COLORS.primary} />
+                  </View>
+                  <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceValue}>
+                    ${balance.totalBalance.toFixed(2)}
+                  </Text>
+                </View>
 
-              {/* Withdrawable Balance Card */}
-              <View style={styles.balanceCard}>
-                <View style={styles.balanceIconCircle}>
-                  <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+                {/* Withdrawable Balance Card */}
+                <View style={styles.balanceCard}>
+                  <View style={styles.balanceIconCircle}>
+                    <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                  </View>
+                  <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceValue}>
+                    ${balance.withdrawableBalance.toFixed(2)}
+                  </Text>
                 </View>
-                <Text style={styles.balanceLabel}>Available</Text>
-                <Text style={styles.balanceValue}>
-                  ${balance.withdrawableBalance.toFixed(2)}
-                </Text>
-              </View>
 
-              {/* Blocked Balance Card */}
-              <View style={styles.balanceCard}>
-                <View style={styles.balanceIconCircle}>
-                  <Ionicons name="lock-closed" size={24} color="#FF9800" />
+                {/* Blocked Balance Card */}
+                <View style={styles.balanceCard}>
+                  <View style={styles.balanceIconCircle}>
+                    <Ionicons name="lock-closed" size={20} color="#FF9800" />
+                  </View>
+                  <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceValue}>
+                    ${balance.blockedBalance.toFixed(2)}
+                  </Text>
                 </View>
-                <Text style={styles.balanceLabel}>Blocked</Text>
-                <Text style={styles.balanceValue}>
-                  ${balance.blockedBalance.toFixed(2)}
-                </Text>
-              </View>
-            </View>
-          ) : (
-            <Text style={styles.loadingText}>Loading balance...</Text>
-          )}
+              </>
+            ) : null}
+          </View>
         </View>
 
         {/* Withdrawal Amount Section */}
@@ -262,7 +283,7 @@ const WithdrawScreen: React.FC = () => {
             title="Continue"
             onPress={handleWithdraw}
             variant="primary"
-            size="large"
+            size="medium"
             style={styles.withdrawButton}
             disabled={!customAmount || !!amountError}
           />
@@ -271,7 +292,33 @@ const WithdrawScreen: React.FC = () => {
         {/* Withdrawal History */}
         <View style={styles.historySection}>
           <Text style={styles.sectionTitle}>Recent Withdrawals</Text>
-          {mockWithdrawData.withdrawalHistory.map(renderHistoryItem)}
+          {isLoadingHistory ? (
+            <>
+              {/* Loading Placeholder Items */}
+              {[1, 2, 3].map((index) => (
+                <View key={index} style={styles.historyItem}>
+                  <View style={styles.historyIconContainer}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                  <View style={styles.historyContent}>
+                    <Text style={styles.historyAmount}>--</Text>
+                    <Text style={styles.historyMethod}>--</Text>
+                    <Text style={styles.historyDate}>--</Text>
+                  </View>
+                  <View style={styles.historyStatus}>
+                    <ActivityIndicator size="small" color={COLORS.text.tertiary} />
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : withdrawalHistory.length > 0 ? (
+            withdrawalHistory.map(renderHistoryItem)
+          ) : (
+            <View style={styles.emptyHistoryContainer}>
+              <Ionicons name="receipt-outline" size={48} color={COLORS.text.tertiary} />
+              <Text style={styles.emptyHistoryText}>No withdrawal history</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -285,53 +332,43 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: SPACING.lg,
-    paddingTop: Platform.OS === 'web' ? 100 : 80,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: COLORS.text.secondary,
+    padding: SPACING.md,
+    paddingTop: Platform.OS === 'web' ? 60 : 50,
   },
   balanceSection: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
   },
   balanceCardsRow: {
     flexDirection: 'row',
-    gap: SPACING.sm,
-    marginTop: SPACING.md,
+    gap: SPACING.xs,
+    marginTop: SPACING.sm,
   },
   balanceCard: {
     flex: 1,
     backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.md,
+    borderRadius: DESIGN.borderRadius.md,
+    padding: SPACING.sm,
     alignItems: 'center',
     ...DESIGN.shadows.sm,
   },
   balanceIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: COLORS.backgroundDark,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.xs / 2,
   },
   balanceLabel: {
     fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.text.secondary,
-    marginBottom: 4,
+    marginBottom: 2,
     textAlign: 'center',
   },
   balanceValue: {
-    fontSize: TYPOGRAPHY.sizes.lg,
+    fontSize: TYPOGRAPHY.sizes.md,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
     textAlign: 'center',
@@ -339,15 +376,15 @@ const styles = StyleSheet.create({
   withdrawalSection: {
     backgroundColor: COLORS.surface,
     borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.lg,
-    marginBottom: SPACING.xl,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
     ...DESIGN.shadows.sm,
   },
   sectionTitle: {
-    fontSize: TYPOGRAPHY.sizes.lg,
+    fontSize: TYPOGRAPHY.sizes.md,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   quickAmountsContainer: {
     flexDirection: 'row',
@@ -400,13 +437,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   amountInputContainer: {
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   amountLabel: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+    fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.text.primary,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -417,20 +454,22 @@ const styles = StyleSheet.create({
     borderRadius: DESIGN.borderRadius.md,
     borderWidth: 1.5,
     borderColor: COLORS.borderLight,
-    paddingLeft: SPACING.lg,
-    paddingRight: SPACING.lg,
+    paddingLeft: SPACING.md,
+    paddingRight: SPACING.md,
+    paddingVertical: SPACING.sm,
     ...DESIGN.shadows.sm,
   },
   currencySymbol: {
-    fontSize: TYPOGRAPHY.sizes.lg,
+    fontSize: TYPOGRAPHY.sizes.md,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
-    marginRight: SPACING.sm,
+    marginRight: SPACING.xs,
   },
   amountInputInner: {
     flex: 1,
   },
   amountInputField: {
+    outlineWidth: 0,
     fontSize: TYPOGRAPHY.sizes.md,
     color: COLORS.text.primary,
     paddingVertical: SPACING.lg,
@@ -452,42 +491,42 @@ const styles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.weights.medium,
   },
   withdrawButton: {
-    marginTop: SPACING.md,
+    marginTop: SPACING.sm,
   },
   historySection: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
   },
   historyItem: {
     backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.lg,
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
+    borderRadius: DESIGN.borderRadius.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.sm,
     flexDirection: 'row',
     alignItems: 'center',
     ...DESIGN.shadows.sm,
   },
   historyIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: COLORS.backgroundDark,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: SPACING.md,
+    marginRight: SPACING.sm,
   },
   historyContent: {
     flex: 1,
   },
   historyAmount: {
-    fontSize: TYPOGRAPHY.sizes.md,
+    fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   historyMethod: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+    fontSize: TYPOGRAPHY.sizes.xs,
     color: COLORS.text.secondary,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   historyDate: {
     fontSize: TYPOGRAPHY.sizes.xs,
@@ -498,12 +537,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   historyStatusText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
+    fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.medium,
     marginLeft: 4,
   },
   formFields: {
     gap: SPACING.md,
+  },
+  emptyHistoryContainer: {
+    padding: SPACING.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyHistoryText: {
+    fontSize: TYPOGRAPHY.sizes.md,
+    color: COLORS.text.tertiary,
+    marginTop: SPACING.md,
   },
 });
 

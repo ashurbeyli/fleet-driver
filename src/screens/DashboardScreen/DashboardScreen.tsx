@@ -115,8 +115,8 @@ const DashboardScreen: React.FC = () => {
           />
         }
       >
-        {/* Withdraw Widget - Only show if withdrawal feature is enabled */}
-        {features.withdrawal && <WithdrawWidget />}
+        {/* Withdraw Widget - Always render to prevent reflow, widget handles feature flag internally */}
+        <WithdrawWidget />
 
         {/* Agreement Widget - Only show if not agreed */}
         {driver && !driver.isAgreed && <AgreementWidget />}

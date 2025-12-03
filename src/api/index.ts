@@ -12,7 +12,7 @@ export { default as configsApi } from './configs';
 export { default as withdrawalsApi } from './withdrawals';
 export { apiClient, type ApiResponse } from './config';
 export type { Vehicle, SearchVehicle } from './vehicles';
-export type { BalanceResponse, BalanceDetails, UserInfoResponse, UserMeResponse } from './users';
+export type { BalanceResponse, BalanceDetails, UserInfoResponse, UserMeResponse, BankDetailsResponse } from './users';
 export type { AgreementResponse, AgreeResponse, ConfirmAgreementRequest, ConfirmAgreementResponse } from './agreements';
 export type { Bonus, BonusesResponse, ClaimBonusResponse } from './bonuses';
 export type { Challenge, ChallengeLevel, ChallengesResponse } from './challenges';
@@ -20,4 +20,5 @@ export type { LeaderboardEntry, LeaderboardCompetition, LeaderboardsResponse } f
 export type { RankingResponse } from './ranking';
 export type { InvitationPlatform, InvitationsPlatformsResponse, Invitation, SendInvitationRequest, SendInvitationResponse } from './invitations';
 export type { AppConfig, ConfigLinks, ConfigFeatures } from './configs';
-export type { WithdrawalRequest, WithdrawalResponse } from './withdrawals';
+export type { WithdrawalRequest, WithdrawalResponse, WithdrawalHistoryItem } from './withdrawals';
+export { WithdrawalStatus } from './withdrawals';

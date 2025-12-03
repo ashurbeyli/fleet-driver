@@ -6,20 +6,30 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../../constants';
 import { usersApi, type BalanceResponse } from '../../../api';
+import { useConfig } from '../../../contexts/ConfigContext';
 
 const WithdrawWidget: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { features, isLoading: isConfigLoading } = useConfig();
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadBalance();
   }, []);
+
+  // Refresh balance when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadBalance();
+    }, [])
+  );
 
   const loadBalance = async () => {
     try {
@@ -37,70 +47,121 @@ const WithdrawWidget: React.FC = () => {
     navigation.navigate('Withdraw');
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading balance...</Text>
-      </View>
-    );
-  }
-
-  if (!balance) {
-    return null;
-  }
+  // Always render container to prevent reflow, but hide if withdrawal is disabled (after config loads)
+  const shouldShow = isConfigLoading || features.withdrawal;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, !shouldShow && styles.containerHidden]}>
       <View style={styles.header}>
         <Text style={styles.title}>Your Balance</Text>
       </View>
 
       {/* Balance Cards Row */}
       <View style={styles.balanceCardsRow}>
-        {/* Total Balance Card */}
-        <View style={styles.balanceCard}>
-          <View style={styles.balanceIconContainer}>
-            <Ionicons name="wallet" size={24} color={COLORS.primary} />
-          </View>
-          <Text style={styles.balanceLabel}>Total</Text>
-          <Text style={styles.balanceValue}>
-            ${balance.totalBalance.toFixed(2)}
-          </Text>
-        </View>
+        {isLoading ? (
+          <>
+            {/* Loading Placeholder Cards */}
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              </View>
+              <Text style={styles.balanceLabel}>Total</Text>
+              <Text style={styles.balanceValue}>--</Text>
+            </View>
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              </View>
+              <Text style={styles.balanceLabel}>Available</Text>
+              <Text style={styles.balanceValue}>--</Text>
+            </View>
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              </View>
+              <Text style={styles.balanceLabel}>Blocked</Text>
+              <Text style={styles.balanceValue}>--</Text>
+            </View>
+          </>
+        ) : balance ? (
+          <>
+            {/* Total Balance Card */}
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <Ionicons name="wallet" size={24} color={COLORS.primary} />
+              </View>
+              <Text style={styles.balanceLabel}>Total</Text>
+              <Text style={styles.balanceValue}>
+                ${balance.totalBalance.toFixed(2)}
+              </Text>
+            </View>
 
-        {/* Withdrawable Balance Card */}
-        <View style={styles.balanceCard}>
-          <View style={styles.balanceIconContainer}>
-            <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-          </View>
-          <Text style={styles.balanceLabel}>Available</Text>
-          <Text style={styles.balanceValue}>
-            ${balance.withdrawableBalance.toFixed(2)}
-          </Text>
-        </View>
+            {/* Withdrawable Balance Card */}
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+              </View>
+              <Text style={styles.balanceLabel}>Available</Text>
+              <Text style={styles.balanceValue}>
+                ${balance.withdrawableBalance.toFixed(2)}
+              </Text>
+            </View>
 
-        {/* Blocked Balance Card */}
-        <View style={styles.balanceCard}>
-          <View style={styles.balanceIconContainer}>
-            <Ionicons name="lock-closed" size={24} color="#FF9800" />
-          </View>
-          <Text style={styles.balanceLabel}>Blocked</Text>
-          <Text style={styles.balanceValue}>
-            ${balance.blockedBalance.toFixed(2)}
-          </Text>
-        </View>
+            {/* Blocked Balance Card */}
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <Ionicons name="lock-closed" size={24} color="#FF9800" />
+              </View>
+              <Text style={styles.balanceLabel}>Blocked</Text>
+              <Text style={styles.balanceValue}>
+                ${balance.blockedBalance.toFixed(2)}
+              </Text>
+            </View>
+          </>
+        ) : (
+          <>
+            {/* Error Placeholder Cards - maintain layout even on error */}
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <Ionicons name="wallet" size={24} color={COLORS.text.tertiary} />
+              </View>
+              <Text style={styles.balanceLabel}>Total</Text>
+              <Text style={styles.balanceValue}>--</Text>
+            </View>
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <Ionicons name="checkmark-circle" size={24} color={COLORS.text.tertiary} />
+              </View>
+              <Text style={styles.balanceLabel}>Available</Text>
+              <Text style={styles.balanceValue}>--</Text>
+            </View>
+            <View style={styles.balanceCard}>
+              <View style={styles.balanceIconContainer}>
+                <Ionicons name="lock-closed" size={24} color={COLORS.text.tertiary} />
+              </View>
+              <Text style={styles.balanceLabel}>Blocked</Text>
+              <Text style={styles.balanceValue}>--</Text>
+            </View>
+          </>
+        )}
       </View>
 
-      {/* Withdraw Button */}
-      <TouchableOpacity
-        style={styles.withdrawButton}
-        onPress={handleWithdraw}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="wallet" size={20} color="#FFFFFF" />
-        <Text style={styles.withdrawButtonText}>Withdraw</Text>
-        <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-      </TouchableOpacity>
+      {/* Withdraw Button - Always rendered to prevent reflow */}
+      {shouldShow && (
+        <TouchableOpacity
+          style={[
+            styles.withdrawButton,
+            isLoading && styles.withdrawButtonDisabled,
+          ]}
+          onPress={handleWithdraw}
+          activeOpacity={0.8}
+          disabled={isLoading}
+        >
+          <Ionicons name="wallet" size={20} color="#FFFFFF" />
+          <Text style={styles.withdrawButtonText}>Withdraw</Text>
+          <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -113,6 +174,10 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
     ...DESIGN.shadows.md,
   },
+  containerHidden: {
+    opacity: 0,
+    pointerEvents: 'none',
+  },
   header: {
     marginBottom: SPACING.md,
   },
@@ -120,13 +185,6 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.lg,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
-  },
-  loadingText: {
-    fontSize: TYPOGRAPHY.sizes.md,
-    fontWeight: TYPOGRAPHY.weights.medium,
-    color: COLORS.text.secondary,
-    textAlign: 'center',
-    paddingVertical: SPACING.xl,
   },
   balanceCardsRow: {
     flexDirection: 'row',
@@ -172,6 +230,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     gap: SPACING.sm,
     ...DESIGN.shadows.sm,
+  },
+  withdrawButtonDisabled: {
+    opacity: 0.6,
   },
   withdrawButtonText: {
     fontSize: TYPOGRAPHY.sizes.md,

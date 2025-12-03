@@ -17,6 +17,22 @@ export type RootStackParamList = {
   WithdrawDetails: {
     amount: string;
   };
+  WithdrawOtp: {
+    withdrawalId: string;
+    amount: number;
+    receiverName: string;
+    maskedIBAN: string;
+  };
+  WithdrawSuccess: {
+    withdrawalId: string;
+    amount: number;
+    receiverName: string;
+    maskedIBAN: string;
+  };
+  WithdrawError: {
+    message?: string;
+    withdrawalId?: string;
+  };
   // Add more screens as needed
 };
 
