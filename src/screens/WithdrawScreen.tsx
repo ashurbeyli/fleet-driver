@@ -387,7 +387,7 @@ const WithdrawScreen: React.FC = () => {
                   placeholderTextColor={COLORS.text.tertiary}
                   value={customAmount}
                   onChangeText={handleCustomAmountChange}
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                 />
               </View>
             </View>
