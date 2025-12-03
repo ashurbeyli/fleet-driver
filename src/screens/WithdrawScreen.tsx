@@ -165,11 +165,21 @@ const WithdrawScreen: React.FC = () => {
   };
 
   const handleCustomAmountChange = (amount: string) => {
-    setCustomAmount(amount);
+    // Normalize comma to dot for decimal separator (iOS locale issue)
+    // Replace all commas with dots, then ensure only one decimal point
+    let normalizedAmount = amount.replace(/,/g, '.');
+    
+    // Ensure only one decimal point (keep the first one)
+    const parts = normalizedAmount.split('.');
+    if (parts.length > 2) {
+      normalizedAmount = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    setCustomAmount(normalizedAmount);
     
     // Validate amount
-    const numAmount = parseFloat(amount);
-    if (amount && !isNaN(numAmount)) {
+    const numAmount = parseFloat(normalizedAmount);
+    if (normalizedAmount && !isNaN(numAmount)) {
       if (numAmount <= 0) {
         setAmountError(t.validation.amountGreaterThanZero);
       } else if (balance) {
@@ -185,7 +195,7 @@ const WithdrawScreen: React.FC = () => {
       } else {
         setAmountError('');
       }
-    } else if (amount === '') {
+    } else if (normalizedAmount === '') {
       setAmountError('');
     } else {
       setAmountError('Please enter a valid amount');
