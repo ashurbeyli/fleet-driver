@@ -134,11 +134,27 @@ export const getWithdrawalById = async (id: string): Promise<WithdrawalDetailRes
   }
 };
 
+/**
+ * Resend OTP for a withdrawal request
+ * Returns 200 OK status on success
+ */
+export const resendWithdrawalOtp = async (withdrawalId: string): Promise<void> => {
+  try {
+    await apiClient.request<void>(`/api/v1/Withdrawals/${withdrawalId}/resend-otp`, {
+      method: 'POST',
+    });
+  } catch (error) {
+    console.error('Failed to resend withdrawal OTP:', error);
+    throw error;
+  }
+};
+
 const withdrawalsApi = {
   createWithdrawal,
   verifyWithdrawalOtp,
   getWithdrawalHistory,
   getWithdrawalById,
+  resendWithdrawalOtp,
 };
 
 export default withdrawalsApi;

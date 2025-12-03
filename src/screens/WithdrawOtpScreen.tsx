@@ -131,18 +131,27 @@ const WithdrawOtpScreen: React.FC = () => {
     setError('');
 
     try {
-      // TODO: Implement resend OTP API call for withdrawal
-      // await withdrawalsApi.resendWithdrawalOtp(withdrawalId);
-      
-      // Simulate resend API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await withdrawalsApi.resendWithdrawalOtp(withdrawalId);
       
       setOtp('');
+      setOtpKey(prev => prev + 1); // Reset OTP input component
       setResendTimer(60);
-      Alert.alert(t.common.success, t.otp.resendSuccess);
-    } catch (error) {
+      
+      if (Platform.OS === 'web') {
+        alert(t.otp.resendSuccess);
+      } else {
+        Alert.alert(t.common.success, t.otp.resendSuccess);
+      }
+    } catch (error: any) {
       console.error('Resend OTP failed:', error);
-      setError(t.otp.resendFailed);
+      const errorMessage = error?.message || t.otp.resendFailed;
+      setError(errorMessage);
+      
+      if (Platform.OS === 'web') {
+        alert(errorMessage);
+      } else {
+        Alert.alert(t.common.error, errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
