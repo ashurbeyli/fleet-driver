@@ -33,6 +33,9 @@ export type RootStackParamList = {
     message?: string;
     withdrawalId?: string;
   };
+  WithdrawalDetail: {
+    withdrawalId: string;
+  };
   // Add more screens as needed
 };
 

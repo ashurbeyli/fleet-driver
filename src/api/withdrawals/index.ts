@@ -1,12 +1,13 @@
 import apiClient from '../config';
 
 export interface WithdrawalRequest {
-  amount: number; // Amount in dollars (e.g., 0.01 = $0.01)
+  amount: number; // Amount in Turkish Lira (e.g., 0.01 = ₺0.01)
   iban: string;
   accountHolderName: string;
 }
 
 export enum WithdrawalStatus {
+  Pending = 0,
   MoneySent = 1,
   AwaitingOtpVerification = 2,
   Failed = 3,
@@ -16,7 +17,7 @@ export enum WithdrawalStatus {
 export interface WithdrawalResponse {
   withdrawalId: string;
   status: WithdrawalStatus;
-  amount: number; // Amount in dollars
+  amount: number; // Amount in Turkish Lira
   maskedIBAN: string;
   message: string;
   createdAt: string;
@@ -28,7 +29,7 @@ export interface VerifyOtpRequest {
 
 export interface WithdrawalHistoryItem {
   id: string;
-  amount: number; // Amount in dollars
+  amount: number; // Amount in Turkish Lira
   status: number;
   statusDescription: string;
   explanation: string;
@@ -48,6 +49,23 @@ export interface WithdrawalHistoryResponse {
   totalCount: number;
   page: number;
   pageSize: number;
+}
+
+export interface WithdrawalDetailResponse {
+  id: string;
+  amount: number; // Amount in Turkish Lira
+  status: number;
+  statusDescription: string;
+  explanation: string;
+  createdAt: string;
+  updatedAt: string;
+  maskedIBAN: string;
+  maskedPhone: string;
+  receiverName: string;
+  yandexTransactionId: string;
+  bankTransactionRefNo: string;
+  bankPaymentNo: string;
+  failureReason: string;
 }
 
 /**
@@ -100,10 +118,27 @@ export const getWithdrawalHistory = async (page: number = 1, pageSize: number = 
   }
 };
 
+/**
+ * Get withdrawal details by ID
+ * Returns detailed information about a specific withdrawal
+ */
+export const getWithdrawalById = async (id: string): Promise<WithdrawalDetailResponse> => {
+  try {
+    const response = await apiClient.request<WithdrawalDetailResponse>(`/api/v1/Withdrawals/${id}`, {
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    console.error('Failed to fetch withdrawal details:', error);
+    throw error;
+  }
+};
+
 const withdrawalsApi = {
   createWithdrawal,
   verifyWithdrawalOtp,
   getWithdrawalHistory,
+  getWithdrawalById,
 };
 
 export default withdrawalsApi;

@@ -47,6 +47,15 @@ export interface Translations {
     noWithdrawalHistory: string;
     amountSent: string;
     balanceUpdateInfo: string;
+    details: string;
+    status: string;
+    explanation: string;
+    createdAt: string;
+    updatedAt: string;
+    yandexTransactionId: string;
+    bankTransactionRefNo: string;
+    bankPaymentNo: string;
+    failureReason: string;
   };
   
   // OTP
@@ -308,6 +317,15 @@ export const translations: Record<Language, Translations> = {
       noWithdrawalHistory: 'Para çekme geçmişi yok',
       amountSent: 'Gönderilen Tutar',
       balanceUpdateInfo: 'Bakiyeniz işlem tamamen tamamlandığında güncellenecektir.',
+      details: 'Detaylar',
+      status: 'Durum',
+      explanation: 'Açıklama',
+      createdAt: 'Oluşturulma Tarihi',
+      updatedAt: 'Güncellenme Tarihi',
+      yandexTransactionId: 'Yandex İşlem ID',
+      bankTransactionRefNo: 'Banka İşlem Referans No',
+      bankPaymentNo: 'Banka Ödeme No',
+      failureReason: 'Hata Nedeni',
     },
     otp: {
       title: 'OTP Doğrulama',
@@ -348,7 +366,7 @@ export const translations: Record<Language, Translations> = {
       loadingBankDetails: 'Banka detayları yükleniyor...',
       withdrawalAmount: 'Para Çekme Tutarı',
       confirmWithdrawal: 'Para Çekmeyi Onayla',
-      confirmMessage: (amount: string, receiverName: string) => `$${amount} tutarını ${receiverName} adına para çekmek istediğinizden emin misiniz?`,
+      confirmMessage: (amount: string, receiverName: string) => `₺${amount} tutarını ${receiverName} adına para çekmek istediğinizden emin misiniz?`,
     },
     withdrawalSuccess: {
       title: 'Para Çekme Başarılı!',
@@ -537,6 +555,15 @@ export const translations: Record<Language, Translations> = {
       noWithdrawalHistory: 'No withdrawal history',
       amountSent: 'Amount Sent',
       balanceUpdateInfo: 'Your balance will update once the transaction is fully processed.',
+      details: 'Details',
+      status: 'Status',
+      explanation: 'Explanation',
+      createdAt: 'Created At',
+      updatedAt: 'Updated At',
+      yandexTransactionId: 'Yandex Transaction ID',
+      bankTransactionRefNo: 'Bank Transaction Ref No',
+      bankPaymentNo: 'Bank Payment No',
+      failureReason: 'Failure Reason',
     },
     otp: {
       title: 'OTP Verification',
@@ -577,7 +604,7 @@ export const translations: Record<Language, Translations> = {
       loadingBankDetails: 'Loading bank details...',
       withdrawalAmount: 'Withdrawal Amount',
       confirmWithdrawal: 'Confirm Withdrawal',
-      confirmMessage: (amount: string, receiverName: string) => `Are you sure you want to withdraw $${amount} to ${receiverName}?`,
+      confirmMessage: (amount: string, receiverName: string) => `Are you sure you want to withdraw ₺${amount} to ${receiverName}?`,
     },
     withdrawalSuccess: {
       title: 'Withdrawal Successful!',

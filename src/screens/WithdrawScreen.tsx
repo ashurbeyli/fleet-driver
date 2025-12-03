@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Alert,
   TextInput,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +29,12 @@ const WithdrawScreen: React.FC = () => {
   const [amountError, setAmountError] = useState<string>('');
   const [withdrawalHistory, setWithdrawalHistory] = useState<WithdrawalHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const startY = useRef(0);
+  const isPulling = useRef(false);
+  const scrollY = useRef(0);
 
   useEffect(() => {
     loadBalance();
@@ -57,7 +64,7 @@ const WithdrawScreen: React.FC = () => {
   const loadWithdrawalHistory = async () => {
     try {
       setIsLoadingHistory(true);
-      const history = await withdrawalsApi.getWithdrawalHistory(1, 20);
+      const history = await withdrawalsApi.getWithdrawalHistory(1, 10);
       setWithdrawalHistory(history);
     } catch (error) {
       console.error('Failed to load withdrawal history:', error);
@@ -66,10 +73,75 @@ const WithdrawScreen: React.FC = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([loadBalance(), loadWithdrawalHistory()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Web-specific pull-to-refresh using scroll events
+  const handleWebScroll = (e: any) => {
+    if (Platform.OS !== 'web') return;
+    
+    const scrollTop = e.nativeEvent?.contentOffset?.y || 0;
+    scrollY.current = scrollTop;
+    
+    // Reset pull distance when scrolled away from top
+    if (scrollTop > 0 && pullDistance > 0) {
+      setPullDistance(0);
+      isPulling.current = false;
+    }
+  };
+
+  const handleWebTouchStart = (e: any) => {
+    if (Platform.OS !== 'web') return;
+    const touch = e.nativeEvent?.touches?.[0] || e.touches?.[0];
+    if (touch && scrollY.current === 0) {
+      startY.current = touch.clientY || touch.pageY || 0;
+      isPulling.current = true;
+    }
+  };
+
+  const handleWebTouchMove = (e: any) => {
+    if (Platform.OS !== 'web' || !isPulling.current) return;
+    const touch = e.nativeEvent?.touches?.[0] || e.touches?.[0];
+    if (!touch) return;
+
+    const currentY = touch.clientY || touch.pageY || 0;
+    
+    // Only allow pull-to-refresh when at the top
+    if (scrollY.current === 0 && currentY > startY.current) {
+      const distance = Math.min(currentY - startY.current, 80);
+      setPullDistance(distance);
+    } else if (currentY <= startY.current) {
+      setPullDistance(0);
+      isPulling.current = false;
+    }
+  };
+
+  const handleWebTouchEnd = () => {
+    if (Platform.OS !== 'web') return;
+    
+    if (isPulling.current && pullDistance > 40) {
+      handleRefresh();
+    }
+    
+    // Reset
+    setTimeout(() => {
+      setPullDistance(0);
+      isPulling.current = false;
+    }, 200);
+  };
+
   // Helper function to get status display info
   const getStatusInfo = (status: number) => {
     switch (status) {
-      case 1: // MoneySent
+      case 0: // Pending
+        return { text: t.withdrawalStatus.pending, color: '#F39C12', icon: 'time' as const };
+      case 1: // MoneySent (Completed)
         return { text: t.withdrawalStatus.completed, color: '#10B981', icon: 'checkmark-circle' as const };
       case 2: // AwaitingOtpVerification
         return { text: t.withdrawalStatus.pending, color: '#F39C12', icon: 'time' as const };
@@ -106,7 +178,7 @@ const WithdrawScreen: React.FC = () => {
         const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
         
         if (roundedAmount > roundedBalance) {
-          setAmountError(`Cannot exceed available balance of $${balance.withdrawableBalance.toFixed(2)}`);
+          setAmountError(`Cannot exceed available balance of ₺${balance.withdrawableBalance.toFixed(2)}`);
         } else {
           setAmountError('');
         }
@@ -139,7 +211,7 @@ const WithdrawScreen: React.FC = () => {
     const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
     
     if (roundedAmount > roundedBalance) {
-      Alert.alert('Insufficient Balance', `You don't have enough balance for this withdrawal. Available: $${balance.withdrawableBalance.toFixed(2)}`);
+      Alert.alert('Insufficient Balance', `You don't have enough balance for this withdrawal. Available: ₺${balance.withdrawableBalance.toFixed(2)}`);
       return;
     }
 
@@ -151,17 +223,26 @@ const WithdrawScreen: React.FC = () => {
     navigation.navigate('WithdrawDetails', { amount: customAmount });
   };
 
+  const handleHistoryItemPress = (withdrawalId: string) => {
+    navigation.navigate('WithdrawalDetail', { withdrawalId });
+  };
+
   const renderHistoryItem = (item: WithdrawalHistoryItem) => {
     const statusInfo = getStatusInfo(item.status);
     const amountInDollars = item.amount;
 
     return (
-      <View key={item.id} style={styles.historyItem}>
+      <TouchableOpacity
+        key={item.id}
+        style={styles.historyItem}
+        onPress={() => handleHistoryItemPress(item.id)}
+        activeOpacity={0.7}
+      >
         <View style={styles.historyIconContainer}>
           <Ionicons name="card" size={16} color={COLORS.primary} />
         </View>
         <View style={styles.historyContent}>
-          <Text style={styles.historyAmount}>${amountInDollars.toFixed(2)}</Text>
+          <Text style={styles.historyAmount}>₺{amountInDollars.toFixed(2)}</Text>
           <Text style={styles.historyMethod}>{item.receiverName || t.ui.bankTransfer}</Text>
           <Text style={styles.historyDate}>{formatDate(item.createdAt)}</Text>
         </View>
@@ -171,7 +252,8 @@ const WithdrawScreen: React.FC = () => {
             {statusInfo.text}
           </Text>
         </View>
-      </View>
+        <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} style={styles.historyChevron} />
+      </TouchableOpacity>
     );
   };
 
@@ -180,9 +262,43 @@ const WithdrawScreen: React.FC = () => {
       <StatusBar style="light" backgroundColor={COLORS.primary} />
       <Header />
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        ref={scrollViewRef}
+        contentContainerStyle={[
+          styles.scrollContent,
+          Platform.OS === 'web' && pullDistance > 0 && { paddingTop: pullDistance }
+        ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          Platform.OS !== 'web' ? (
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
+            />
+          ) : undefined
+        }
+        onScroll={handleWebScroll}
+        scrollEventThrottle={16}
+        onTouchStart={handleWebTouchStart}
+        onTouchMove={handleWebTouchMove}
+        onTouchEnd={handleWebTouchEnd}
       >
+        {/* Web pull-to-refresh indicator */}
+        {Platform.OS === 'web' && pullDistance > 0 && (
+          <View style={[styles.webRefreshIndicator, { height: pullDistance }]}>
+            {pullDistance > 40 ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : (
+              <Ionicons 
+                name="arrow-down" 
+                size={20} 
+                color={COLORS.primary}
+                style={{ transform: [{ rotate: '0deg' }] }}
+              />
+            )}
+          </View>
+        )}
         {/* Balance Cards */}
         <View style={styles.balanceSection}>
           <Text style={styles.sectionTitle}>{t.dashboard.yourBalance}</Text>
@@ -222,7 +338,7 @@ const WithdrawScreen: React.FC = () => {
                   </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
                   <Text style={styles.balanceValue}>
-                    ${balance.totalBalance.toFixed(2)}
+                    ₺{balance.totalBalance.toFixed(2)}
                   </Text>
                 </View>
 
@@ -233,7 +349,7 @@ const WithdrawScreen: React.FC = () => {
                   </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
                   <Text style={styles.balanceValue}>
-                    ${balance.withdrawableBalance.toFixed(2)}
+                    ₺{balance.withdrawableBalance.toFixed(2)}
                   </Text>
                 </View>
 
@@ -244,7 +360,7 @@ const WithdrawScreen: React.FC = () => {
                   </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
                   <Text style={styles.balanceValue}>
-                    ${balance.blockedBalance.toFixed(2)}
+                    ₺{balance.blockedBalance.toFixed(2)}
                   </Text>
                 </View>
               </>
@@ -263,7 +379,7 @@ const WithdrawScreen: React.FC = () => {
               styles.amountInputWrapper,
               amountError && styles.amountInputWrapperError,
             ]}>
-              <Text style={styles.currencySymbol}>$</Text>
+              <Text style={styles.currencySymbol}>₺</Text>
               <View style={styles.amountInputInner}>
                 <TextInput
                   style={styles.amountInputField}
@@ -543,6 +659,9 @@ const styles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.weights.medium,
     marginLeft: 4,
   },
+  historyChevron: {
+    marginLeft: SPACING.sm,
+  },
   formFields: {
     gap: SPACING.md,
   },
@@ -555,6 +674,16 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.md,
     color: COLORS.text.tertiary,
     marginTop: SPACING.md,
+  },
+  webRefreshIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.backgroundDark,
+    zIndex: 1000,
   },
 });
 

@@ -15,6 +15,7 @@ import WithdrawDetailsScreen from '../screens/WithdrawDetailsScreen';
 import WithdrawOtpScreen from '../screens/WithdrawOtpScreen';
 import WithdrawSuccessScreen from '../screens/WithdrawSuccessScreen';
 import WithdrawErrorScreen from '../screens/WithdrawErrorScreen';
+import WithdrawalDetailScreen from '../screens/WithdrawalDetailScreen';
 import { authService } from '../services/authService';
 import { COLORS } from '../constants';
 
@@ -74,6 +75,7 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="WithdrawOtp" component={WithdrawOtpScreen} />
       <Stack.Screen name="WithdrawSuccess" component={WithdrawSuccessScreen} />
       <Stack.Screen name="WithdrawError" component={WithdrawErrorScreen} />
+      <Stack.Screen name="WithdrawalDetail" component={WithdrawalDetailScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       {/* Add more screens here as needed */}
     </Stack.Navigator>

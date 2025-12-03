@@ -24,7 +24,7 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({ onNewsPress }) => {
   const mockNewsData = {
     latestNews: {
       title: "New Bonus Program",
-      summary: "Earn extra $5 per ride this weekend",
+      summary: "Earn extra ₺5 per ride this weekend",
       time: "2h ago",
     },
     unreadCount: 3,

@@ -77,7 +77,7 @@ const InviteFriendWidget: React.FC<InviteFriendWidgetProps> = ({ onInvitePress, 
       ) : (
         <>
           <View style={styles.inviteInfo}>
-            <Text style={styles.earningsText}>${totalEarnings}</Text>
+            <Text style={styles.earningsText}>₺{totalEarnings}</Text>
             <Text style={styles.invitesText}>{totalInvites} friends</Text>
           </View>
 

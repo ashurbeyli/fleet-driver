@@ -60,7 +60,7 @@ const WithdrawSuccessScreen: React.FC = () => {
         <View style={styles.detailsCard}>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t.withdrawalSuccess.amountSent}</Text>
-            <Text style={styles.detailValue}>${amountInDollars}</Text>
+            <Text style={styles.detailValue}>₺{amountInDollars}</Text>
           </View>
           
           <View style={styles.detailDivider} />

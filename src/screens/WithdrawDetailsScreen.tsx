@@ -160,7 +160,7 @@ const WithdrawDetailsScreen: React.FC = () => {
       const normalizedIban = iban.replace(/\s/g, '').toUpperCase().trim();
 
       const withdrawalData: WithdrawalRequest = {
-        amount: amount, // Send amount in dollars (decimal)
+        amount: amount, // Send amount in Turkish Lira (decimal)
         iban: normalizedIban,
         accountHolderName: receiverName.trim(),
       };
@@ -168,8 +168,8 @@ const WithdrawDetailsScreen: React.FC = () => {
       const response = await withdrawalsApi.createWithdrawal(withdrawalData);
 
       // Handle different status responses
-      if (response.status === WithdrawalStatus.MoneySent) {
-        // Status 1: Money sent - show success screen
+      if (response.status === WithdrawalStatus.Pending || response.status === WithdrawalStatus.MoneySent) {
+        // Status 0 (Pending) or Status 1 (MoneySent): Show success screen
         navigation.replace('WithdrawSuccess', {
           withdrawalId: response.withdrawalId,
           amount: response.amount,
@@ -214,7 +214,7 @@ const WithdrawDetailsScreen: React.FC = () => {
         <View style={styles.amountSummary}>
           <Ionicons name="cash-outline" size={24} color="#FFFFFF" />
           <Text style={styles.amountLabel}>{t.withdrawalDetails.withdrawalAmount}</Text>
-          <Text style={styles.amountValue}>${amount.toFixed(2)}</Text>
+          <Text style={styles.amountValue}>₺{amount.toFixed(2)}</Text>
         </View>
 
         {/* Bank Details Form */}

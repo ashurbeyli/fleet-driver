@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
@@ -25,6 +26,11 @@ const DashboardScreen: React.FC = () => {
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const startY = useRef(0);
+  const isPulling = useRef(false);
+  const scrollY = useRef(0);
 
   // Load driver data and balance on mount
   useEffect(() => {
@@ -101,22 +107,102 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
+  // Web-specific pull-to-refresh using scroll events
+  const handleWebScroll = (e: any) => {
+    if (Platform.OS !== 'web') return;
+    
+    const scrollTop = e.nativeEvent?.contentOffset?.y || 0;
+    scrollY.current = scrollTop;
+    
+    // Reset pull distance when scrolled away from top
+    if (scrollTop > 0 && pullDistance > 0) {
+      setPullDistance(0);
+      isPulling.current = false;
+    }
+  };
+
+  const handleWebTouchStart = (e: any) => {
+    if (Platform.OS !== 'web') return;
+    const touch = e.nativeEvent?.touches?.[0] || e.touches?.[0];
+    if (touch && scrollY.current === 0) {
+      startY.current = touch.clientY || touch.pageY || 0;
+      isPulling.current = true;
+    }
+  };
+
+  const handleWebTouchMove = (e: any) => {
+    if (Platform.OS !== 'web' || !isPulling.current) return;
+    const touch = e.nativeEvent?.touches?.[0] || e.touches?.[0];
+    if (!touch) return;
+
+    const currentY = touch.clientY || touch.pageY || 0;
+    
+    // Only allow pull-to-refresh when at the top
+    if (scrollY.current === 0 && currentY > startY.current) {
+      const distance = Math.min(currentY - startY.current, 80);
+      setPullDistance(distance);
+    } else if (currentY <= startY.current) {
+      setPullDistance(0);
+      isPulling.current = false;
+    }
+  };
+
+  const handleWebTouchEnd = () => {
+    if (Platform.OS !== 'web') return;
+    
+    if (isPulling.current && pullDistance > 40) {
+      onRefresh();
+    }
+    
+    // Reset
+    setTimeout(() => {
+      setPullDistance(0);
+      isPulling.current = false;
+    }, 200);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        ref={scrollViewRef}
+        contentContainerStyle={[
+          styles.scrollContent,
+          Platform.OS === 'web' && pullDistance > 0 && { paddingTop: pullDistance }
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            tintColor={COLORS.primary}
-            colors={[COLORS.primary]}
-          />
+          Platform.OS !== 'web' ? (
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
+            />
+          ) : undefined
         }
+        onScroll={handleWebScroll}
+        scrollEventThrottle={16}
+        onTouchStart={handleWebTouchStart}
+        onTouchMove={handleWebTouchMove}
+        onTouchEnd={handleWebTouchEnd}
       >
+        {/* Web pull-to-refresh indicator */}
+        {Platform.OS === 'web' && pullDistance > 0 && (
+          <View style={[styles.webRefreshIndicator, { height: pullDistance }]}>
+            {pullDistance > 40 ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : (
+              <Ionicons 
+                name="arrow-down" 
+                size={20} 
+                color={COLORS.primary}
+                style={{ transform: [{ rotate: '0deg' }] }}
+              />
+            )}
+          </View>
+        )}
         {/* Withdraw Widget - Always render to prevent reflow, widget handles feature flag internally */}
-        <WithdrawWidget />
+        <WithdrawWidget isRefreshing={isRefreshing} />
 
         {/* Agreement Widget - Only show if not agreed */}
         {driver && !driver.isAgreed && <AgreementWidget />}
@@ -244,6 +330,16 @@ const styles = StyleSheet.create({
   secondRow: {
     flexDirection: 'row',
     marginBottom: SPACING.md,
+  },
+  webRefreshIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.backgroundDark,
+    zIndex: 1000,
   },
 });
 

@@ -15,7 +15,11 @@ import { usersApi, type BalanceResponse } from '../../../api';
 import { useConfig } from '../../../contexts/ConfigContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
-const WithdrawWidget: React.FC = () => {
+interface WithdrawWidgetProps {
+  isRefreshing?: boolean;
+}
+
+const WithdrawWidget: React.FC<WithdrawWidgetProps> = ({ isRefreshing = false }) => {
   const navigation = useNavigation<any>();
   const { features, isLoading: isConfigLoading } = useConfig();
   const { t } = useLanguage();
@@ -32,6 +36,15 @@ const WithdrawWidget: React.FC = () => {
       loadBalance();
     }, [])
   );
+
+  // Refresh balance when parent is refreshing
+  useEffect(() => {
+    if (isRefreshing) {
+      // Set loading state immediately when refresh starts
+      setIsLoading(true);
+      loadBalance();
+    }
+  }, [isRefreshing]);
 
   const loadBalance = async () => {
     try {
@@ -60,7 +73,7 @@ const WithdrawWidget: React.FC = () => {
 
       {/* Balance Cards Row */}
       <View style={styles.balanceCardsRow}>
-        {isLoading ? (
+        {(isLoading || isRefreshing) ? (
           <>
             {/* Loading Placeholder Cards */}
             <View style={styles.balanceCard}>
@@ -94,7 +107,7 @@ const WithdrawWidget: React.FC = () => {
               </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
               <Text style={styles.balanceValue}>
-                ${balance.totalBalance.toFixed(2)}
+                ₺{balance.totalBalance.toFixed(2)}
               </Text>
             </View>
 
@@ -105,7 +118,7 @@ const WithdrawWidget: React.FC = () => {
               </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
               <Text style={styles.balanceValue}>
-                ${balance.withdrawableBalance.toFixed(2)}
+                ₺{balance.withdrawableBalance.toFixed(2)}
               </Text>
             </View>
 
@@ -116,7 +129,7 @@ const WithdrawWidget: React.FC = () => {
               </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
               <Text style={styles.balanceValue}>
-                ${balance.blockedBalance.toFixed(2)}
+                ₺{balance.blockedBalance.toFixed(2)}
               </Text>
             </View>
           </>
@@ -153,11 +166,11 @@ const WithdrawWidget: React.FC = () => {
         <TouchableOpacity
           style={[
             styles.withdrawButton,
-            isLoading && styles.withdrawButtonDisabled,
+            (isLoading || isRefreshing) && styles.withdrawButtonDisabled,
           ]}
           onPress={handleWithdraw}
           activeOpacity={0.8}
-          disabled={isLoading}
+          disabled={isLoading || isRefreshing}
         >
           <Ionicons name="wallet" size={20} color="#FFFFFF" />
           <Text style={styles.withdrawButtonText}>{t.dashboard.withdraw}</Text>

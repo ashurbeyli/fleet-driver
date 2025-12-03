@@ -88,7 +88,7 @@ const BonusScreen: React.FC = () => {
         
         Alert.alert(
           t.bonuses.bonusClaimed,
-          `$${response.claimedAmount}${t.bonuses.successfullyClaimed}`,
+          `₺${response.claimedAmount}${t.bonuses.successfullyClaimed}`,
           [{ text: t.common.confirm }]
         );
       } else {
@@ -180,7 +180,7 @@ const BonusScreen: React.FC = () => {
             <Ionicons name="gift" size={20} color="#10B981" />
             <View style={styles.summaryContent}>
               <Text style={styles.summaryValue}>
-                ${bonusesData?.unclaimedBonusTotalAmount || 0}
+                ₺{bonusesData?.unclaimedBonusTotalAmount || 0}
               </Text>
               <Text style={styles.summaryLabel}>{t.bonuses.bonus}</Text>
             </View>
@@ -202,7 +202,7 @@ const BonusScreen: React.FC = () => {
                     </Text>
                   </View>
                   <View style={styles.couponAmountContainer}>
-                    <Text style={styles.couponAmount}>${bonus.bonusAmount}</Text>
+                    <Text style={styles.couponAmount}>₺{bonus.bonusAmount}</Text>
                   </View>
                 </View>
                 <View style={styles.couponFooter}>

@@ -95,7 +95,7 @@ const GoalsScreen: React.FC = () => {
           
           <View style={styles.bonusContainer}>
             <Text style={styles.bonusLabel}>{t.challenges.bonus}</Text>
-            <Text style={styles.bonusAmount}>${currentLevel.bonusAmount}</Text>
+            <Text style={styles.bonusAmount}>₺{currentLevel.bonusAmount}</Text>
           </View>
         </View>
 

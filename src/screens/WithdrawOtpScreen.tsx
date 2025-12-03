@@ -89,8 +89,8 @@ const WithdrawOtpScreen: React.FC = () => {
       const response = await withdrawalsApi.verifyWithdrawalOtp(withdrawalId, codeToVerify);
 
       // Handle different status responses
-      if (response.status === WithdrawalStatus.MoneySent) {
-        // Status 1: Money sent - show success screen
+      if (response.status === WithdrawalStatus.Pending || response.status === WithdrawalStatus.MoneySent) {
+        // Status 0 (Pending) or Status 1 (MoneySent): Show success screen
         navigation.replace('WithdrawSuccess', {
           withdrawalId: response.withdrawalId,
           amount: response.amount,
@@ -172,7 +172,7 @@ const WithdrawOtpScreen: React.FC = () => {
         <View style={styles.detailsCard}>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t.withdrawal.amount}</Text>
-            <Text style={styles.detailValue}>${amountInDollars}</Text>
+            <Text style={styles.detailValue}>₺{amountInDollars}</Text>
           </View>
           
           <View style={styles.detailDivider} />
