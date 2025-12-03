@@ -17,6 +17,7 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { RootStackParamList } from '../types';
 import { authApi } from '../api';
 import { authService } from '../services/authService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type OtpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Otp'>;
 type OtpScreenRouteProp = RouteProp<RootStackParamList, 'Otp'>;
@@ -24,6 +25,7 @@ type OtpScreenRouteProp = RouteProp<RootStackParamList, 'Otp'>;
 const OtpScreen: React.FC = () => {
   const navigation = useNavigation<OtpScreenNavigationProp>();
   const route = useRoute<OtpScreenRouteProp>();
+  const { t } = useLanguage();
   
   // Get data from route params
   const phoneNumber = route.params?.phoneNumber || '';
@@ -64,12 +66,12 @@ const OtpScreen: React.FC = () => {
     const codeToVerify = otpCode || otp;
     
     if (codeToVerify.length !== 6) {
-      setError('Please enter a valid 6-digit verification code.');
+      setError(t.validation.otpInvalidLength);
       return;
     }
 
     if (!parkId) {
-      setError('Park information is missing. Please go back and login again.');
+      setError(t.loginOtp.parkInfoMissing);
       return;
     }
 
@@ -91,11 +93,11 @@ const OtpScreen: React.FC = () => {
         // Navigate to dashboard
         navigation.navigate('Dashboard');
       } else {
-        setError(response.message || 'Invalid verification code. Please try again.');
+        setError(response.message || t.loginOtp.invalidCode);
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
-      setError('Verification failed. Please check your code and try again.');
+      setError(t.loginOtp.verificationFailed);
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +119,7 @@ const OtpScreen: React.FC = () => {
       console.log('Resending OTP to:', phoneNumber);
     } catch (error) {
       console.error('Resend OTP failed:', error);
-      setError('Failed to resend code. Please try again.');
+      setError(t.loginOtp.resendFailed);
     } finally {
       setIsLoading(false);
     }

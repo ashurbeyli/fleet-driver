@@ -1,0 +1,728 @@
+export type Language = 'tr' | 'en';
+
+export interface Translations {
+  // Common
+  common: {
+    loading: string;
+    error: string;
+    success: string;
+    cancel: string;
+    confirm: string;
+    back: string;
+    continue: string;
+    tryAgain: string;
+    logout: string;
+    bonuses: string;
+    challenges: string;
+  };
+  
+  // Menu
+  menu: {
+    profile: string;
+    agreement: string;
+    vehicleChange: string;
+    inviteFriend: string;
+    language: string;
+    logout: string;
+    verified: string;
+    notVerified: string;
+  };
+  
+  // Withdrawal
+  withdrawal: {
+    title: string;
+    amount: string;
+    enterAmount: string;
+    available: string;
+    blocked: string;
+    total: string;
+    continue: string;
+    receiverName: string;
+    iban: string;
+    confirmWithdrawal: string;
+    withdrawalSuccessful: string;
+    withdrawalFailed: string;
+    backToWithdraw: string;
+    recentWithdrawals: string;
+    noWithdrawalHistory: string;
+    amountSent: string;
+    balanceUpdateInfo: string;
+  };
+  
+  // OTP
+  otp: {
+    title: string;
+    enterOtp: string;
+    verify: string;
+    resend: string;
+    verifyWithdrawal: string;
+    verificationMessage: string;
+    invalidOtp: string;
+    resendSuccess: string;
+    resendFailed: string;
+    verificationFailed: string;
+    codeSentTo: string;
+    yourPhone: string;
+    resendCodeIn: string;
+    resendCode: string;
+    didntReceiveCode: string;
+  };
+  
+  // Validation
+  validation: {
+    amountRequired: string;
+    amountExceeded: string;
+    receiverNameRequired: string;
+    receiverNameMinLength: string;
+    ibanRequired: string;
+    ibanInvalid: string;
+    amountGreaterThanZero: string;
+    otpInvalidLength: string;
+  };
+  
+  // Withdrawal Status
+  withdrawalStatus: {
+    completed: string;
+    pending: string;
+    failed: string;
+    unknown: string;
+  };
+  
+  // Withdrawal Details
+  withdrawalDetails: {
+    title: string;
+    bankDetails: string;
+    loadingBankDetails: string;
+    withdrawalAmount: string;
+    confirmWithdrawal: string;
+      confirmMessage: (amount: string, receiverName: string) => string;
+  };
+  
+  // Withdrawal Success
+  withdrawalSuccess: {
+    title: string;
+    subtitle: string;
+    amountSent: string;
+    receiverName: string;
+    iban: string;
+  };
+  
+  // Withdrawal Error
+  withdrawalError: {
+    title: string;
+    defaultMessage: string;
+  };
+  
+  // Dashboard
+  dashboard: {
+    yourBalance: string;
+    withdraw: string;
+    home: string;
+    menu: string;
+  };
+  
+  // Common UI
+  ui: {
+    bankTransfer: string;
+    loadingBalance: string;
+    loadingHistory: string;
+  };
+  
+  // Agreement
+  agreement: {
+    required: string;
+    reviewMessage: string;
+    reviewAgreement: string;
+    loading: string;
+    errorLoading: string;
+    errorMessage: string;
+    lastUpdated: string;
+    contentTitle: string;
+    contentSubtitle: string;
+    readFull: string;
+    hideFull: string;
+    tapToRead: string;
+    alreadyAgreed: string;
+    iAgree: string;
+    accepting: string;
+    cancel: string;
+    failedToLoad: string;
+    failedToSendCode: string;
+    invalidCode: string;
+    failedToResend: string;
+    unknownDate: string;
+  };
+  
+  // Contact/Support
+  contact: {
+    support: string;
+    getSupport: string;
+    callSupport: string;
+    whatsAppChat: string;
+    whatsAppDescription: string;
+    followUs: string;
+    whatsAppMessage: string;
+    phoneNotSupported: string;
+    unableToOpenPhone: string;
+    unableToOpenWhatsApp: string;
+    unableToOpenPlatform: string;
+    platformNotConfigured: string;
+    facebook: string;
+    instagram: string;
+    allRightsReserved: string;
+  };
+  
+  // Profile
+  profile: {
+    driver: string;
+    profileDetails: string;
+    parkName: string;
+    agreement: string;
+    agreed: string;
+    notAgreed: string;
+    userInfo: string;
+    loadingUserInfo: string;
+    failedToLoadUserInfo: string;
+    hireDate: string;
+    phone: string;
+    licenseNumber: string;
+    status: string;
+    city: string;
+  };
+  
+  // Login
+  login: {
+    controlCentre: string;
+    yourPark: string;
+    loadingParks: string;
+    noParksAvailable: string;
+    selectPark: string;
+    phoneNumber: string;
+    phonePlaceholder: string;
+    loggingIn: string;
+    continue: string;
+    termsAgreement: string;
+    failedToLoadParks: string;
+    pleaseSelectPark: string;
+    invalidPhoneNumber: string;
+    parkNotFound: string;
+    loginFailed: string;
+    loginFailedConnection: string;
+  };
+  
+  // Login OTP
+  loginOtp: {
+    invalidCode: string;
+    parkInfoMissing: string;
+    verificationFailed: string;
+    resendFailed: string;
+  };
+  
+  // Bonuses
+  bonuses: {
+    loading: string;
+    failedToLoad: string;
+    unclaimed: string;
+    bonus: string;
+    bonuses: string;
+    achieved: string;
+    claimed: string;
+    claim: string;
+    claimFailed: string;
+    missingId: string;
+    bonusClaimed: string;
+    successfullyClaimed: string;
+    failedToClaim: string;
+    failedToClaimConnection: string;
+    noBonusesAvailable: string;
+    completeChallenges: string;
+  };
+  
+  // Challenges
+  challenges: {
+    goals: string;
+    rankings: string;
+    activeGoals: string;
+    loadingGoals: string;
+    failedToLoadGoals: string;
+    noGoalsAvailable: string;
+    checkBackLater: string;
+    completed: string;
+    moreRidesToGo: string;
+    left: string;
+    expired: string;
+    bonus: string;
+    leaderboard: string;
+    rank: string;
+    driver: string;
+    orders: string;
+    order: string;
+    loadingLeaderboards: string;
+    failedToLoadLeaderboards: string;
+    noCompetitionsAvailable: string;
+    noLeaderboardData: string;
+    you: string;
+  };
+}
+
+export const translations: Record<Language, Translations> = {
+  tr: {
+    common: {
+      loading: 'Yükleniyor...',
+      error: 'Hata',
+      success: 'Başarılı',
+      cancel: 'İptal',
+      confirm: 'Onayla',
+      back: 'Geri',
+      continue: 'Devam',
+      tryAgain: 'Tekrar Dene',
+      logout: 'Çıkış Yap',
+      bonuses: 'Bonuslar',
+      challenges: 'Görevler',
+    },
+    menu: {
+      profile: 'Profil',
+      agreement: 'Sözleşme',
+      vehicleChange: 'Araç Değiştir',
+      inviteFriend: 'Arkadaş Davet Et',
+      language: 'Dil',
+      logout: 'Çıkış Yap',
+      verified: 'Doğrulandı',
+      notVerified: 'Doğrulanmadı',
+    },
+    withdrawal: {
+      title: 'Para Çekme',
+      amount: 'Tutar',
+      enterAmount: 'Tutar Girin',
+      available: 'Kullanılabilir',
+      blocked: 'Bloke',
+      total: 'Toplam',
+      continue: 'Devam',
+      receiverName: 'Alıcı Adı',
+      iban: 'IBAN',
+      confirmWithdrawal: 'Para Çekmeyi Onayla',
+      withdrawalSuccessful: 'Para Çekme Başarılı!',
+      withdrawalFailed: 'Para Çekme Başarısız',
+      backToWithdraw: 'Para Çekmeye Dön',
+      recentWithdrawals: 'Son Para Çekmeler',
+      noWithdrawalHistory: 'Para çekme geçmişi yok',
+      amountSent: 'Gönderilen Tutar',
+      balanceUpdateInfo: 'Bakiyeniz işlem tamamen tamamlandığında güncellenecektir.',
+    },
+    otp: {
+      title: 'OTP Doğrulama',
+      enterOtp: 'OTP Kodunu Girin',
+      verify: 'Doğrula',
+      resend: 'Yeniden Gönder',
+      verifyWithdrawal: 'Para Çekmeyi Doğrula',
+      verificationMessage: 'Lütfen telefonunuza gönderilen doğrulama kodunu girerek bu para çekme işlemini onaylayın.',
+      invalidOtp: 'Geçersiz OTP kodu. Lütfen kontrol edip tekrar deneyin.',
+      resendSuccess: 'Doğrulama kodu yeniden gönderildi.',
+      resendFailed: 'Kod yeniden gönderilemedi. Lütfen tekrar deneyin.',
+      verificationFailed: 'Doğrulama başarısız. Lütfen kodunuzu kontrol edip tekrar deneyin.',
+      codeSentTo: 'Kod gönderildi',
+      yourPhone: 'telefonunuza',
+      resendCodeIn: 'Kodu yeniden gönder',
+      resendCode: 'Kodu Yeniden Gönder',
+      didntReceiveCode: 'Kodu almadınız mı? Telefon mesajlarınızı kontrol edin veya yeniden göndermeyi deneyin.',
+    },
+    validation: {
+      amountRequired: 'Tutar gerekli',
+      amountExceeded: 'Kullanılabilir bakiyeyi aşamaz',
+      receiverNameRequired: 'Alıcı adı gerekli',
+      receiverNameMinLength: 'Alıcı adı en az 2 karakter olmalıdır',
+      ibanRequired: 'IBAN gerekli',
+      ibanInvalid: 'IBAN 26 karakter uzunluğunda olmalı, TR ile başlamalı ve geri kalanı rakam olmalıdır',
+      amountGreaterThanZero: 'Tutar 0\'dan büyük olmalıdır',
+      otpInvalidLength: 'Lütfen geçerli bir 6 haneli doğrulama kodu girin.',
+    },
+    withdrawalStatus: {
+      completed: 'Tamamlandı',
+      pending: 'Beklemede',
+      failed: 'Başarısız',
+      unknown: 'Bilinmiyor',
+    },
+    withdrawalDetails: {
+      title: 'Para Çekme Detayları',
+      bankDetails: 'Banka Detayları',
+      loadingBankDetails: 'Banka detayları yükleniyor...',
+      withdrawalAmount: 'Para Çekme Tutarı',
+      confirmWithdrawal: 'Para Çekmeyi Onayla',
+      confirmMessage: (amount: string, receiverName: string) => `$${amount} tutarını ${receiverName} adına para çekmek istediğinizden emin misiniz?`,
+    },
+    withdrawalSuccess: {
+      title: 'Para Çekme Başarılı!',
+      subtitle: 'Para çekme talebiniz işlendi ve para gönderildi.',
+      amountSent: 'Gönderilen Tutar',
+      receiverName: 'Alıcı Adı',
+      iban: 'IBAN',
+    },
+    withdrawalError: {
+      title: 'Para Çekme Başarısız',
+      defaultMessage: 'Para çekme talebi başarısız oldu. Bu bir banka hatası veya dahili bir hata nedeniyle olabilir. Lütfen daha sonra tekrar deneyin.',
+    },
+    dashboard: {
+      yourBalance: 'Bakiyeniz',
+      withdraw: 'Para Çek',
+      home: 'Ana Sayfa',
+      menu: 'Menü',
+    },
+    ui: {
+      bankTransfer: 'Banka Transferi',
+      loadingBalance: 'Bakiye yükleniyor...',
+      loadingHistory: 'Geçmiş yükleniyor...',
+    },
+    agreement: {
+      required: 'Sözleşme Gerekli',
+      reviewMessage: 'Lütfen hizmeti kullanmaya devam etmek için sözleşmeyi inceleyin ve onaylayın.',
+      reviewAgreement: 'Sözleşmeyi İncele',
+      loading: 'Sözleşme yükleniyor...',
+      errorLoading: 'Sözleşme Yüklenirken Hata',
+      errorMessage: 'Sözleşme yüklenemedi. Lütfen tekrar deneyin.',
+      lastUpdated: 'Son güncelleme:',
+      contentTitle: 'Sözleşme İçeriği',
+      contentSubtitle: 'Lütfen kabul etmeden önce sözleşmenin tamamını okuyun',
+      readFull: 'Tam Sözleşmeyi Oku',
+      hideFull: 'Tam Sözleşmeyi Gizle',
+      tapToRead: 'Tam sözleşmeyi okumak için dokunun',
+      alreadyAgreed: 'Şartları ve koşulları zaten kabul ettiniz',
+      iAgree: 'Şartları Kabul Ediyorum',
+      accepting: 'Kabul ediliyor...',
+      cancel: 'İptal',
+      failedToLoad: 'Sözleşme yüklenemedi. Lütfen tekrar deneyin.',
+      failedToSendCode: 'Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.',
+      invalidCode: 'Geçersiz doğrulama kodu. Lütfen tekrar deneyin.',
+      failedToResend: 'Doğrulama kodu yeniden gönderilemedi. Lütfen tekrar deneyin.',
+      unknownDate: 'Bilinmeyen tarih',
+    },
+    contact: {
+      support: 'Destek',
+      getSupport: 'Destek Al',
+      callSupport: 'Telefon Desteği',
+      whatsAppChat: 'WhatsApp Sohbet',
+      whatsAppDescription: 'Destek ekibimizle sohbet edin',
+      followUs: 'Bizi Takip Edin',
+      whatsAppMessage: 'Merhaba, RidexGo uygulaması için destek istiyorum',
+      phoneNotSupported: 'Bu cihazda telefon aramaları desteklenmiyor',
+      unableToOpenPhone: 'Telefon arayıcısı açılamadı',
+      unableToOpenWhatsApp: 'WhatsApp açılamadı',
+      unableToOpenPlatform: 'Açılamadı',
+      platformNotConfigured: 'bağlantısı yapılandırılmamış',
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      allRightsReserved: '© 2024 RidexGo. Tüm hakları saklıdır.',
+    },
+    profile: {
+      driver: 'Sürücü',
+      profileDetails: 'Profil Detayları',
+      parkName: 'Park Adı',
+      agreement: 'Sözleşme',
+      agreed: '✓ Kabul Edildi',
+      notAgreed: '✗ Kabul Edilmedi',
+      userInfo: 'Kullanıcı Bilgileri',
+      loadingUserInfo: 'Kullanıcı bilgileri yükleniyor...',
+      failedToLoadUserInfo: 'Kullanıcı bilgileri yüklenemedi',
+      hireDate: 'İşe Alınma Tarihi',
+      phone: 'Telefon',
+      licenseNumber: 'Ehliyet Numarası',
+      status: 'Durum',
+      city: 'Şehir',
+    },
+    login: {
+      controlCentre: 'Kontrol Merkezi',
+      yourPark: 'Parkınız',
+      loadingParks: 'Parklar yükleniyor...',
+      noParksAvailable: 'Park bulunamadı',
+      selectPark: 'Parkınızı seçin',
+      phoneNumber: 'Telefon Numarası',
+      phonePlaceholder: '+994 70 422 06 92',
+      loggingIn: 'Giriş yapılıyor...',
+      continue: 'Devam',
+      termsAgreement: 'Devam ederek Şartlar ve Gizlilik Politikamızı kabul etmiş olursunuz',
+      failedToLoadParks: 'Parklar yüklenemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+      pleaseSelectPark: 'Lütfen bir park seçin',
+      invalidPhoneNumber: 'Lütfen ülke kodu ile geçerli bir telefon numarası girin',
+      parkNotFound: 'Seçilen park bulunamadı',
+      loginFailed: 'Giriş başarısız. Lütfen tekrar deneyin.',
+      loginFailedConnection: 'Giriş başarısız. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+    },
+    loginOtp: {
+      invalidCode: 'Geçersiz doğrulama kodu. Lütfen tekrar deneyin.',
+      parkInfoMissing: 'Park bilgisi eksik. Lütfen geri dönüp tekrar giriş yapın.',
+      verificationFailed: 'Doğrulama başarısız. Lütfen kodunuzu kontrol edip tekrar deneyin.',
+      resendFailed: 'Kod yeniden gönderilemedi. Lütfen tekrar deneyin.',
+    },
+    bonuses: {
+      loading: 'Bonuslar yükleniyor...',
+      failedToLoad: 'Bonuslar yüklenemedi. Lütfen tekrar deneyin.',
+      unclaimed: 'Kullanılmamış',
+      bonus: 'Bonus',
+      bonuses: 'Bonuslar',
+      achieved: 'Elde edildi',
+      claimed: 'Kullanıldı',
+      claim: 'Kullan',
+      claimFailed: 'Kullanım Başarısız',
+      missingId: 'Bu bonus kullanılamaz. Bonus ID eksik.',
+      bonusClaimed: 'Bonus Kullanıldı!',
+      successfullyClaimed: ' başarıyla kullanıldı!',
+      failedToClaim: 'Bonus kullanılamadı. Lütfen tekrar deneyin.',
+      failedToClaimConnection: 'Bonus kullanılamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+      noBonusesAvailable: 'Mevcut bonus yok',
+      completeChallenges: 'Bonuslar kazanmak için görevleri ve referansları tamamlayın',
+    },
+    challenges: {
+      goals: 'Görevler',
+      rankings: 'Sıralama',
+      activeGoals: 'Aktif Görevler',
+      loadingGoals: 'Görevler yükleniyor...',
+      failedToLoadGoals: 'Görevler yüklenemedi. Lütfen tekrar deneyin.',
+      noGoalsAvailable: 'Mevcut görev yok',
+      checkBackLater: 'Yeni görevler için daha sonra tekrar kontrol edin',
+      completed: 'Görev tamamlandı!',
+      moreRidesToGo: ' daha yolculuk kaldı',
+      left: ' kaldı',
+      expired: 'Süresi doldu',
+      bonus: 'Bonus:',
+      leaderboard: 'Liderlik Tablosu',
+      rank: 'Sıra',
+      driver: 'Sürücü',
+      orders: 'Siparişler',
+      order: 'sipariş',
+      loadingLeaderboards: 'Liderlik tablosu yükleniyor...',
+      failedToLoadLeaderboards: 'Liderlik tablosu yüklenemedi. Lütfen tekrar deneyin.',
+      noCompetitionsAvailable: 'Mevcut yarışma yok',
+      noLeaderboardData: 'Liderlik tablosu verisi mevcut değil',
+      you: 'Sen',
+    },
+  },
+  en: {
+    common: {
+      loading: 'Loading...',
+      error: 'Error',
+      success: 'Success',
+      cancel: 'Cancel',
+      confirm: 'Confirm',
+      back: 'Back',
+      continue: 'Continue',
+      tryAgain: 'Try Again',
+      logout: 'Logout',
+      bonuses: 'Bonuses',
+      challenges: 'Challenges',
+    },
+    menu: {
+      profile: 'Profile',
+      agreement: 'Agreement',
+      vehicleChange: 'Vehicle Change',
+      inviteFriend: 'Invite a friend',
+      language: 'Language',
+      logout: 'Logout',
+      verified: 'Verified',
+      notVerified: 'Not Verified',
+    },
+    withdrawal: {
+      title: 'Withdraw',
+      amount: 'Amount',
+      enterAmount: 'Enter Amount',
+      available: 'Available',
+      blocked: 'Blocked',
+      total: 'Total',
+      continue: 'Continue',
+      receiverName: 'Receiver Name',
+      iban: 'IBAN',
+      confirmWithdrawal: 'Confirm Withdrawal',
+      withdrawalSuccessful: 'Withdrawal Successful!',
+      withdrawalFailed: 'Withdrawal Failed',
+      backToWithdraw: 'Back to Withdraw',
+      recentWithdrawals: 'Recent Withdrawals',
+      noWithdrawalHistory: 'No withdrawal history',
+      amountSent: 'Amount Sent',
+      balanceUpdateInfo: 'Your balance will update once the transaction is fully processed.',
+    },
+    otp: {
+      title: 'OTP Verification',
+      enterOtp: 'Enter OTP Code',
+      verify: 'Verify',
+      resend: 'Resend',
+      verifyWithdrawal: 'Verify Withdrawal',
+      verificationMessage: 'Please enter the verification code sent to your phone to confirm this withdrawal.',
+      invalidOtp: 'Invalid OTP code. Please check and try again.',
+      resendSuccess: 'Verification code has been resent.',
+      resendFailed: 'Failed to resend code. Please try again.',
+      verificationFailed: 'Verification failed. Please check your code and try again.',
+      codeSentTo: 'Code sent to',
+      yourPhone: 'your phone',
+      resendCodeIn: 'Resend code in',
+      resendCode: 'Resend Code',
+      didntReceiveCode: 'Didn\'t receive the code? Check your phone messages or try resending.',
+    },
+    validation: {
+      amountRequired: 'Amount is required',
+      amountExceeded: 'Cannot exceed available balance',
+      receiverNameRequired: 'Receiver name is required',
+      receiverNameMinLength: 'Receiver name must be at least 2 characters long',
+      ibanRequired: 'IBAN is required',
+      ibanInvalid: 'IBAN must be 26 characters long, start with TR, and the rest must be numbers',
+      amountGreaterThanZero: 'Amount must be greater than 0',
+      otpInvalidLength: 'Please enter a valid 6-digit verification code.',
+    },
+    withdrawalStatus: {
+      completed: 'Completed',
+      pending: 'Pending',
+      failed: 'Failed',
+      unknown: 'Unknown',
+    },
+    withdrawalDetails: {
+      title: 'Withdrawal Details',
+      bankDetails: 'Bank Details',
+      loadingBankDetails: 'Loading bank details...',
+      withdrawalAmount: 'Withdrawal Amount',
+      confirmWithdrawal: 'Confirm Withdrawal',
+      confirmMessage: (amount: string, receiverName: string) => `Are you sure you want to withdraw $${amount} to ${receiverName}?`,
+    },
+    withdrawalSuccess: {
+      title: 'Withdrawal Successful!',
+      subtitle: 'Your withdrawal request has been processed and the money has been sent.',
+      amountSent: 'Amount Sent',
+      receiverName: 'Receiver Name',
+      iban: 'IBAN',
+    },
+    withdrawalError: {
+      title: 'Withdrawal Failed',
+      defaultMessage: 'The withdrawal request failed. This could be due to a bank error or internal failure. Please try again later.',
+    },
+    dashboard: {
+      yourBalance: 'Your Balance',
+      withdraw: 'Withdraw',
+      home: 'Home',
+      menu: 'Menu',
+    },
+    ui: {
+      bankTransfer: 'Bank Transfer',
+      loadingBalance: 'Loading balance...',
+      loadingHistory: 'Loading history...',
+    },
+    agreement: {
+      required: 'Agreement Required',
+      reviewMessage: 'Please review and approve the agreement to continue using the service.',
+      reviewAgreement: 'Review Agreement',
+      loading: 'Loading agreement...',
+      errorLoading: 'Error Loading Agreement',
+      errorMessage: 'Failed to load agreement. Please try again.',
+      lastUpdated: 'Last updated:',
+      contentTitle: 'Agreement Content',
+      contentSubtitle: 'Please read the full agreement before accepting',
+      readFull: 'Read Full Agreement',
+      hideFull: 'Hide Full Agreement',
+      tapToRead: 'Tap to read complete agreement',
+      alreadyAgreed: 'You have already agreed to the terms and conditions',
+      iAgree: 'I Agree to the Terms',
+      accepting: 'Accepting...',
+      cancel: 'Cancel',
+      failedToLoad: 'Failed to load agreement. Please try again.',
+      failedToSendCode: 'Failed to send verification code. Please try again.',
+      invalidCode: 'Invalid verification code. Please try again.',
+      failedToResend: 'Failed to resend verification code. Please try again.',
+      unknownDate: 'Unknown date',
+    },
+    contact: {
+      support: 'Support',
+      getSupport: 'Get Support',
+      callSupport: 'Call Support',
+      whatsAppChat: 'WhatsApp Chat',
+      whatsAppDescription: 'Chat with our support team',
+      followUs: 'Follow Us',
+      whatsAppMessage: 'Hello, I need support with RidexGo app',
+      phoneNotSupported: 'Phone calls are not supported on this device',
+      unableToOpenPhone: 'Unable to open phone dialer',
+      unableToOpenWhatsApp: 'Unable to open WhatsApp',
+      unableToOpenPlatform: 'Unable to open',
+      platformNotConfigured: 'link is not configured',
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      allRightsReserved: '© 2024 RidexGo. All rights reserved.',
+    },
+    profile: {
+      driver: 'Driver',
+      profileDetails: 'Profile Details',
+      parkName: 'Park Name',
+      agreement: 'Agreement',
+      agreed: '✓ Agreed',
+      notAgreed: '✗ Not Agreed',
+      userInfo: 'User Info',
+      loadingUserInfo: 'Loading user info...',
+      failedToLoadUserInfo: 'Failed to load user info',
+      hireDate: 'Hire Date',
+      phone: 'Phone',
+      licenseNumber: 'License Number',
+      status: 'Status',
+      city: 'City',
+    },
+    login: {
+      controlCentre: 'Control Centre',
+      yourPark: 'Your Park',
+      loadingParks: 'Loading parks...',
+      noParksAvailable: 'No parks available',
+      selectPark: 'Select your park',
+      phoneNumber: 'Phone Number',
+      phonePlaceholder: '+994 70 422 06 92',
+      loggingIn: 'Logging in...',
+      continue: 'Continue',
+      termsAgreement: 'By continuing, you agree to our Terms & Privacy Policy',
+      failedToLoadParks: 'Failed to load parks. Please check your connection and try again.',
+      pleaseSelectPark: 'Please select a park',
+      invalidPhoneNumber: 'Please enter a valid phone number with country code',
+      parkNotFound: 'Selected park not found',
+      loginFailed: 'Login failed. Please try again.',
+      loginFailedConnection: 'Login failed. Please check your connection and try again.',
+    },
+    loginOtp: {
+      invalidCode: 'Invalid verification code. Please try again.',
+      parkInfoMissing: 'Park information is missing. Please go back and login again.',
+      verificationFailed: 'Verification failed. Please check your code and try again.',
+      resendFailed: 'Failed to resend code. Please try again.',
+    },
+    bonuses: {
+      loading: 'Loading bonuses...',
+      failedToLoad: 'Failed to load bonuses. Please try again.',
+      unclaimed: 'Unclaimed',
+      bonus: 'Bonus',
+      bonuses: 'Bonuses',
+      achieved: 'Achieved',
+      claimed: 'Claimed',
+      claim: 'Claim',
+      claimFailed: 'Claim Failed',
+      missingId: 'This bonus cannot be claimed. Missing bonus ID.',
+      bonusClaimed: 'Bonus Claimed!',
+      successfullyClaimed: ' successfully claimed!',
+      failedToClaim: 'Failed to claim bonus. Please try again.',
+      failedToClaimConnection: 'Failed to claim bonus. Please check your connection and try again.',
+      noBonusesAvailable: 'No bonuses available',
+      completeChallenges: 'Complete challenges and referrals to earn bonuses',
+    },
+    challenges: {
+      goals: 'Goals',
+      rankings: 'Rankings',
+      activeGoals: 'Active Goals',
+      loadingGoals: 'Loading goals...',
+      failedToLoadGoals: 'Failed to load goals. Please try again.',
+      noGoalsAvailable: 'No goals available',
+      checkBackLater: 'Check back later for new goals',
+      completed: 'Challenge completed!',
+      moreRidesToGo: ' more rides to go',
+      left: ' left',
+      expired: 'Expired',
+      bonus: 'Bonus:',
+      leaderboard: 'Leaderboard',
+      rank: 'Rank',
+      driver: 'Driver',
+      orders: 'orders',
+      order: 'order',
+      loadingLeaderboards: 'Loading leaderboards...',
+      failedToLoadLeaderboards: 'Failed to load leaderboards. Please try again.',
+      noCompetitionsAvailable: 'No competitions available',
+      noLeaderboardData: 'No leaderboard data available',
+      you: 'You',
+    },
+  },
+};
+

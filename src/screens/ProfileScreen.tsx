@@ -14,9 +14,11 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
 import { usersApi, type UserInfoResponse } from '../api';
 import { Header } from '../components';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
   const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(true);
@@ -74,29 +76,29 @@ const ProfileScreen: React.FC = () => {
               {driver ? getInitials(driver.name) : 'FD'}
             </Text>
           </View>
-          <Text style={styles.driverName}>{driver?.name || 'Driver'}</Text>
+          <Text style={styles.driverName}>{driver?.name || t.profile.driver}</Text>
           <Text style={styles.driverPhone}>{driver?.phone || ''}</Text>
           <View style={styles.statusBadge}>
             <View style={styles.statusDot} />
             <Text style={styles.statusText}>
-              {driver?.isVerified ? 'Verified' : 'Not Verified'}
+              {driver?.isVerified ? t.menu.verified : t.menu.notVerified}
             </Text>
           </View>
         </View>
 
         {/* Profile Details Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Profile Details</Text>
+          <Text style={styles.cardTitle}>{t.profile.profileDetails}</Text>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Park Name</Text>
+            <Text style={styles.detailLabel}>{t.profile.parkName}</Text>
             <Text style={styles.detailValue}>{driver?.parkName || '-'}</Text>
           </View>
 
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Agreement</Text>
+            <Text style={styles.detailLabel}>{t.profile.agreement}</Text>
             <Text style={styles.detailValue}>
-              {driver?.isAgreed ? '✓ Agreed' : '✗ Not Agreed'}
+              {driver?.isAgreed ? t.profile.agreed : t.profile.notAgreed}
             </Text>
           </View>
 
@@ -104,17 +106,17 @@ const ProfileScreen: React.FC = () => {
 
         {/* User Info Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>User Info</Text>
+          <Text style={styles.cardTitle}>{t.profile.userInfo}</Text>
           
           {isLoadingUserInfo ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading user info...</Text>
+              <Text style={styles.loadingText}>{t.profile.loadingUserInfo}</Text>
             </View>
           ) : userInfo ? (
             <>
               {userInfo.hireDate && (
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Hire Date</Text>
+                  <Text style={styles.detailLabel}>{t.profile.hireDate}</Text>
                   <Text style={styles.detailValue}>
                     {new Date(userInfo.hireDate).toLocaleDateString()}
                   </Text>
@@ -123,35 +125,35 @@ const ProfileScreen: React.FC = () => {
 
               {userInfo.phone && (
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Phone</Text>
+                  <Text style={styles.detailLabel}>{t.profile.phone}</Text>
                   <Text style={styles.detailValue}>{userInfo.phone}</Text>
                 </View>
               )}
 
               {userInfo.licenseNumber && (
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>License Number</Text>
+                  <Text style={styles.detailLabel}>{t.profile.licenseNumber}</Text>
                   <Text style={styles.detailValue}>{userInfo.licenseNumber}</Text>
                 </View>
               )}
 
               {userInfo.status && (
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Status</Text>
+                  <Text style={styles.detailLabel}>{t.profile.status}</Text>
                   <Text style={styles.detailValue}>{userInfo.status}</Text>
                 </View>
               )}
 
               {userInfo.city && (
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>City</Text>
+                  <Text style={styles.detailLabel}>{t.profile.city}</Text>
                   <Text style={styles.detailValue}>{userInfo.city}</Text>
                 </View>
               )}
             </>
           ) : (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>Failed to load user info</Text>
+              <Text style={styles.errorText}>{t.profile.failedToLoadUserInfo}</Text>
             </View>
           )}
         </View>

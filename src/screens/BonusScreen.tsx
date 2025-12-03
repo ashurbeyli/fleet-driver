@@ -16,8 +16,10 @@ import { Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { bonusesApi } from '../api';
 import type { Bonus, BonusesResponse } from '../api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BonusScreen: React.FC = () => {
+  const { t, language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +41,7 @@ const BonusScreen: React.FC = () => {
       setBonusesData(response);
     } catch (err) {
       console.error('Error fetching bonuses:', err);
-      setError('Failed to load bonuses. Please try again.');
+      setError(t.bonuses.failedToLoad);
     } finally {
       if (isRefresh) {
         setIsRefreshing(false);
@@ -59,9 +61,9 @@ const BonusScreen: React.FC = () => {
     // Check if bonus has an ID, if not, we can't claim it
     if (!bonus.id) {
       Alert.alert(
-        'Claim Failed',
-        'This bonus cannot be claimed. Missing bonus ID.',
-        [{ text: 'OK' }]
+        t.bonuses.claimFailed,
+        t.bonuses.missingId,
+        [{ text: t.common.confirm }]
       );
       return;
     }
@@ -85,30 +87,30 @@ const BonusScreen: React.FC = () => {
         });
         
         Alert.alert(
-          'Bonus Claimed!',
-          `Successfully claimed $${response.claimedAmount} bonus!`,
-          [{ text: 'OK' }]
+          t.bonuses.bonusClaimed,
+          `$${response.claimedAmount}${t.bonuses.successfullyClaimed}`,
+          [{ text: t.common.confirm }]
         );
       } else {
         Alert.alert(
-          'Claim Failed',
-          response.message || 'Failed to claim bonus. Please try again.',
-          [{ text: 'OK' }]
+          t.bonuses.claimFailed,
+          response.message || t.bonuses.failedToClaim,
+          [{ text: t.common.confirm }]
         );
       }
     } catch (error) {
       console.error('Error claiming bonus:', error);
       Alert.alert(
-        'Claim Failed',
-        'Failed to claim bonus. Please check your connection and try again.',
-        [{ text: 'OK' }]
+        t.bonuses.claimFailed,
+        t.bonuses.failedToClaimConnection,
+        [{ text: t.common.confirm }]
       );
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -121,7 +123,7 @@ const BonusScreen: React.FC = () => {
         <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
         <Header showBackButton={false} />
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading bonuses...</Text>
+          <Text style={styles.loadingText}>{t.bonuses.loading}</Text>
         </View>
       </SafeAreaView>
     );
@@ -139,7 +141,7 @@ const BonusScreen: React.FC = () => {
             style={styles.retryButton}
             activeOpacity={0.8}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t.common.tryAgain}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -170,7 +172,7 @@ const BonusScreen: React.FC = () => {
               <Text style={styles.summaryValue}>
                 {bonusesData?.unclaimedBonusCount || 0}
               </Text>
-              <Text style={styles.summaryLabel}>Unclaimed</Text>
+              <Text style={styles.summaryLabel}>{t.bonuses.unclaimed}</Text>
             </View>
           </View>
 
@@ -180,14 +182,14 @@ const BonusScreen: React.FC = () => {
               <Text style={styles.summaryValue}>
                 ${bonusesData?.unclaimedBonusTotalAmount || 0}
               </Text>
-              <Text style={styles.summaryLabel}>Bonus</Text>
+              <Text style={styles.summaryLabel}>{t.bonuses.bonus}</Text>
             </View>
           </View>
         </View>
 
         {/* Bonuses */}
         <View style={styles.bonusesSection}>
-          <Text style={styles.sectionTitle}>Bonuses</Text>
+          <Text style={styles.sectionTitle}>{t.bonuses.bonuses}</Text>
           {bonusesData?.bonuses && bonusesData.bonuses.length > 0 ? (
             bonusesData.bonuses.map((bonus, index) => (
               <View key={bonus.id || index} style={styles.couponCard}>
@@ -196,7 +198,7 @@ const BonusScreen: React.FC = () => {
                     <Text style={styles.couponTitle}>{bonus.title}</Text>
                     <Text style={styles.couponDescription}>{bonus.subtitle}</Text>
                     <Text style={styles.couponMeta}>
-                      Achieved {formatDate(bonus.achievedAt)}
+                      {t.bonuses.achieved} {formatDate(bonus.achievedAt)}
                     </Text>
                   </View>
                   <View style={styles.couponAmountContainer}>
@@ -207,7 +209,7 @@ const BonusScreen: React.FC = () => {
                   {bonus.isClaimed ? (
                     <View style={styles.claimedBadge}>
                       <Ionicons name="checkmark-circle" size={16} color="#10B981" />
-                      <Text style={styles.claimedText}>Claimed</Text>
+                      <Text style={styles.claimedText}>{t.bonuses.claimed}</Text>
                     </View>
                   ) : (
                     <TouchableOpacity
@@ -216,7 +218,7 @@ const BonusScreen: React.FC = () => {
                       activeOpacity={0.8}
                     >
                       <Ionicons name="download" size={16} color="#fff" />
-                      <Text style={styles.claimButtonText}>Claim</Text>
+                      <Text style={styles.claimButtonText}>{t.bonuses.claim}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -225,9 +227,9 @@ const BonusScreen: React.FC = () => {
           ) : (
             <View style={styles.emptyState}>
               <Ionicons name="gift-outline" size={48} color={COLORS.text.secondary} />
-              <Text style={styles.emptyStateText}>No bonuses available</Text>
+              <Text style={styles.emptyStateText}>{t.bonuses.noBonusesAvailable}</Text>
               <Text style={styles.emptyStateSubtext}>
-                Complete challenges and referrals to earn bonuses
+                {t.bonuses.completeChallenges}
               </Text>
             </View>
           )}

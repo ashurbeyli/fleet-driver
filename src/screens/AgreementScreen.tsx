@@ -15,9 +15,11 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { agreementsApi, usersApi, type AgreementResponse, type AgreeResponse, type ConfirmAgreementResponse, type UserMeResponse } from '../api';
 import { authService } from '../services/authService';
 import { OtpModal, Header } from '../components';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const AgreementScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
   const [agreement, setAgreement] = useState<AgreementResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ const AgreementScreen: React.FC = () => {
       setAgreement(agreementData);
     } catch (error) {
       console.error('Failed to load agreement:', error);
-      setError('Failed to load agreement. Please try again.');
+      setError(t.agreement.failedToLoad);
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +98,7 @@ const AgreementScreen: React.FC = () => {
       setShowOtpModal(true);
     } catch (error) {
       console.error('Failed to send agreement OTP:', error);
-      setError('Failed to send verification code. Please try again.');
+      setError(t.agreement.failedToSendCode);
     } finally {
       setIsAgreeing(false);
     }
@@ -129,7 +131,7 @@ const AgreementScreen: React.FC = () => {
       navigation.goBack();
     } catch (error) {
       console.error('Failed to confirm agreement:', error);
-      setOtpError('Invalid verification code. Please try again.');
+      setOtpError(t.agreement.invalidCode);
     }
   };
 
@@ -140,7 +142,7 @@ const AgreementScreen: React.FC = () => {
       console.log('OTP resent for agreement');
     } catch (error) {
       console.error('Failed to resend OTP:', error);
-      setOtpError('Failed to resend verification code. Please try again.');
+      setOtpError(t.agreement.failedToResend);
     }
   };
 
@@ -155,7 +157,7 @@ const AgreementScreen: React.FC = () => {
         minute: '2-digit',
       });
     } catch (error) {
-      return 'Unknown date';
+      return t.agreement.unknownDate;
     }
   };
 
@@ -170,19 +172,19 @@ const AgreementScreen: React.FC = () => {
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={COLORS.primary} />
-            <Text style={styles.loadingText}>Loading agreement...</Text>
+            <Text style={styles.loadingText}>{t.agreement.loading}</Text>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
             <Ionicons name="alert-circle" size={48} color={COLORS.error} />
-            <Text style={styles.errorTitle}>Error Loading Agreement</Text>
+            <Text style={styles.errorTitle}>{t.agreement.errorLoading}</Text>
             <Text style={styles.errorMessage}>{error}</Text>
             <TouchableOpacity
               style={styles.retryButton}
               onPress={loadAgreement}
               activeOpacity={0.7}
             >
-              <Text style={styles.retryButtonText}>Try Again</Text>
+              <Text style={styles.retryButtonText}>{t.common.tryAgain}</Text>
             </TouchableOpacity>
           </View>
         ) : agreement ? (
@@ -199,7 +201,7 @@ const AgreementScreen: React.FC = () => {
             <View style={styles.lastUpdatedContainer}>
               <Ionicons name="time-outline" size={16} color={COLORS.text.secondary} />
               <Text style={styles.lastUpdatedText}>
-                Last updated: {formatDate(agreement.updatedAt)}
+                {t.agreement.lastUpdated} {formatDate(agreement.updatedAt)}
               </Text>
             </View>
 
@@ -207,9 +209,9 @@ const AgreementScreen: React.FC = () => {
             <View style={styles.agreementCard}>
               {/* Content Header */}
               <View style={styles.contentHeader}>
-                <Text style={styles.contentTitle}>Agreement Content</Text>
+                <Text style={styles.contentTitle}>{t.agreement.contentTitle}</Text>
                 <Text style={styles.contentSubtitle}>
-                  Please read the full agreement before accepting
+                  {t.agreement.contentSubtitle}
                 </Text>
               </View>
 
@@ -223,7 +225,7 @@ const AgreementScreen: React.FC = () => {
                   <View style={styles.contentToggleLeft}>
                     <Ionicons name="document-text-outline" size={20} color={COLORS.primary} />
                     <Text style={styles.contentToggleText}>
-                      {isContentExpanded ? 'Hide Full Agreement' : 'Read Full Agreement'}
+                      {isContentExpanded ? t.agreement.hideFull : t.agreement.readFull}
                     </Text>
                   </View>
                   <Ionicons 
@@ -241,7 +243,7 @@ const AgreementScreen: React.FC = () => {
                   {!isContentExpanded && (
                     <View style={styles.contentPreviewOverlay}>
                       <Text style={styles.contentPreviewHint}>
-                        Tap to read complete agreement
+                        {t.agreement.tapToRead}
                       </Text>
                     </View>
                   )}
@@ -266,7 +268,7 @@ const AgreementScreen: React.FC = () => {
                   >
                     <Ionicons name="checkmark-circle" size={20} color={COLORS.surface} />
                     <Text style={styles.agreedButtonText}>
-                      You have already agreed to the terms and conditions
+                      {t.agreement.alreadyAgreed}
                     </Text>
                   </TouchableOpacity>
                 ) : (
@@ -284,7 +286,7 @@ const AgreementScreen: React.FC = () => {
                         <Ionicons name="checkmark-circle" size={20} color={COLORS.surface} />
                       )}
                       <Text style={styles.agreeButtonText}>
-                        {isAgreeing ? 'Accepting...' : 'I Agree to the Terms'}
+                        {isAgreeing ? t.agreement.accepting : t.agreement.iAgree}
                       </Text>
                     </TouchableOpacity>
 
@@ -293,7 +295,7 @@ const AgreementScreen: React.FC = () => {
                       onPress={() => navigation.goBack()}
                       activeOpacity={0.7}
                     >
-                      <Text style={styles.declineButtonText}>Cancel</Text>
+                      <Text style={styles.declineButtonText}>{t.agreement.cancel}</Text>
                     </TouchableOpacity>
                   </>
                 )}

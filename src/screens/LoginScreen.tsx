@@ -17,6 +17,7 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { parksApi, authApi } from '../api';
 import { Park } from '../api/parks';
 import { RootStackParamList } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -26,6 +27,7 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const { t } = useLanguage();
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('+');
@@ -41,7 +43,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         setParks(parksData);
       } catch (error) {
         console.error('Failed to fetch parks:', error);
-        Alert.alert('Error', 'Failed to load parks. Please check your connection and try again.');
+        Alert.alert(t.common.error, t.login.failedToLoadParks);
       } finally {
         setIsLoadingParks(false);
       }
@@ -52,11 +54,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   const handlePhoneSubmit = async () => {
     if (!selectedPark) {
-      Alert.alert('Error', 'Please select a park');
+      Alert.alert(t.common.error, t.login.pleaseSelectPark);
       return;
     }
     if (!phoneNumber || phoneNumber.length < 10) {
-      Alert.alert('Error', 'Please enter a valid phone number with country code');
+      Alert.alert(t.common.error, t.login.invalidPhoneNumber);
       return;
     }
 
@@ -65,7 +67,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       // Get selected park object to extract the correct data
       const park = parks.find(p => p.id === selectedPark);
       if (!park) {
-        Alert.alert('Error', 'Selected park not found');
+        Alert.alert(t.common.error, t.login.parkNotFound);
         return;
       }
       
@@ -82,11 +84,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           parkId: park.id, // Use park.id (internal ID)
         });
       } else {
-        Alert.alert('Error', response.message || 'Login failed. Please try again.');
+        Alert.alert(t.common.error, response.message || t.login.loginFailed);
       }
     } catch (error) {
       console.error('Login failed:', error);
-      Alert.alert('Error', 'Login failed. Please check your connection and try again.');
+      Alert.alert(t.common.error, t.login.loginFailedConnection);
     } finally {
       setIsLoading(false);
     }
@@ -109,19 +111,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <Ionicons name="car" size={48} color={COLORS.primary} />
           </View>
           <Text style={styles.logo}>RidexGo</Text>
-          <Text style={styles.tagline}>Control Centre</Text>
+          <Text style={styles.tagline}>{t.login.controlCentre}</Text>
         </View>
 
         {/* Login Form Card */}
         <View style={styles.formCard}>
           <UnifiedSelectBox
-            label="Your Park"
+            label={t.login.yourPark}
             placeholder={
               isLoadingParks 
-                ? "Loading parks..." 
+                ? t.login.loadingParks
                 : parks.length === 0 
-                  ? "No parks available" 
-                  : "Select your park"
+                  ? t.login.noParksAvailable
+                  : t.login.selectPark
             }
             options={parks}
             selectedValue={selectedPark}
@@ -130,15 +132,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           />
 
           <Input
-            label="Phone Number"
-            placeholder="+994 70 422 06 92"
+            label={t.login.phoneNumber}
+            placeholder={t.login.phonePlaceholder}
             value={phoneNumber}
             onChangeText={setPhoneNumber}
             keyboardType="phone-pad"
           />
 
           <Button
-            title={isLoading ? "Logging in..." : "Continue"}
+            title={isLoading ? t.login.loggingIn : t.login.continue}
             onPress={handlePhoneSubmit}
             variant="primary"
             size="large"
@@ -149,7 +151,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
         {/* Footer */}
         <Text style={styles.footerText}>
-          By continuing, you agree to our Terms & Privacy Policy
+          {t.login.termsAgreement}
         </Text>
       </ScrollView>
     </SafeAreaView>

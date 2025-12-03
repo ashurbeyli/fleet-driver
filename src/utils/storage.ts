@@ -105,6 +105,7 @@ export const STORAGE_KEYS = {
   REFRESH_TOKEN: 'refreshToken',
   USER_DATA: 'userData',
   DRIVER_DATA: 'driverData',
+  LANGUAGE: 'language',
 } as const;
 
 export default storage;

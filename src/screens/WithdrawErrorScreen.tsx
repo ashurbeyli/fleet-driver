@@ -12,6 +12,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RouteParams {
   message?: string;
@@ -24,7 +25,8 @@ const WithdrawErrorScreen: React.FC = () => {
   const params = route.params as RouteParams;
   
   const { message } = params;
-  const errorMessage = message || 'The withdrawal request failed. This could be due to a bank error or internal failure. Please try again later.';
+  const { t } = useLanguage();
+  const errorMessage = message || t.withdrawalError.defaultMessage;
 
   const handleGoBack = () => {
     // Navigate to Dashboard (TabNavigator) and then to Withdraw tab
@@ -51,7 +53,7 @@ const WithdrawErrorScreen: React.FC = () => {
         </View>
 
         {/* Error Title */}
-        <Text style={styles.title}>Withdrawal Failed</Text>
+        <Text style={styles.title}>{t.withdrawalError.title}</Text>
         <Text style={styles.subtitle}>
           {errorMessage}
         </Text>
@@ -59,14 +61,14 @@ const WithdrawErrorScreen: React.FC = () => {
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <Button
-            title="Try Again"
+            title={t.common.tryAgain}
             onPress={handleTryAgain}
             variant="primary"
             size="medium"
             style={styles.button}
           />
           <Button
-            title="Back to Withdraw"
+            title={t.withdrawal.backToWithdraw}
             onPress={handleGoBack}
             variant="outline"
             size="medium"

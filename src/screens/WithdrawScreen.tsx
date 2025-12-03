@@ -17,9 +17,11 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Header, Button, Input } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { usersApi, withdrawalsApi, type BalanceResponse, type WithdrawalHistoryItem } from '../api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const WithdrawScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
@@ -68,15 +70,15 @@ const WithdrawScreen: React.FC = () => {
   const getStatusInfo = (status: number) => {
     switch (status) {
       case 1: // MoneySent
-        return { text: 'Completed', color: '#10B981', icon: 'checkmark-circle' as const };
+        return { text: t.withdrawalStatus.completed, color: '#10B981', icon: 'checkmark-circle' as const };
       case 2: // AwaitingOtpVerification
-        return { text: 'Pending', color: '#F39C12', icon: 'time' as const };
+        return { text: t.withdrawalStatus.pending, color: '#F39C12', icon: 'time' as const };
       case 3: // Failed
-        return { text: 'Failed', color: '#EF4444', icon: 'close-circle' as const };
+        return { text: t.withdrawalStatus.failed, color: '#EF4444', icon: 'close-circle' as const };
       case 4: // FailedOtp
-        return { text: 'Failed', color: '#EF4444', icon: 'close-circle' as const };
+        return { text: t.withdrawalStatus.failed, color: '#EF4444', icon: 'close-circle' as const };
       default:
-        return { text: 'Unknown', color: COLORS.text.secondary, icon: 'help-circle' as const };
+        return { text: t.withdrawalStatus.unknown, color: COLORS.text.secondary, icon: 'help-circle' as const };
     }
   };
 
@@ -97,7 +99,7 @@ const WithdrawScreen: React.FC = () => {
     const numAmount = parseFloat(amount);
     if (amount && !isNaN(numAmount)) {
       if (numAmount <= 0) {
-        setAmountError('Amount must be greater than 0');
+        setAmountError(t.validation.amountGreaterThanZero);
       } else if (balance) {
         // Round to 2 decimal places to avoid floating point precision issues
         const roundedAmount = Math.round(numAmount * 100) / 100;
@@ -160,7 +162,7 @@ const WithdrawScreen: React.FC = () => {
         </View>
         <View style={styles.historyContent}>
           <Text style={styles.historyAmount}>${amountInDollars.toFixed(2)}</Text>
-          <Text style={styles.historyMethod}>{item.receiverName || 'Bank Transfer'}</Text>
+          <Text style={styles.historyMethod}>{item.receiverName || t.ui.bankTransfer}</Text>
           <Text style={styles.historyDate}>{formatDate(item.createdAt)}</Text>
         </View>
         <View style={styles.historyStatus}>
@@ -183,7 +185,7 @@ const WithdrawScreen: React.FC = () => {
       >
         {/* Balance Cards */}
         <View style={styles.balanceSection}>
-          <Text style={styles.sectionTitle}>Your Balance</Text>
+          <Text style={styles.sectionTitle}>{t.dashboard.yourBalance}</Text>
           
           <View style={styles.balanceCardsRow}>
             {isLoadingBalance ? (
@@ -193,21 +195,21 @@ const WithdrawScreen: React.FC = () => {
                   <View style={styles.balanceIconCircle}>
                     <ActivityIndicator size="small" color={COLORS.primary} />
                   </View>
-                  <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
                   <Text style={styles.balanceValue}>--</Text>
                 </View>
                 <View style={styles.balanceCard}>
                   <View style={styles.balanceIconCircle}>
                     <ActivityIndicator size="small" color={COLORS.primary} />
                   </View>
-                  <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
                   <Text style={styles.balanceValue}>--</Text>
                 </View>
                 <View style={styles.balanceCard}>
                   <View style={styles.balanceIconCircle}>
                     <ActivityIndicator size="small" color={COLORS.primary} />
                   </View>
-                  <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
                   <Text style={styles.balanceValue}>--</Text>
                 </View>
               </>
@@ -218,7 +220,7 @@ const WithdrawScreen: React.FC = () => {
                   <View style={styles.balanceIconCircle}>
                     <Ionicons name="wallet" size={20} color={COLORS.primary} />
                   </View>
-                  <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
                   <Text style={styles.balanceValue}>
                     ${balance.totalBalance.toFixed(2)}
                   </Text>
@@ -229,7 +231,7 @@ const WithdrawScreen: React.FC = () => {
                   <View style={styles.balanceIconCircle}>
                     <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
                   </View>
-                  <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
                   <Text style={styles.balanceValue}>
                     ${balance.withdrawableBalance.toFixed(2)}
                   </Text>
@@ -240,7 +242,7 @@ const WithdrawScreen: React.FC = () => {
                   <View style={styles.balanceIconCircle}>
                     <Ionicons name="lock-closed" size={20} color="#FF9800" />
                   </View>
-                  <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
                   <Text style={styles.balanceValue}>
                     ${balance.blockedBalance.toFixed(2)}
                   </Text>
@@ -252,11 +254,11 @@ const WithdrawScreen: React.FC = () => {
 
         {/* Withdrawal Amount Section */}
         <View style={styles.withdrawalSection}>
-          <Text style={styles.sectionTitle}>Withdrawal Amount</Text>
+          <Text style={styles.sectionTitle}>{t.withdrawalDetails.withdrawalAmount}</Text>
           
           {/* Amount Input */}
           <View style={styles.amountInputContainer}>
-            <Text style={styles.amountLabel}>Enter Amount</Text>
+            <Text style={styles.amountLabel}>{t.withdrawal.enterAmount}</Text>
             <View style={[
               styles.amountInputWrapper,
               amountError && styles.amountInputWrapperError,
@@ -280,7 +282,7 @@ const WithdrawScreen: React.FC = () => {
 
           {/* Withdrawal Button */}
           <Button
-            title="Continue"
+            title={t.common.continue}
             onPress={handleWithdraw}
             variant="primary"
             size="medium"
@@ -291,7 +293,7 @@ const WithdrawScreen: React.FC = () => {
 
         {/* Withdrawal History */}
         <View style={styles.historySection}>
-          <Text style={styles.sectionTitle}>Recent Withdrawals</Text>
+          <Text style={styles.sectionTitle}>{t.withdrawal.recentWithdrawals}</Text>
           {isLoadingHistory ? (
             <>
               {/* Loading Placeholder Items */}
@@ -316,7 +318,7 @@ const WithdrawScreen: React.FC = () => {
           ) : (
             <View style={styles.emptyHistoryContainer}>
               <Ionicons name="receipt-outline" size={48} color={COLORS.text.tertiary} />
-              <Text style={styles.emptyHistoryText}>No withdrawal history</Text>
+              <Text style={styles.emptyHistoryText}>{t.withdrawal.noWithdrawalHistory}</Text>
             </View>
           )}
         </View>

@@ -15,10 +15,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { Header } from '../components';
 import { useConfig } from '../contexts/ConfigContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ContactScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { links } = useConfig();
+  const { t } = useLanguage();
 
   const handleCallSupport = () => {
     const phoneNumber = links.callCenterNumber || '+994501234567';
@@ -29,12 +31,12 @@ const ContactScreen: React.FC = () => {
         if (supported) {
           Linking.openURL(url);
         } else {
-          Alert.alert('Error', 'Phone calls are not supported on this device');
+          Alert.alert(t.common.error, t.contact.phoneNotSupported);
         }
       })
       .catch((err) => {
         console.error('Error opening phone dialer:', err);
-        Alert.alert('Error', 'Unable to open phone dialer');
+        Alert.alert(t.common.error, t.contact.unableToOpenPhone);
       });
   };
 
@@ -45,13 +47,13 @@ const ContactScreen: React.FC = () => {
     const phoneNumber = whatsAppLink.includes('wa.me') || whatsAppLink.includes('whatsapp') 
       ? whatsAppLink 
       : whatsAppLink.replace(/[^0-9]/g, '');
-    const message = 'Hello, I need support with RidexGo app';
+    const message = t.contact.whatsAppMessage;
     
     // If it's already a full URL, use it as is
     if (whatsAppLink.includes('wa.me') || whatsAppLink.includes('whatsapp')) {
       Linking.openURL(whatsAppLink).catch((err) => {
         console.error('Error opening WhatsApp:', err);
-        Alert.alert('Error', 'Unable to open WhatsApp');
+        Alert.alert(t.common.error, t.contact.unableToOpenWhatsApp);
       });
       return;
     }
@@ -70,13 +72,13 @@ const ContactScreen: React.FC = () => {
       })
       .catch((err) => {
         console.error('Error opening WhatsApp:', err);
-        Alert.alert('Error', 'Unable to open WhatsApp');
+        Alert.alert(t.common.error, t.contact.unableToOpenWhatsApp);
       });
   };
 
   const handleSocialLink = (url: string, platform: string) => {
     if (!url) {
-      Alert.alert('Error', `${platform} link is not configured`);
+      Alert.alert(t.common.error, `${platform} ${t.contact.platformNotConfigured}`);
       return;
     }
 
@@ -85,7 +87,7 @@ const ContactScreen: React.FC = () => {
         if (supported) {
           Linking.openURL(url);
         } else {
-          Alert.alert('Error', `Unable to open ${platform}`);
+          Alert.alert(t.common.error, `${t.contact.unableToOpenPlatform} ${platform}`);
         }
       })
       .catch((err) => {
@@ -97,13 +99,13 @@ const ContactScreen: React.FC = () => {
   // Build social links array from config - only include links that are provided
   const socialLinks = [
     ...(links.facebookLink ? [{
-      name: 'Facebook',
+      name: t.contact.facebook,
       icon: 'logo-facebook' as keyof typeof Ionicons.glyphMap,
       url: links.facebookLink,
       color: '#1877F2',
     }] : []),
     ...(links.instagramLink ? [{
-      name: 'Instagram',
+      name: t.contact.instagram,
       icon: 'logo-instagram' as keyof typeof Ionicons.glyphMap,
       url: links.instagramLink,
       color: '#E4405F',
@@ -121,7 +123,7 @@ const ContactScreen: React.FC = () => {
 
         {/* Support Options */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Get Support</Text>
+          <Text style={styles.sectionTitle}>{t.contact.getSupport}</Text>
           
           {/* Call Support */}
           <TouchableOpacity
@@ -133,7 +135,7 @@ const ContactScreen: React.FC = () => {
               <Ionicons name="call" size={24} color="#4CAF50" />
             </View>
             <View style={styles.supportContent}>
-              <Text style={styles.supportTitle}>Call Support</Text>
+              <Text style={styles.supportTitle}>{t.contact.callSupport}</Text>
               <Text style={styles.supportDescription}>{links.callCenterNumber || '+994 50 123 45 67'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} />
@@ -149,8 +151,8 @@ const ContactScreen: React.FC = () => {
               <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
             </View>
             <View style={styles.supportContent}>
-              <Text style={styles.supportTitle}>WhatsApp Chat</Text>
-              <Text style={styles.supportDescription}>Chat with our support team</Text>
+              <Text style={styles.supportTitle}>{t.contact.whatsAppChat}</Text>
+              <Text style={styles.supportDescription}>{t.contact.whatsAppDescription}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} />
           </TouchableOpacity>
@@ -159,7 +161,7 @@ const ContactScreen: React.FC = () => {
         {/* Social Links - Only show if there are links from config */}
         {socialLinks.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Follow Us</Text>
+            <Text style={styles.sectionTitle}>{t.contact.followUs}</Text>
             <View style={styles.socialGrid}>
               {socialLinks.map((social) => (
                 <TouchableOpacity
@@ -181,7 +183,7 @@ const ContactScreen: React.FC = () => {
         {/* App Info */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>RidexGo v1.0.0</Text>
-          <Text style={styles.footerText}>© 2024 RidexGo. All rights reserved.</Text>
+          <Text style={styles.footerText}>{t.contact.allRightsReserved}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

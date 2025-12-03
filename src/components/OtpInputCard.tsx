@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OtpInputCardProps {
   phoneNumber?: string;
@@ -28,6 +29,7 @@ const OtpInputCard: React.FC<OtpInputCardProps> = ({
   resendTimer = 0,
   length = 6,
 }) => {
+  const { t } = useLanguage();
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(resendTimer);
   const [hasCompleted, setHasCompleted] = useState(false);
@@ -110,8 +112,8 @@ const OtpInputCard: React.FC<OtpInputCardProps> = ({
         <View style={styles.phoneIconContainer}>
           <Ionicons name="phone-portrait" size={32} color={COLORS.primary} />
         </View>
-        <Text style={styles.phoneLabel}>Code sent to</Text>
-        <Text style={styles.phoneNumber}>{phoneNumber || 'your phone'}</Text>
+        <Text style={styles.phoneLabel}>{t.otp.codeSentTo}</Text>
+        <Text style={styles.phoneNumber}>{phoneNumber || t.otp.yourPhone}</Text>
       </View>
       
       {/* OTP Input */}
@@ -150,7 +152,7 @@ const OtpInputCard: React.FC<OtpInputCardProps> = ({
       <View style={styles.resendContainer}>
         {timer > 0 ? (
           <Text style={styles.timerText}>
-            Resend code in <Text style={styles.timerValue}>{timer}s</Text>
+            {t.otp.resendCodeIn} <Text style={styles.timerValue}>{timer}s</Text>
           </Text>
         ) : (
           <TouchableOpacity
@@ -158,14 +160,14 @@ const OtpInputCard: React.FC<OtpInputCardProps> = ({
             disabled={disabled || !onResend}
             activeOpacity={0.7}
           >
-            <Text style={styles.resendLink}>Resend Code</Text>
+            <Text style={styles.resendLink}>{t.otp.resendCode}</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Help Text */}
       <Text style={styles.helpText}>
-        Didn't receive the code? Check your phone messages or try resending.
+        {t.otp.didntReceiveCode}
       </Text>
     </View>
   );

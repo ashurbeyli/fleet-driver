@@ -12,6 +12,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RouteParams {
   withdrawalId: string;
@@ -24,6 +25,7 @@ const WithdrawSuccessScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const params = route.params as RouteParams;
+  const { t } = useLanguage();
   
   const { amount, receiverName, maskedIBAN } = params;
   const amountInDollars = amount.toFixed(2);
@@ -49,29 +51,29 @@ const WithdrawSuccessScreen: React.FC = () => {
         </View>
 
         {/* Success Title */}
-        <Text style={styles.title}>Withdrawal Successful!</Text>
+        <Text style={styles.title}>{t.withdrawalSuccess.title}</Text>
         <Text style={styles.subtitle}>
-          Your withdrawal request has been processed and the money has been sent.
+          {t.withdrawalSuccess.subtitle}
         </Text>
 
         {/* Details Card */}
         <View style={styles.detailsCard}>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Amount Sent</Text>
+            <Text style={styles.detailLabel}>{t.withdrawalSuccess.amountSent}</Text>
             <Text style={styles.detailValue}>${amountInDollars}</Text>
           </View>
           
           <View style={styles.detailDivider} />
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Receiver Name</Text>
+            <Text style={styles.detailLabel}>{t.withdrawalSuccess.receiverName}</Text>
             <Text style={styles.detailValue}>{receiverName}</Text>
           </View>
           
           <View style={styles.detailDivider} />
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>IBAN</Text>
+            <Text style={styles.detailLabel}>{t.withdrawalSuccess.iban}</Text>
             <Text style={styles.detailValue}>{maskedIBAN}</Text>
           </View>
         </View>
@@ -80,13 +82,13 @@ const WithdrawSuccessScreen: React.FC = () => {
         <View style={styles.infoContainer}>
           <Ionicons name="information-circle" size={16} color={COLORS.text.secondary} />
           <Text style={styles.infoText}>
-            Your balance will update once the transaction is fully processed.
+            {t.withdrawal.balanceUpdateInfo}
           </Text>
         </View>
 
         {/* Action Button */}
         <Button
-          title="Back to Withdraw"
+          title={t.withdrawal.backToWithdraw}
           onPress={handleGoBack}
           variant="primary"
           size="large"

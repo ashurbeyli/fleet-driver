@@ -13,8 +13,10 @@ import RenderHtml from 'react-native-render-html';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { challengesApi } from '../api';
 import type { Challenge, ChallengesResponse } from '../api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const GoalsScreen: React.FC = () => {
+  const { t, language } = useLanguage();
   const { width: contentWidth } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -33,7 +35,7 @@ const GoalsScreen: React.FC = () => {
       setChallengesData(response);
     } catch (err) {
       console.error('Error fetching challenges:', err);
-      setError('Failed to load goals. Please try again.');
+      setError(t.challenges.failedToLoadGoals);
     } finally {
       if (isRefresh) {
         setIsRefreshing(false);
@@ -52,7 +54,7 @@ const GoalsScreen: React.FC = () => {
   }, []);
 
   const formatTimeLeft = (seconds: number) => {
-    if (seconds <= 0) return 'Expired';
+    if (seconds <= 0) return t.challenges.expired;
     
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
@@ -87,12 +89,12 @@ const GoalsScreen: React.FC = () => {
               {challenge.subtitle}
             </Text>
             <Text style={styles.progressText}>
-              {challenge.driverRideCount}/{currentLevel.rideCountThreshold} completed
+              {challenge.driverRideCount}/{currentLevel.rideCountThreshold} {language === 'tr' ? 'tamamlandı' : 'completed'}
             </Text>
           </View>
           
           <View style={styles.bonusContainer}>
-            <Text style={styles.bonusLabel}>Bonus:</Text>
+            <Text style={styles.bonusLabel}>{t.challenges.bonus}</Text>
             <Text style={styles.bonusAmount}>${currentLevel.bonusAmount}</Text>
           </View>
         </View>
@@ -124,14 +126,14 @@ const GoalsScreen: React.FC = () => {
               color={isCompleted ? '#10B981' : COLORS.primary} 
             />
             <Text style={styles.remainingText}>
-              {isCompleted ? 'Challenge completed!' : `${remaining} more rides to go`}
+              {isCompleted ? t.challenges.completed : `${remaining}${t.challenges.moreRidesToGo}`}
             </Text>
           </View>
           {challenge.timeLeftSeconds > 0 && !isCompleted && (
             <View style={styles.timeInfo}>
               <Ionicons name="time" size={16} color={COLORS.text.secondary} />
               <Text style={styles.timeText}>
-                {timeLeft} left
+                {timeLeft} {t.challenges.left}
               </Text>
             </View>
           )}
@@ -187,11 +189,11 @@ const GoalsScreen: React.FC = () => {
       >
         {/* Goals List */}
         <View style={styles.challengesSection}>
-          <Text style={styles.sectionTitle}>Active Goals</Text>
+          <Text style={styles.sectionTitle}>{t.challenges.activeGoals}</Text>
           {isLoading ? (
             <View style={styles.emptyState}>
               <Ionicons name="hourglass-outline" size={48} color={COLORS.text.secondary} />
-              <Text style={styles.emptyStateText}>Loading goals...</Text>
+              <Text style={styles.emptyStateText}>{t.challenges.loadingGoals}</Text>
             </View>
           ) : error ? (
             <View style={styles.emptyState}>
@@ -202,7 +204,7 @@ const GoalsScreen: React.FC = () => {
                 style={styles.retryButton}
                 activeOpacity={0.8}
               >
-                <Text style={styles.retryButtonText}>Retry</Text>
+                <Text style={styles.retryButtonText}>{t.common.tryAgain}</Text>
               </TouchableOpacity>
             </View>
           ) : challengesData && challengesData.length > 0 ? (
@@ -210,9 +212,9 @@ const GoalsScreen: React.FC = () => {
           ) : (
             <View style={styles.emptyState}>
               <Ionicons name="flag-outline" size={48} color={COLORS.text.secondary} />
-              <Text style={styles.emptyStateText}>No goals available</Text>
+              <Text style={styles.emptyStateText}>{t.challenges.noGoalsAvailable}</Text>
               <Text style={styles.emptyStateSubtext}>
-                Check back later for new goals
+                {t.challenges.checkBackLater}
               </Text>
             </View>
           )}

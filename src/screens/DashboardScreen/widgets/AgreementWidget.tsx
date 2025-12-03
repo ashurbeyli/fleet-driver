@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../../constants';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const AgreementWidget: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
   return (
     <View style={styles.agreementWidget}>
       <View style={styles.agreementContent}>
@@ -13,9 +15,9 @@ const AgreementWidget: React.FC = () => {
           <Ionicons name="warning" size={24} color="#FF9800" />
         </View>
         <View style={styles.agreementTextContainer}>
-          <Text style={styles.agreementTitle}>Agreement Required</Text>
+          <Text style={styles.agreementTitle}>{t.agreement.required}</Text>
           <Text style={styles.agreementMessage}>
-            Please review and approve the agreement to continue using the service.
+            {t.agreement.reviewMessage}
           </Text>
         </View>
       </View>
@@ -24,7 +26,7 @@ const AgreementWidget: React.FC = () => {
         onPress={() => navigation.navigate('Agreement')}
         activeOpacity={0.7}
       >
-        <Text style={styles.agreementButtonText}>Review Agreement</Text>
+        <Text style={styles.agreementButtonText}>{t.agreement.reviewAgreement}</Text>
         <Ionicons name="chevron-forward" size={16} color={COLORS.primary} />
       </TouchableOpacity>
     </View>

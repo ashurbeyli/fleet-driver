@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
 import { useConfig } from '../contexts/ConfigContext';
+import { useLanguage, Language } from '../contexts/LanguageContext';
 
 interface MenuItem {
   id: string;
@@ -26,6 +27,7 @@ interface MenuItem {
 const MenuScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { features } = useConfig();
+  const { language, setLanguage, t } = useLanguage();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,15 +52,19 @@ const MenuScreen: React.FC = () => {
   };
 
   const handleLogout = async () => {
+    const logoutMessage = language === 'tr' 
+      ? 'Çıkış yapmak istediğinizden emin misiniz?'
+      : 'Are you sure you want to logout?';
+    
     const confirmed = Platform.OS === 'web' 
-      ? window.confirm('Are you sure you want to logout?')
+      ? window.confirm(logoutMessage)
       : await new Promise<boolean>((resolve) => {
           Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
+            t.menu.logout,
+            logoutMessage,
             [
-              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-              { text: 'Logout', style: 'destructive', onPress: () => resolve(true) },
+              { text: t.common.cancel, style: 'cancel', onPress: () => resolve(false) },
+              { text: t.menu.logout, style: 'destructive', onPress: () => resolve(true) },
             ]
           );
         });
@@ -69,13 +75,21 @@ const MenuScreen: React.FC = () => {
         navigation.navigate('Login');
       } catch (error) {
         console.error('Logout failed:', error);
+        const errorMessage = language === 'tr'
+          ? 'Çıkış yapılamadı. Lütfen tekrar deneyin.'
+          : 'Failed to logout. Please try again.';
         if (Platform.OS === 'web') {
-          alert('Failed to logout. Please try again.');
+          alert(errorMessage);
         } else {
-          Alert.alert('Error', 'Failed to logout. Please try again.');
+          Alert.alert(t.common.error, errorMessage);
         }
       }
     }
+  };
+
+  const handleLanguageSwitch = () => {
+    const newLanguage: Language = language === 'tr' ? 'en' : 'tr';
+    setLanguage(newLanguage);
   };
 
   const handleMenuItemPress = (item: MenuItem) => {
@@ -106,6 +120,9 @@ const MenuScreen: React.FC = () => {
         // Navigate to Invite Friend screen
         navigation.navigate('InviteFriend');
         break;
+      case 'language':
+        handleLanguageSwitch();
+        break;
       case 'logout':
         handleLogout();
         break;
@@ -115,12 +132,13 @@ const MenuScreen: React.FC = () => {
   };
 
       const menuItems: MenuItem[] = [
-        { id: '1', title: 'Profile', icon: 'person-circle-outline', functional: true, action: 'profile' },
-        { id: '2', title: 'Agreement', icon: 'document-text-outline', functional: true, action: 'agreement' },
-        ...(features.vehicle ? [{ id: '3', title: 'Vehicle Change', icon: 'car-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'vehicles' }] : []),
-        ...(features.invitations ? [{ id: '5', title: 'Invite a friend', icon: 'people-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'invite-friend' }] : []),
-        // { id: '6', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
-        { id: '7', title: 'Logout', icon: 'log-out-outline', functional: true, action: 'logout' },
+        { id: '1', title: t.menu.profile, icon: 'person-circle-outline', functional: true, action: 'profile' },
+        { id: '2', title: t.menu.agreement, icon: 'document-text-outline', functional: true, action: 'agreement' },
+        ...(features.vehicle ? [{ id: '3', title: t.menu.vehicleChange, icon: 'car-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'vehicles' }] : []),
+        ...(features.invitations ? [{ id: '5', title: t.menu.inviteFriend, icon: 'people-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'invite-friend' }] : []),
+        { id: '6', title: `${t.menu.language} (${language.toUpperCase()})`, icon: 'language-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'language' },
+        // { id: '7', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
+        { id: '8', title: t.menu.logout, icon: 'log-out-outline', functional: true, action: 'logout' },
       ];
 
   if (isLoading) {
@@ -151,7 +169,7 @@ const MenuScreen: React.FC = () => {
           <View style={styles.statusBadge}>
             <View style={styles.statusDot} />
             <Text style={styles.statusText}>
-              {driver?.isVerified ? 'Verified' : 'Not Verified'}
+              {driver?.isVerified ? t.menu.verified : t.menu.notVerified}
             </Text>
           </View>
         </View>

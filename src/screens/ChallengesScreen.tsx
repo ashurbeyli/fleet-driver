@@ -14,8 +14,10 @@ import { Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import GoalsScreen from './GoalsScreen';
 import RankingsScreen from './RankingsScreen';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ChallengesScreen: React.FC = () => {
+  const { t } = useLanguage();
   const route = useRoute();
   const params = route.params as { openTab?: 'rankings' | 'challenges' } | undefined;
   const [activeTab, setActiveTab] = useState<'rankings' | 'challenges'>('challenges');
@@ -54,7 +56,7 @@ const ChallengesScreen: React.FC = () => {
             color={activeTab === 'challenges' ? COLORS.primary : COLORS.text.tertiary} 
           />
           <Text style={[styles.tabText, activeTab === 'challenges' && styles.activeTabText]}>
-            Goals
+            {t.challenges.goals}
           </Text>
         </TouchableOpacity>
 
@@ -69,7 +71,7 @@ const ChallengesScreen: React.FC = () => {
             color={activeTab === 'rankings' ? COLORS.primary : COLORS.text.tertiary} 
           />
           <Text style={[styles.tabText, activeTab === 'rankings' && styles.activeTabText]}>
-            Rankings
+            {t.challenges.rankings}
           </Text>
         </TouchableOpacity>
       </View>

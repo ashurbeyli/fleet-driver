@@ -12,10 +12,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { leaderboardsApi } from '../api';
 import type { LeaderboardEntry, LeaderboardCompetition, LeaderboardsResponse } from '../api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const RankingsScreen: React.FC = () => {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,12 +94,12 @@ const RankingsScreen: React.FC = () => {
         </View>
 
         <Text style={[styles.driverName, entry.isMe && styles.currentUserText]}>
-          {entry.isMe ? 'You' : entry.name}
+          {entry.isMe ? t.challenges.you : entry.name}
         </Text>
 
         <View style={styles.driverStats}>
           <Text style={[styles.ordersText, entry.isMe && styles.currentUserText]}>
-            {entry.orders} orders
+            {entry.orders} {t.challenges.orders}
           </Text>
           {change !== 0 && (
             <View style={styles.rankChangeIndicator}>
@@ -129,11 +131,11 @@ const RankingsScreen: React.FC = () => {
         <View key={competition.competitionId} style={styles.monthContent}>
           <View style={styles.leaderboardSection}>
             <View style={styles.titleContainer}>
-              <Text style={styles.sectionTitle}>Leaderboard</Text>
+              <Text style={styles.sectionTitle}>{t.challenges.leaderboard}</Text>
               <Text style={styles.monthText}>({competition.competitionTitle})</Text>
             </View>
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No leaderboard data available</Text>
+              <Text style={styles.emptyStateText}>{t.challenges.noLeaderboardData}</Text>
             </View>
           </View>
         </View>
@@ -188,9 +190,9 @@ const RankingsScreen: React.FC = () => {
           </View>
           <View style={styles.leaderboardCard}>
             <View style={styles.leaderboardHeader}>
-              <Text style={styles.headerText}>Rank</Text>
-              <Text style={[styles.headerText, styles.nameHeader]}>Driver</Text>
-              <Text style={styles.headerText}>Orders</Text>
+              <Text style={styles.headerText}>{t.challenges.rank}</Text>
+              <Text style={[styles.headerText, styles.nameHeader]}>{t.challenges.driver}</Text>
+              <Text style={styles.headerText}>{t.challenges.orders}</Text>
             </View>
             
             {/* Top entries */}
@@ -227,7 +229,7 @@ const RankingsScreen: React.FC = () => {
       setLeaderboardsData(response);
     } catch (err) {
       console.error('Error fetching leaderboards:', err);
-      setError('Failed to load leaderboards. Please try again.');
+      setError(t.challenges.failedToLoadLeaderboards);
     } finally {
       if (isRefresh) {
         setIsRefreshing(false);
@@ -274,7 +276,7 @@ const RankingsScreen: React.FC = () => {
         {isLoading ? (
           <View style={styles.emptyState}>
             <Ionicons name="hourglass-outline" size={48} color={COLORS.text.secondary} />
-            <Text style={styles.emptyStateText}>Loading leaderboards...</Text>
+            <Text style={styles.emptyStateText}>{t.challenges.loadingLeaderboards}</Text>
           </View>
         ) : error ? (
           <View style={styles.emptyState}>
@@ -285,7 +287,7 @@ const RankingsScreen: React.FC = () => {
               style={styles.retryButton}
               activeOpacity={0.8}
             >
-              <Text style={styles.retryButtonText}>Retry</Text>
+              <Text style={styles.retryButtonText}>{t.common.tryAgain}</Text>
             </TouchableOpacity>
           </View>
         ) : leaderboardsData && leaderboardsData.length > 0 ? (
@@ -321,9 +323,9 @@ const RankingsScreen: React.FC = () => {
         ) : (
           <View style={styles.emptyState}>
             <Ionicons name="trophy-outline" size={48} color={COLORS.text.secondary} />
-            <Text style={styles.emptyStateText}>No competitions available</Text>
+            <Text style={styles.emptyStateText}>{t.challenges.noCompetitionsAvailable}</Text>
             <Text style={styles.emptyStateSubtext}>
-              Check back later for new competitions
+              {t.challenges.checkBackLater}
             </Text>
           </View>
         )}

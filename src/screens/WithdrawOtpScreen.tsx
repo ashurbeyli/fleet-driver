@@ -15,6 +15,7 @@ import { Button, OtpInputCard, Header } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService } from '../services/authService';
 import { withdrawalsApi, WithdrawalStatus } from '../api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RouteParams {
   withdrawalId: string;
@@ -29,6 +30,7 @@ const WithdrawOtpScreen: React.FC = () => {
   const params = route.params as RouteParams;
   
   const { withdrawalId, amount, receiverName, maskedIBAN } = params;
+  const { t } = useLanguage();
   const [otp, setOtp] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -76,7 +78,7 @@ const WithdrawOtpScreen: React.FC = () => {
     const codeToVerify = otpCode || otp;
     
     if (codeToVerify.length !== 6) {
-      setError('Please enter a valid 6-digit verification code.');
+      setError(t.otp.verificationFailed);
       return;
     }
 
@@ -97,7 +99,7 @@ const WithdrawOtpScreen: React.FC = () => {
         });
       } else if (response.status === WithdrawalStatus.FailedOtp) {
         // Status 4: OTP validation failed - show error on OTP screen
-        setError('Invalid OTP code. Please check and try again.');
+        setError(t.otp.invalidOtp);
         setOtp(''); // Clear OTP input
         setOtpKey(prev => prev + 1); // Reset OTP input component
       } else if (response.status === WithdrawalStatus.Failed) {
@@ -111,11 +113,11 @@ const WithdrawOtpScreen: React.FC = () => {
       console.error('OTP verification failed:', error);
       // Check if it's a 400 Bad Request (likely invalid OTP)
       if (error?.message?.includes('400') || error?.message?.includes('Bad Request')) {
-        setError('Invalid OTP code. Please check and try again.');
+        setError(t.otp.invalidOtp);
         setOtp(''); // Clear OTP input
         setOtpKey(prev => prev + 1); // Reset OTP input component
       } else {
-        setError(error?.message || 'Verification failed. Please check your code and try again.');
+        setError(error?.message || t.otp.verificationFailed);
       }
     } finally {
       setIsLoading(false);
@@ -137,10 +139,10 @@ const WithdrawOtpScreen: React.FC = () => {
       
       setOtp('');
       setResendTimer(60);
-      Alert.alert('Success', 'Verification code has been resent.');
+      Alert.alert(t.common.success, t.otp.resendSuccess);
     } catch (error) {
       console.error('Resend OTP failed:', error);
-      setError('Failed to resend code. Please try again.');
+      setError(t.otp.resendFailed);
     } finally {
       setIsLoading(false);
     }
@@ -160,30 +162,30 @@ const WithdrawOtpScreen: React.FC = () => {
         {/* Withdrawal Info */}
         <View style={styles.infoCard}>
           <Ionicons name="shield-checkmark-outline" size={36} color={COLORS.primary} />
-          <Text style={styles.infoTitle}>Verify Withdrawal</Text>
+          <Text style={styles.infoTitle}>{t.otp.verifyWithdrawal}</Text>
           <Text style={styles.infoText}>
-            Please enter the verification code sent to your phone to confirm this withdrawal.
+            {t.otp.verificationMessage}
           </Text>
         </View>
 
         {/* Withdrawal Details Card */}
         <View style={styles.detailsCard}>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Amount</Text>
+            <Text style={styles.detailLabel}>{t.withdrawal.amount}</Text>
             <Text style={styles.detailValue}>${amountInDollars}</Text>
           </View>
           
           <View style={styles.detailDivider} />
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Receiver Name</Text>
+            <Text style={styles.detailLabel}>{t.withdrawal.receiverName}</Text>
             <Text style={styles.detailValue}>{receiverName}</Text>
           </View>
           
           <View style={styles.detailDivider} />
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>IBAN</Text>
+            <Text style={styles.detailLabel}>{t.withdrawal.iban}</Text>
             <Text style={styles.detailValue}>{maskedIBAN}</Text>
           </View>
         </View>

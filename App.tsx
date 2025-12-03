@@ -5,6 +5,7 @@ import { NavigationContainer, useNavigationState } from '@react-navigation/nativ
 import AppNavigator from './src/navigation/AppNavigator';
 import { ContactButton } from './src/components';
 import { ConfigProvider } from './src/contexts/ConfigContext';
+import { LanguageProvider } from './src/contexts/LanguageContext';
 
 export default function App() {
   const navigationRef = useRef<any>(null);
@@ -34,23 +35,25 @@ export default function App() {
   };
 
   return (
-    <ConfigProvider>
-      <View style={styles.container}>
-        <NavigationContainer ref={navigationRef} onStateChange={onStateChange}>
-          <AppNavigator />
-        </NavigationContainer>
-        
-        <StatusBar 
-          style={Platform.OS === 'ios' ? 'dark' : 'auto'} 
-          backgroundColor="#f8f9fa"
-        />
-    
-        {/* Fixed Contact Button - appears on all screens except Contact */}
-        {currentRoute !== 'Contact' && (
-          <ContactButton onPress={handleContactPress} />
-        )}
-      </View>
-    </ConfigProvider>
+    <LanguageProvider>
+      <ConfigProvider>
+        <View style={styles.container}>
+          <NavigationContainer ref={navigationRef} onStateChange={onStateChange}>
+            <AppNavigator />
+          </NavigationContainer>
+          
+          <StatusBar 
+            style={Platform.OS === 'ios' ? 'dark' : 'auto'} 
+            backgroundColor="#f8f9fa"
+          />
+      
+          {/* Fixed Contact Button - appears on all screens except Contact */}
+          {currentRoute !== 'Contact' && (
+            <ContactButton onPress={handleContactPress} />
+          )}
+        </View>
+      </ConfigProvider>
+    </LanguageProvider>
   );
 }
 

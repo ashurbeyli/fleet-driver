@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Header, Button, Input, ConfirmationModal } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { withdrawalsApi, usersApi, type WithdrawalRequest, WithdrawalStatus } from '../api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RouteParams {
   amount: string;
@@ -25,6 +26,7 @@ const WithdrawDetailsScreen: React.FC = () => {
   const route = useRoute();
   const params = route.params as RouteParams;
   const amount = parseFloat(params?.amount || '0');
+  const { t } = useLanguage();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingBankDetails, setIsLoadingBankDetails] = useState(true);
@@ -70,12 +72,12 @@ const WithdrawDetailsScreen: React.FC = () => {
 
     // Check length - must be exactly 26 characters
     if (cleanedIban.length !== 26) {
-      return 'IBAN must be exactly 26 characters';
+      return t.validation.ibanInvalid;
     }
 
     // Check if it starts with "TR"
     if (!cleanedIban.startsWith('TR')) {
-      return 'IBAN must start with TR';
+      return t.validation.ibanInvalid;
     }
 
     // Check if the remaining 24 characters are all numbers
@@ -83,7 +85,7 @@ const WithdrawDetailsScreen: React.FC = () => {
     const numbersOnlyRegex = /^[0-9]+$/;
     
     if (!numbersOnlyRegex.test(remainingPart)) {
-      return 'IBAN must start with TR followed by 24 numbers';
+      return t.validation.ibanInvalid;
     }
 
     return '';
@@ -96,7 +98,7 @@ const WithdrawDetailsScreen: React.FC = () => {
     }
 
     if (name.trim().length < 2) {
-      return 'Receiver name must be at least 2 characters';
+      return t.validation.receiverNameMinLength;
     }
 
     return '';
@@ -120,10 +122,10 @@ const WithdrawDetailsScreen: React.FC = () => {
     let hasError = false;
 
     if (!receiverName.trim()) {
-      setReceiverNameError('Please enter receiver name');
+      setReceiverNameError(t.validation.receiverNameRequired);
       hasError = true;
     } else if (receiverName.trim().length < 2) {
-      setReceiverNameError('Receiver name must be at least 2 characters');
+      setReceiverNameError(t.validation.receiverNameMinLength);
       hasError = true;
     } else if (receiverNameError) {
       // Receiver name validation error already set
@@ -131,7 +133,7 @@ const WithdrawDetailsScreen: React.FC = () => {
     }
 
     if (!iban.trim()) {
-      setIbanError('Please enter IBAN');
+      setIbanError(t.validation.ibanRequired);
       hasError = true;
     } else if (ibanError) {
       // IBAN validation error already set
@@ -211,14 +213,14 @@ const WithdrawDetailsScreen: React.FC = () => {
         {/* Amount Summary */}
         <View style={styles.amountSummary}>
           <Ionicons name="cash-outline" size={24} color="#FFFFFF" />
-          <Text style={styles.amountLabel}>Withdrawal Amount</Text>
+          <Text style={styles.amountLabel}>{t.withdrawalDetails.withdrawalAmount}</Text>
           <Text style={styles.amountValue}>${amount.toFixed(2)}</Text>
         </View>
 
         {/* Bank Details Form */}
         <View style={styles.formSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Bank Details</Text>
+            <Text style={styles.sectionTitle}>{t.withdrawalDetails.bankDetails}</Text>
             {isLoadingBankDetails && (
               <View style={styles.loadingIndicator}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
@@ -229,8 +231,8 @@ const WithdrawDetailsScreen: React.FC = () => {
           <View style={styles.formFields}>
             <Input
               inputStyle={styles.formInput}
-              label="Receiver Name"
-              placeholder="Enter receiver name"
+              label={t.withdrawal.receiverName}
+              placeholder={t.withdrawal.receiverName}
               value={receiverName}
               onChangeText={handleReceiverNameChange}
               error={receiverNameError}
@@ -238,8 +240,8 @@ const WithdrawDetailsScreen: React.FC = () => {
             />
 
             <Input
-              label="IBAN"
-              placeholder="Enter IBAN"
+              label={t.withdrawal.iban}
+              placeholder={t.withdrawal.iban}
               value={iban}
               onChangeText={handleIbanChange}
               error={ibanError}
@@ -251,7 +253,7 @@ const WithdrawDetailsScreen: React.FC = () => {
 
         {/* Submit Button */}
           <Button
-            title={isSubmitting ? 'Processing...' : 'Confirm Withdrawal'}
+            title={isSubmitting ? t.common.loading : t.withdrawalDetails.confirmWithdrawal}
             onPress={handleSubmit}
             variant="primary"
             size="medium"
@@ -263,10 +265,10 @@ const WithdrawDetailsScreen: React.FC = () => {
       {/* Confirmation Modal */}
       <ConfirmationModal
         visible={showConfirmModal}
-        title="Confirm Withdrawal"
-        message={`Are you sure you want to withdraw $${amount.toFixed(2)} to ${receiverName}?`}
-        confirmText="Confirm"
-        cancelText="Cancel"
+        title={t.withdrawalDetails.confirmWithdrawal}
+        message={t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName)}
+        confirmText={t.common.confirm}
+        cancelText={t.common.cancel}
         onConfirm={handleConfirmWithdrawal}
         onCancel={() => setShowConfirmModal(false)}
         isLoading={isSubmitting}

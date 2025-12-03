@@ -13,10 +13,12 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../../constants';
 import { usersApi, type BalanceResponse } from '../../../api';
 import { useConfig } from '../../../contexts/ConfigContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const WithdrawWidget: React.FC = () => {
   const navigation = useNavigation<any>();
   const { features, isLoading: isConfigLoading } = useConfig();
+  const { t } = useLanguage();
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -53,7 +55,7 @@ const WithdrawWidget: React.FC = () => {
   return (
     <View style={[styles.container, !shouldShow && styles.containerHidden]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Your Balance</Text>
+        <Text style={styles.title}>{t.dashboard.yourBalance}</Text>
       </View>
 
       {/* Balance Cards Row */}
@@ -65,21 +67,21 @@ const WithdrawWidget: React.FC = () => {
               <View style={styles.balanceIconContainer}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
-              <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
               <Text style={styles.balanceValue}>--</Text>
             </View>
             <View style={styles.balanceCard}>
               <View style={styles.balanceIconContainer}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
-              <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
               <Text style={styles.balanceValue}>--</Text>
             </View>
             <View style={styles.balanceCard}>
               <View style={styles.balanceIconContainer}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
-              <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
               <Text style={styles.balanceValue}>--</Text>
             </View>
           </>
@@ -90,7 +92,7 @@ const WithdrawWidget: React.FC = () => {
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="wallet" size={24} color={COLORS.primary} />
               </View>
-              <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
               <Text style={styles.balanceValue}>
                 ${balance.totalBalance.toFixed(2)}
               </Text>
@@ -101,7 +103,7 @@ const WithdrawWidget: React.FC = () => {
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
               </View>
-              <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
               <Text style={styles.balanceValue}>
                 ${balance.withdrawableBalance.toFixed(2)}
               </Text>
@@ -112,7 +114,7 @@ const WithdrawWidget: React.FC = () => {
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="lock-closed" size={24} color="#FF9800" />
               </View>
-              <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
               <Text style={styles.balanceValue}>
                 ${balance.blockedBalance.toFixed(2)}
               </Text>
@@ -125,21 +127,21 @@ const WithdrawWidget: React.FC = () => {
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="wallet" size={24} color={COLORS.text.tertiary} />
               </View>
-              <Text style={styles.balanceLabel}>Total</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.total}</Text>
               <Text style={styles.balanceValue}>--</Text>
             </View>
             <View style={styles.balanceCard}>
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="checkmark-circle" size={24} color={COLORS.text.tertiary} />
               </View>
-              <Text style={styles.balanceLabel}>Available</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
               <Text style={styles.balanceValue}>--</Text>
             </View>
             <View style={styles.balanceCard}>
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="lock-closed" size={24} color={COLORS.text.tertiary} />
               </View>
-              <Text style={styles.balanceLabel}>Blocked</Text>
+                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
               <Text style={styles.balanceValue}>--</Text>
             </View>
           </>
@@ -158,7 +160,7 @@ const WithdrawWidget: React.FC = () => {
           disabled={isLoading}
         >
           <Ionicons name="wallet" size={20} color="#FFFFFF" />
-          <Text style={styles.withdrawButtonText}>Withdraw</Text>
+          <Text style={styles.withdrawButtonText}>{t.dashboard.withdraw}</Text>
           <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
         </TouchableOpacity>
       )}

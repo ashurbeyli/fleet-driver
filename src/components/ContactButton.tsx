@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, TouchableOpacity, Animated, Text, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ContactButtonProps {
   onPress: () => void;
@@ -8,6 +9,7 @@ interface ContactButtonProps {
 }
 
 const ContactButton: React.FC<ContactButtonProps> = ({ onPress, style }) => {
+  const { t } = useLanguage();
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -46,7 +48,7 @@ const ContactButton: React.FC<ContactButtonProps> = ({ onPress, style }) => {
         activeOpacity={0.8}
       >
         <Ionicons name="chatbubble-outline" size={14} color="#333" />
-        <Text style={styles.text}>Support</Text>
+        <Text style={styles.text}>{t.contact.support}</Text>
       </TouchableOpacity>
     </View>
   );

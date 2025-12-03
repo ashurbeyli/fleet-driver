@@ -4,6 +4,7 @@ import { Platform, StyleSheet, View, TouchableOpacity, Text } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../constants';
 import { useConfig } from '../contexts/ConfigContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import DashboardScreen from '../screens/DashboardScreen/DashboardScreen';
 import MenuScreen from '../screens/MenuScreen';
 import BonusScreen from '../screens/BonusScreen';
@@ -12,22 +13,23 @@ import WithdrawScreen from '../screens/WithdrawScreen';
 
 const Tab = createBottomTabNavigator();
 
-// Custom Withdraw Action Button Component
-const WithdrawActionButton = ({ onPress }: { onPress?: (e: any) => void }) => (
-  <TouchableOpacity
-    style={styles.withdrawActionButton}
-    onPress={onPress}
-    activeOpacity={0.85}
-  >
-    <View style={styles.withdrawCircle}>
-      <Ionicons name="wallet" size={26} color="#FFFFFF" />
-    </View>
-    <Text style={styles.withdrawButtonText}>Withdraw</Text>
-  </TouchableOpacity>
-);
-
 const TabNavigator: React.FC = () => {
   const { features } = useConfig();
+  const { t } = useLanguage();
+
+  // Custom Withdraw Action Button Component
+  const WithdrawActionButton = ({ onPress }: { onPress?: (e: any) => void }) => (
+    <TouchableOpacity
+      style={styles.withdrawActionButton}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
+      <View style={styles.withdrawCircle}>
+        <Ionicons name="wallet" size={26} color="#FFFFFF" />
+      </View>
+      <Text style={styles.withdrawButtonText}>{t.dashboard.withdraw}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <Tab.Navigator
@@ -43,6 +45,7 @@ const TabNavigator: React.FC = () => {
         name="Home"
         component={DashboardScreen}
         options={{
+          tabBarLabel: t.dashboard.home,
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
               name={focused ? "home" : "home-outline"} 
@@ -57,6 +60,7 @@ const TabNavigator: React.FC = () => {
           name="Bonuses"
           component={BonusScreen}
           options={{
+            tabBarLabel: t.common.bonuses,
             tabBarIcon: ({ color, focused, size }) => (
               <Ionicons 
                 name={focused ? "gift" : "gift-outline"} 
@@ -84,6 +88,7 @@ const TabNavigator: React.FC = () => {
           name="Challenges"
           component={ChallengesScreen}
           options={{
+            tabBarLabel: t.common.challenges,
             tabBarIcon: ({ color, focused, size }) => (
               <Ionicons 
                 name={focused ? "trophy" : "trophy-outline"} 
@@ -98,6 +103,7 @@ const TabNavigator: React.FC = () => {
         name="Menu"
         component={MenuScreen}
         options={{
+          tabBarLabel: t.dashboard.menu,
           tabBarIcon: ({ color, focused, size }) => (
             <Ionicons 
               name={focused ? "menu" : "menu-outline"} 
