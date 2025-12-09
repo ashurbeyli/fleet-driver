@@ -242,7 +242,7 @@ const WithdrawScreen: React.FC = () => {
     if (totalWithCommission > roundedBalance) {
       // Show error with commission fee included
       if (commission > 0) {
-        Alert.alert(
+    Alert.alert(
           t.common.error,
           t.validation.amountWithCommissionExceeded(
             roundedAmount.toFixed(2),
@@ -378,7 +378,7 @@ const WithdrawScreen: React.FC = () => {
             ) : balance ? (
               <>
                 {/* Total Balance Card */}
-                <View style={styles.balanceCard}>
+          <View style={styles.balanceCard}>
                   <View style={styles.balanceIconCircle}>
                     <Ionicons name="wallet" size={20} color={COLORS.primary} />
                   </View>
@@ -386,21 +386,21 @@ const WithdrawScreen: React.FC = () => {
                   <Text style={styles.balanceValue}>
                     ₺{balance.totalBalance.toFixed(2)}
                   </Text>
-                </View>
+            </View>
 
                 {/* Withdrawable Balance Card */}
                 <View style={styles.balanceCard}>
                   <View style={styles.balanceIconCircle}>
                     <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                  </View>
+            </View>
                   <Text style={styles.balanceLabel}>{t.withdrawal.available}</Text>
                   <Text style={styles.balanceValue}>
                     ₺{balance.withdrawableBalance.toFixed(2)}
                   </Text>
-                </View>
+          </View>
 
                 {/* Blocked Balance Card */}
-                <View style={styles.balanceCard}>
+          <View style={styles.balanceCard}>
                   <View style={styles.balanceIconCircle}>
                     <Ionicons name="lock-closed" size={20} color="#FF9800" />
                   </View>
@@ -423,11 +423,11 @@ const WithdrawScreen: React.FC = () => {
                         </View>
                       )}
                     </View>
-                  </View>
+            </View>
                   <Text style={styles.balanceValue}>
                     ₺{balance.blockedBalance.toFixed(2)}
                   </Text>
-                </View>
+            </View>
               </>
             ) : null}
           </View>
@@ -465,7 +465,7 @@ const WithdrawScreen: React.FC = () => {
                 <Text style={styles.commissionInfoText}>
                   {t.withdrawalDetails.commissionFee}: ₺{withdrawalSettings.faturamaticCommission.toFixed(2)}
                 </Text>
-              </View>
+          </View>
             )}
           </View>
 

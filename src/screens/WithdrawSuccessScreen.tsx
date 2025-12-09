@@ -27,8 +27,14 @@ const WithdrawSuccessScreen: React.FC = () => {
   const params = route.params as RouteParams;
   const { t } = useLanguage();
   
-  const { amount, receiverName, maskedIBAN } = params;
-  const amountInDollars = amount.toFixed(2);
+  const { amount, receiverName, maskedIBAN } = params || {};
+  // Ensure amount is a number (handle cases where it might come from URL as string)
+  const amountNumber = typeof amount === 'number' ? amount : parseFloat(String(amount || 0));
+  const amountInDollars = amountNumber.toFixed(2);
+  
+  // Provide fallback values for safety
+  const displayReceiverName = receiverName || '';
+  const displayMaskedIBAN = maskedIBAN || '';
 
   const handleGoBack = () => {
     // Navigate to Dashboard (TabNavigator) and then to Withdraw tab
@@ -67,14 +73,14 @@ const WithdrawSuccessScreen: React.FC = () => {
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t.withdrawalSuccess.receiverName}</Text>
-            <Text style={styles.detailValue}>{receiverName}</Text>
+            <Text style={styles.detailValue}>{displayReceiverName}</Text>
           </View>
           
           <View style={styles.detailDivider} />
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t.withdrawalSuccess.iban}</Text>
-            <Text style={styles.detailValue}>{maskedIBAN}</Text>
+            <Text style={styles.detailValue}>{displayMaskedIBAN}</Text>
           </View>
         </View>
 

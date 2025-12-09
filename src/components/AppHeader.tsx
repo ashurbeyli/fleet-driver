@@ -41,7 +41,13 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     if (onBackPress) {
       onBackPress();
     } else {
-      navigation.goBack();
+      // If we can go back, use goBack, otherwise navigate to Dashboard as fallback
+      if (canGoBack) {
+        navigation.goBack();
+      } else {
+        // Fallback when there's no navigation history (e.g., after page refresh)
+        navigation.navigate('Dashboard' as never);
+      }
     }
   };
 
