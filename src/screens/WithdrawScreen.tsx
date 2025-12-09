@@ -15,7 +15,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Header, Button, Input } from '../components';
+import { Button, Input, AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { usersApi, withdrawalsApi, type BalanceResponse, type WithdrawalHistoryItem } from '../api';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -270,7 +270,7 @@ const WithdrawScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <AppHeader showBack={false} />
       <ScrollView
         ref={scrollViewRef}
         contentContainerStyle={[
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.md,
-    paddingTop: Platform.OS === 'web' ? 60 : 50,
+    paddingTop: SPACING.md,
   },
   balanceSection: {
     marginBottom: SPACING.md,

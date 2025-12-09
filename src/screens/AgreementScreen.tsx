@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { agreementsApi, usersApi, type AgreementResponse, type AgreeResponse, type ConfirmAgreementResponse, type UserMeResponse } from '../api';
 import { authService } from '../services/authService';
-import { OtpModal, Header } from '../components';
+import { OtpModal, AppHeader } from '../components';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const AgreementScreen: React.FC = () => {
@@ -163,7 +163,7 @@ const AgreementScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
+      <AppHeader showBack showSupport={false} />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
-    paddingTop: Platform.OS === 'web' ? 100 : 80, // More padding for web to avoid overlap
+    paddingTop: SPACING.md,
   },
   // Agreement Header - Outside Card
   agreementHeader: {

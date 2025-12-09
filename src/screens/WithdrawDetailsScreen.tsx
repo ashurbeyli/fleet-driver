@@ -12,7 +12,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Header, Button, Input, ConfirmationModal } from '../components';
+import { Header, Button, Input, ConfirmationModal, AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { withdrawalsApi, usersApi, type WithdrawalRequest, WithdrawalStatus } from '../api';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -112,8 +112,10 @@ const WithdrawDetailsScreen: React.FC = () => {
   };
 
   const handleIbanChange = (text: string) => {
-    setIban(text);
-    const error = validateIBAN(text);
+    // Remove all spaces from the input
+    const cleanedText = text.replace(/\s/g, '');
+    setIban(cleanedText);
+    const error = validateIBAN(cleanedText);
     setIbanError(error);
   };
 
@@ -205,7 +207,7 @@ const WithdrawDetailsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <AppHeader title={t.withdrawal.confirmWithdrawal} showBack />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -285,7 +287,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.md,
-    paddingTop: Platform.OS === 'web' ? 60 : 50,
+    paddingTop: SPACING.md,
   },
   amountSummary: {
     backgroundColor: COLORS.primary,

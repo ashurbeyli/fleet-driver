@@ -10,7 +10,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Header } from '../components';
+import { Button, AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -38,7 +38,7 @@ const WithdrawSuccessScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <AppHeader title={t.withdrawalSuccess.title} showBack />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

@@ -15,6 +15,7 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
 import { useConfig } from '../contexts/ConfigContext';
 import { useLanguage, Language } from '../contexts/LanguageContext';
+import { AppHeader } from '../components';
 
 interface MenuItem {
   id: string;
@@ -153,6 +154,7 @@ const MenuScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AppHeader showBack={false} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -227,6 +229,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
+    paddingTop: SPACING.md,
   },
   loadingContainer: {
     flex: 1,

@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService, Driver } from '../services/authService';
 import { usersApi, type UserInfoResponse } from '../api';
-import { Header } from '../components';
+import { AppHeader } from '../components';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ProfileScreen: React.FC = () => {
@@ -64,7 +64,7 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
+      <AppHeader showBack showSupport={false} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
-    paddingTop: Platform.OS === 'web' ? 100 : 80, // More padding for web to avoid overlap
+    paddingTop: SPACING.md,
   },
   loadingContainer: {
     paddingVertical: SPACING.xl,

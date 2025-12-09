@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { Header } from '../components';
+import { AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { bonusesApi } from '../api';
 import type { Bonus, BonusesResponse } from '../api';
@@ -121,7 +121,7 @@ const BonusScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
-        <Header showBackButton={false} />
+        <AppHeader showBack={false} />
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>{t.bonuses.loading}</Text>
         </View>
@@ -133,7 +133,7 @@ const BonusScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
-        <Header showBackButton={false} />
+        <AppHeader showBack={false} />
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>{error}</Text>
           <TouchableOpacity
@@ -151,7 +151,7 @@ const BonusScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
-      <Header showBackButton={false} />
+      <AppHeader showBack={false} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
-    paddingTop: Platform.OS === 'web' ? 100 : 80,
+    paddingTop: SPACING.md,
   },
   loadingContainer: {
     flex: 1,

@@ -13,7 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
-import { Header } from '../components';
+import { AppHeader } from '../components';
 import { useConfig } from '../contexts/ConfigContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -114,7 +114,7 @@ const ContactScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
+      <AppHeader showBack showSupport={false} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
-    paddingTop: Platform.OS === 'web' ? 100 : 80, // More padding for web to avoid overlap
+    paddingTop: SPACING.md,
   },
   section: {
     marginBottom: SPACING.xl,

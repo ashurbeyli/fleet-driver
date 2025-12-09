@@ -5,5 +5,6 @@ export { default as OtpInput } from './OtpInput';
 export { default as OtpInputCard } from './OtpInputCard';
 export { default as OtpModal } from './OtpModal';
 export { default as ContactButton } from './ContactButton';
+export { default as AppHeader } from './AppHeader';
 export { default as Header } from './Header';
 export { default as ConfirmationModal } from './ConfirmationModal';

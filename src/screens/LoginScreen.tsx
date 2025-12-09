@@ -8,11 +8,12 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input, UnifiedSelectBox } from '../components';
+import { Button, Input, UnifiedSelectBox, AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { parksApi, authApi } from '../api';
 import { Park } from '../api/parks';
@@ -28,11 +29,45 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const { t } = useLanguage();
+  const logoSource = require('../../assets/react-logo.png');
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
-  const [phoneNumber, setPhoneNumber] = useState<string>('+');
+  const [phoneNumber, setPhoneNumber] = useState<string>('+90 ');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingParks, setIsLoadingParks] = useState<boolean>(true);
+
+  const extractLocalDigits = (input: string) => {
+    const digits = input.replace(/\D/g, '');
+    // Always treat leading 90 as country code; also handle partial "9" backspace case
+    let local = digits;
+    if (local.startsWith('90')) {
+      local = local.slice(2);
+    } else if (local.startsWith('9')) {
+      local = local.slice(1);
+    }
+    return local.slice(0, 10); // max 10 digits after +90
+  };
+
+  const formatPhoneNumber = (input: string) => {
+    const localDigits = extractLocalDigits(input);
+
+    const part1 = localDigits.slice(0, 3);
+    const part2 = localDigits.slice(3, 6);
+    const part3 = localDigits.slice(6, 10);
+
+    let formatted = '+90';
+    if (localDigits.length > 0) formatted += ` ${part1}`;
+    if (part2) formatted += ` ${part2}`;
+    if (part3) formatted += ` ${part3}`;
+
+    return formatted.trimEnd();
+  };
+
+  const handlePhoneChange = (text: string) => {
+    const formatted = formatPhoneNumber(text);
+    // Ensure we always keep a trailing space after +90 when empty for nicer UX
+    setPhoneNumber(formatted === '+90' ? '+90 ' : formatted);
+  };
 
   // Fetch parks from API
   useEffect(() => {
@@ -57,7 +92,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       Alert.alert(t.common.error, t.login.pleaseSelectPark);
       return;
     }
-    if (!phoneNumber || phoneNumber.length < 10) {
+    const withoutCountry = extractLocalDigits(phoneNumber);
+
+    if (withoutCountry.length !== 10) {
       Alert.alert(t.common.error, t.login.invalidPhoneNumber);
       return;
     }
@@ -72,14 +109,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       }
       
       // Call real login API with park.id (internal ID)
-      const response = await authApi.login(phoneNumber, park.id);
+      const normalizedPhone = `+90${withoutCountry}`;
+      const response = await authApi.login(normalizedPhone, park.id);
       
       if (response.isValid) {
         const parkName = park.name || 'Selected Park';
         
         // Navigate to OTP screen with data
         navigation.navigate('Otp', {
-          phoneNumber,
+          phoneNumber: normalizedPhone,
           parkName,
           parkId: park.id, // Use park.id (internal ID)
         });
@@ -100,6 +138,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AppHeader title="RidexGo" showBack={false} />
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -108,7 +147,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         {/* Logo Section */}
         <View style={styles.logoSection}>
           <View style={styles.logoContainer}>
-            <Ionicons name="car" size={48} color={COLORS.primary} />
+            <Image source={logoSource} style={styles.logoImage} />
           </View>
           <Text style={styles.logo}>RidexGo</Text>
           <Text style={styles.tagline}>{t.login.controlCentre}</Text>
@@ -125,6 +164,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   ? t.login.noParksAvailable
                   : t.login.selectPark
             }
+            modalTitle={t.login.selectPark}
             options={parks}
             selectedValue={selectedPark}
             onSelect={(option) => setSelectedPark(option.id)}
@@ -135,8 +175,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             label={t.login.phoneNumber}
             placeholder={t.login.phonePlaceholder}
             value={phoneNumber}
-            onChangeText={setPhoneNumber}
+            onChangeText={handlePhoneChange}
             keyboardType="phone-pad"
+            inputStyle={{
+              ...Platform.select({
+                web: {
+                  outlineWidth: 0,
+                  outlineColor: 'transparent',
+                },
+              }),
+            }}
           />
 
           <Button
@@ -188,6 +236,11 @@ const styles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.weights.bold,
     color: COLORS.text.primary,
     marginBottom: 4,
+  },
+  logoImage: {
+    width: 52,
+    height: 52,
+    resizeMode: 'contain',
   },
   tagline: {
     fontSize: TYPOGRAPHY.sizes.sm,

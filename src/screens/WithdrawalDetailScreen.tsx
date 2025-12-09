@@ -9,9 +9,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Header } from '../components';
+import { AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { withdrawalsApi, type WithdrawalDetailResponse, WithdrawalStatus } from '../api';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -20,7 +20,6 @@ import { RootStackParamList } from '../types';
 type WithdrawalDetailScreenRouteProp = RouteProp<RootStackParamList, 'WithdrawalDetail'>;
 
 const WithdrawalDetailScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
   const route = useRoute<WithdrawalDetailScreenRouteProp>();
   const { t, language } = useLanguage();
   const { withdrawalId } = route.params || {};
@@ -86,7 +85,7 @@ const WithdrawalDetailScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" backgroundColor={COLORS.primary} />
-        <Header />
+        <AppHeader title={t.withdrawalDetails.title} showBack />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>{t.common.loading}</Text>
@@ -99,7 +98,7 @@ const WithdrawalDetailScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" backgroundColor={COLORS.primary} />
-        <Header />
+        <AppHeader title={t.withdrawalDetails.title} showBack />
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle" size={48} color={COLORS.error} />
           <Text style={styles.errorTitle}>{t.common.error}</Text>
@@ -121,7 +120,7 @@ const WithdrawalDetailScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <AppHeader title={t.withdrawalDetails.title} showBack />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

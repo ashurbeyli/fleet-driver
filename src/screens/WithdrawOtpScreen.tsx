@@ -12,7 +12,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, OtpInputCard, Header } from '../components';
+import { Button, OtpInputCard, AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { authService } from '../services/authService';
 import { withdrawalsApi, WithdrawalStatus } from '../api';
@@ -163,7 +163,7 @@ const WithdrawOtpScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor={COLORS.primary} />
-      <Header />
+      <AppHeader title={t.otp.title} showBack />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
-    paddingTop: Platform.OS === 'web' ? 60 : 50,
+    paddingTop: SPACING.md,
   },
   infoCard: {
     backgroundColor: COLORS.surface,

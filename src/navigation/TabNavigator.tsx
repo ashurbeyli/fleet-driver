@@ -56,20 +56,20 @@ const TabNavigator: React.FC = () => {
         }}
       />
       {features.bonuses && (
-        <Tab.Screen
-          name="Bonuses"
-          component={BonusScreen}
-          options={{
+      <Tab.Screen
+        name="Bonuses"
+        component={BonusScreen}
+        options={{
             tabBarLabel: t.common.bonuses,
-            tabBarIcon: ({ color, focused, size }) => (
-              <Ionicons 
-                name={focused ? "gift" : "gift-outline"} 
-                size={size} 
-                color={color} 
-              />
-            ),
-          }}
-        />
+          tabBarIcon: ({ color, focused, size }) => (
+            <Ionicons 
+              name={focused ? "gift" : "gift-outline"} 
+              size={size} 
+              color={color} 
+            />
+          ),
+        }}
+      />
       )}
       {features.withdrawal && (
         <Tab.Screen
@@ -84,20 +84,20 @@ const TabNavigator: React.FC = () => {
         />
       )}
       {features.challenges && (
-        <Tab.Screen
-          name="Challenges"
-          component={ChallengesScreen}
-          options={{
+      <Tab.Screen
+        name="Challenges"
+        component={ChallengesScreen}
+        options={{
             tabBarLabel: t.common.challenges,
-            tabBarIcon: ({ color, focused, size }) => (
-              <Ionicons 
-                name={focused ? "trophy" : "trophy-outline"} 
-                size={size} 
-                color={color} 
-              />
-            ),
-          }}
-        />
+          tabBarIcon: ({ color, focused, size }) => (
+            <Ionicons 
+              name={focused ? "trophy" : "trophy-outline"} 
+              size={size} 
+              color={color} 
+            />
+          ),
+        }}
+      />
       )}
       <Tab.Screen
         name="Menu"

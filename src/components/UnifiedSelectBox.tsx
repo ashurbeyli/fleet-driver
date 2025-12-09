@@ -20,6 +20,7 @@ interface SelectOption {
 interface UnifiedSelectBoxProps {
   label?: string;
   placeholder?: string;
+  modalTitle?: string;
   options: SelectOption[];
   selectedValue?: string;
   onSelect: (option: SelectOption) => void;
@@ -33,6 +34,7 @@ interface UnifiedSelectBoxProps {
 const UnifiedSelectBox: React.FC<UnifiedSelectBoxProps> = ({
   label,
   placeholder = 'Select an option',
+  modalTitle,
   options,
   selectedValue,
   onSelect,
@@ -110,6 +112,7 @@ const UnifiedSelectBox: React.FC<UnifiedSelectBoxProps> = ({
   );
 
   const renderModal = () => {
+    const titleText = modalTitle || placeholder || 'Select Option';
     if (isOpen) {
       return (
         <Modal
@@ -130,7 +133,7 @@ const UnifiedSelectBox: React.FC<UnifiedSelectBoxProps> = ({
               Platform.OS === 'web' && styles.webModalContent
             ]}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Option</Text>
+                <Text style={styles.modalTitle}>{titleText}</Text>
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={handleClose}

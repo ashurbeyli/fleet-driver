@@ -10,7 +10,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
-import { Header } from '../components';
+import { AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import GoalsScreen from './GoalsScreen';
 import RankingsScreen from './RankingsScreen';
@@ -41,7 +41,7 @@ const ChallengesScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
-      <Header showBackButton={false} />
+      <AppHeader showBack={false} />
       
       {/* Tab Buttons */}
       <View style={styles.tabContainer}>
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: COLORS.surface,
     marginHorizontal: SPACING.lg,
-    marginTop: Platform.OS === 'web' ? 100 : 80,
+    marginTop: SPACING.md,
     marginBottom: SPACING.md,
     borderRadius: DESIGN.borderRadius.lg,
     padding: SPACING.xs,

@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   Platform,
   ScrollView,
-  TouchableOpacity,
   Alert,
   RefreshControl,
   ActivityIndicator,
@@ -16,11 +15,14 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../constants';
 import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
 import { useConfig } from '../../contexts/ConfigContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget, WithdrawWidget } from './widgets';
+import { AppHeader } from '../../components';
 // import { NewsWidget } from './widgets'; // Commented out - not implemented yet
 
 const DashboardScreen: React.FC = () => {
   const { features } = useConfig();
+  const { t } = useLanguage();
   const [driver, setDriver] = useState<Driver | null>(null);
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
@@ -163,6 +165,8 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AppHeader title={t.dashboard.home} showBack={false} />
+
       <ScrollView
         ref={scrollViewRef}
         contentContainerStyle={[
@@ -238,6 +242,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: SPACING.lg,
+  },
+  logoText: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.primary,
   },
   // Balance Section
   balanceSection: {
