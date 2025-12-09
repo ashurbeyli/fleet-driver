@@ -9,16 +9,24 @@ export interface ConfigLinks {
 
 export interface ConfigFeatures {
   bonuses: boolean;
+  bonusesComingSoon: boolean;
   challenges: boolean;
+  challengesComingSoon: boolean;
   rankings: boolean;
   invitations: boolean;
   vehicle: boolean;
   withdrawal: boolean;
+  agreement: boolean;
+}
+
+export interface WithdrawalSettings {
+  faturamaticCommission: number;
 }
 
 export interface AppConfig {
   links: ConfigLinks;
   features: ConfigFeatures;
+  withdrawalSettings?: WithdrawalSettings;
 }
 
 /**

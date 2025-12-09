@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { configsApi, AppConfig, ConfigFeatures, ConfigLinks } from '../api';
+import { configsApi, AppConfig, ConfigFeatures, ConfigLinks, WithdrawalSettings } from '../api';
 
 interface ConfigContextType {
   config: AppConfig | null;
   features: ConfigFeatures;
   links: ConfigLinks;
+  withdrawalSettings: WithdrawalSettings | null;
   isLoading: boolean;
   error: Error | null;
   refreshConfig: () => Promise<void>;
@@ -12,11 +13,14 @@ interface ConfigContextType {
 
 const defaultFeatures: ConfigFeatures = {
   bonuses: false,
+  bonusesComingSoon: false,
   challenges: false,
+  challengesComingSoon: false,
   rankings: false,
   invitations: false,
   vehicle: false,
   withdrawal: false,
+  agreement: false,
 };
 
 const defaultLinks: ConfigLinks = {
@@ -51,6 +55,7 @@ export const ConfigProvider: React.FC<ConfigProviderProps> = ({ children }) => {
       setConfig({
         features: defaultFeatures,
         links: defaultLinks,
+        withdrawalSettings: undefined,
       });
     } finally {
       setIsLoading(false);
@@ -69,6 +74,7 @@ export const ConfigProvider: React.FC<ConfigProviderProps> = ({ children }) => {
     config,
     features: config?.features || defaultFeatures,
     links: config?.links || defaultLinks,
+    withdrawalSettings: config?.withdrawalSettings || null,
     isLoading,
     error,
     refreshConfig,

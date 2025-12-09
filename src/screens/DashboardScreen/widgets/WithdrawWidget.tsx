@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -25,6 +26,7 @@ const WithdrawWidget: React.FC<WithdrawWidgetProps> = ({ isRefreshing = false })
   const { t } = useLanguage();
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showBlockedBalanceTooltip, setShowBlockedBalanceTooltip] = useState(false);
 
   useEffect(() => {
     loadBalance();
@@ -67,6 +69,11 @@ const WithdrawWidget: React.FC<WithdrawWidgetProps> = ({ isRefreshing = false })
 
   return (
     <View style={[styles.container, !shouldShow && styles.containerHidden]}>
+      {showBlockedBalanceTooltip && (
+        <TouchableWithoutFeedback onPress={() => setShowBlockedBalanceTooltip(false)}>
+          <View style={styles.tooltipOverlay} />
+        </TouchableWithoutFeedback>
+      )}
       <View style={styles.header}>
         <Text style={styles.title}>{t.dashboard.yourBalance}</Text>
       </View>
@@ -127,7 +134,26 @@ const WithdrawWidget: React.FC<WithdrawWidgetProps> = ({ isRefreshing = false })
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="lock-closed" size={24} color="#FF9800" />
               </View>
-                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
+              <View style={styles.balanceLabelContainer}>
+                <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
+                <View style={styles.infoIconContainer}>
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      setShowBlockedBalanceTooltip(!showBlockedBalanceTooltip);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="information-circle-outline" size={16} color={COLORS.text.secondary} />
+                  </TouchableOpacity>
+                  {showBlockedBalanceTooltip && (
+                    <View style={styles.tooltip} onStartShouldSetResponder={() => true}>
+                      <View style={styles.tooltipArrow} />
+                      <Text style={styles.tooltipText}>{t.withdrawal.blockedBalanceInfo}</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
               <Text style={styles.balanceValue}>
                 ₺{balance.blockedBalance.toFixed(2)}
               </Text>
@@ -154,7 +180,26 @@ const WithdrawWidget: React.FC<WithdrawWidgetProps> = ({ isRefreshing = false })
               <View style={styles.balanceIconContainer}>
                 <Ionicons name="lock-closed" size={24} color={COLORS.text.tertiary} />
               </View>
-                  <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
+              <View style={styles.balanceLabelContainer}>
+                <Text style={styles.balanceLabel}>{t.withdrawal.blocked}</Text>
+                <View style={styles.infoIconContainer}>
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      setShowBlockedBalanceTooltip(!showBlockedBalanceTooltip);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="information-circle-outline" size={16} color={COLORS.text.secondary} />
+                  </TouchableOpacity>
+                  {showBlockedBalanceTooltip && (
+                    <View style={styles.tooltip} onStartShouldSetResponder={() => true}>
+                      <View style={styles.tooltipArrow} />
+                      <Text style={styles.tooltipText}>{t.withdrawal.blockedBalanceInfo}</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
               <Text style={styles.balanceValue}>--</Text>
             </View>
           </>
@@ -222,12 +267,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: SPACING.xs,
   },
+  balanceLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs / 2,
+    height: 16,
+  },
   balanceLabel: {
     fontSize: TYPOGRAPHY.sizes.xs,
     fontWeight: TYPOGRAPHY.weights.semibold,
     color: COLORS.text.secondary,
-    marginBottom: 4,
     textAlign: 'center',
+    lineHeight: 16,
   },
   balanceValue: {
     fontSize: TYPOGRAPHY.sizes.lg,
@@ -255,6 +307,49 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
+  },
+  infoIconContainer: {
+    position: 'relative',
+  },
+  tooltip: {
+    position: 'absolute',
+    bottom: 23,
+    right: -29,
+    backgroundColor: '#2C3E50',
+    borderRadius: DESIGN.borderRadius.sm,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    minWidth: 150,
+    maxWidth: 200,
+    ...DESIGN.shadows.md,
+    zIndex: 1000,
+  },
+  tooltipArrow: {
+    position: 'absolute',
+    bottom: -6,
+    right: 30,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#2C3E50',
+  },
+  tooltipText: {
+    fontSize: TYPOGRAPHY.sizes.xs,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  tooltipOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
   },
 });
 

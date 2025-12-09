@@ -16,6 +16,7 @@ import { Header, Button, Input, ConfirmationModal, AppHeader } from '../componen
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { withdrawalsApi, usersApi, type WithdrawalRequest, WithdrawalStatus } from '../api';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useConfig } from '../contexts/ConfigContext';
 
 interface RouteParams {
   amount: string;
@@ -27,6 +28,7 @@ const WithdrawDetailsScreen: React.FC = () => {
   const params = route.params as RouteParams;
   const amount = parseFloat(params?.amount || '0');
   const { t } = useLanguage();
+  const { withdrawalSettings } = useConfig();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingBankDetails, setIsLoadingBankDetails] = useState(true);
@@ -219,6 +221,21 @@ const WithdrawDetailsScreen: React.FC = () => {
           <Text style={styles.amountValue}>₺{amount.toFixed(2)}</Text>
         </View>
 
+        {/* Commission Fee Info */}
+        {withdrawalSettings?.faturamaticCommission && (
+          <View style={styles.commissionInfo}>
+            <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+            <View style={styles.commissionContent}>
+              <Text style={styles.commissionText}>
+                {t.withdrawalDetails.commissionFee}: ₺{withdrawalSettings.faturamaticCommission.toFixed(2)}
+              </Text>
+              <Text style={styles.commissionSubtext}>
+                {t.withdrawalDetails.commissionInfo}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Bank Details Form */}
         <View style={styles.formSection}>
           <View style={styles.sectionHeader}>
@@ -308,6 +325,29 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.xxl,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: '#FFFFFF',
+  },
+  commissionInfo: {
+    backgroundColor: COLORS.surface,
+    borderRadius: DESIGN.borderRadius.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SPACING.sm,
+    ...DESIGN.shadows.sm,
+  },
+  commissionContent: {
+    flex: 1,
+  },
+  commissionText: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    fontWeight: TYPOGRAPHY.weights.semibold,
+    color: COLORS.text.primary,
+    marginBottom: SPACING.xs / 2,
+  },
+  commissionSubtext: {
+    fontSize: TYPOGRAPHY.sizes.xs,
+    color: COLORS.text.secondary,
   },
   formSection: {
     backgroundColor: COLORS.surface,

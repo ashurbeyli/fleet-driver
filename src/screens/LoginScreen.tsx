@@ -218,7 +218,8 @@ const styles = StyleSheet.create({
   // Logo Section
   logoSection: {
     alignItems: 'center',
-    paddingVertical: SPACING.xxl,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.lg,
     marginBottom: SPACING.lg,
   },
   logoContainer: {

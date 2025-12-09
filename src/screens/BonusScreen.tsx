@@ -17,17 +17,23 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import { bonusesApi } from '../api';
 import type { Bonus, BonusesResponse } from '../api';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useConfig } from '../contexts/ConfigContext';
 
 const BonusScreen: React.FC = () => {
   const { t, language } = useLanguage();
+  const { features } = useConfig();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bonusesData, setBonusesData] = useState<BonusesResponse | null>(null);
 
   useEffect(() => {
-    fetchBonuses();
-  }, []);
+    if (!features.bonusesComingSoon) {
+      fetchBonuses();
+    } else {
+      setIsLoading(false);
+    }
+  }, [features.bonusesComingSoon]);
 
   const fetchBonuses = async (isRefresh = false) => {
     try {
@@ -117,6 +123,29 @@ const BonusScreen: React.FC = () => {
     });
   };
 
+  if (features.bonusesComingSoon) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
+        <AppHeader showBack={false} />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.emptyState}>
+            <Ionicons name="gift-outline" size={48} color={COLORS.text.secondary} />
+            <Text style={styles.emptyStateText}>
+              {t.bonuses.comingSoon}
+            </Text>
+            <Text style={styles.emptyStateSubtext}>
+              {t.bonuses.comingSoonSubtitle}
+            </Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -164,76 +193,92 @@ const BonusScreen: React.FC = () => {
           />
         }
       >
-        {/* Summary Cards */}
-        <View style={styles.summarySection}>
-          <View style={styles.summaryCard}>
-            <Ionicons name="ticket" size={20} color="#F39C12" />
-            <View style={styles.summaryContent}>
-              <Text style={styles.summaryValue}>
-                {bonusesData?.unclaimedBonusCount || 0}
-              </Text>
-              <Text style={styles.summaryLabel}>{t.bonuses.unclaimed}</Text>
-            </View>
+        {features.bonusesComingSoon ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="gift-outline" size={48} color={COLORS.text.secondary} />
+            <Text style={styles.emptyStateText}>
+              {t.bonuses.comingSoon}
+            </Text>
+            <Text style={styles.emptyStateSubtext}>
+              {t.bonuses.comingSoonSubtitle}
+            </Text>
           </View>
-
-          <View style={styles.summaryCard}>
-            <Ionicons name="gift" size={20} color="#10B981" />
-            <View style={styles.summaryContent}>
-              <Text style={styles.summaryValue}>
-                ₺{bonusesData?.unclaimedBonusTotalAmount || 0}
-              </Text>
-              <Text style={styles.summaryLabel}>{t.bonuses.bonus}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Bonuses */}
-        <View style={styles.bonusesSection}>
-          <Text style={styles.sectionTitle}>{t.bonuses.bonuses}</Text>
-          {bonusesData?.bonuses && bonusesData.bonuses.length > 0 ? (
-            bonusesData.bonuses.map((bonus, index) => (
-              <View key={bonus.id || index} style={styles.couponCard}>
-                <View style={styles.couponHeader}>
-                  <View style={styles.couponInfo}>
-                    <Text style={styles.couponTitle}>{bonus.title}</Text>
-                    <Text style={styles.couponDescription}>{bonus.subtitle}</Text>
-                    <Text style={styles.couponMeta}>
-                      {t.bonuses.achieved} {formatDate(bonus.achievedAt)}
-                    </Text>
-                  </View>
-                  <View style={styles.couponAmountContainer}>
-                    <Text style={styles.couponAmount}>₺{bonus.bonusAmount}</Text>
-                  </View>
-                </View>
-                <View style={styles.couponFooter}>
-                  {bonus.isClaimed ? (
-                    <View style={styles.claimedBadge}>
-                      <Ionicons name="checkmark-circle" size={16} color="#10B981" />
-                      <Text style={styles.claimedText}>{t.bonuses.claimed}</Text>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      onPress={() => handleClaimBonus(bonus, index)}
-                      style={styles.claimButton}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons name="download" size={16} color="#fff" />
-                      <Text style={styles.claimButtonText}>{t.bonuses.claim}</Text>
-                    </TouchableOpacity>
-                  )}
+        ) : (
+          <>
+            {/* Summary Cards */}
+            <View style={styles.summarySection}>
+              <View style={styles.summaryCard}>
+                <Ionicons name="ticket" size={20} color="#F39C12" />
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryValue}>
+                    {bonusesData?.unclaimedBonusCount || 0}
+                  </Text>
+                  <Text style={styles.summaryLabel}>{t.bonuses.unclaimed}</Text>
                 </View>
               </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Ionicons name="gift-outline" size={48} color={COLORS.text.secondary} />
-              <Text style={styles.emptyStateText}>{t.bonuses.noBonusesAvailable}</Text>
-              <Text style={styles.emptyStateSubtext}>
-                {t.bonuses.completeChallenges}
-              </Text>
+
+              <View style={styles.summaryCard}>
+                <Ionicons name="gift" size={20} color="#10B981" />
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryValue}>
+                    ₺{bonusesData?.unclaimedBonusTotalAmount || 0}
+                  </Text>
+                  <Text style={styles.summaryLabel}>{t.bonuses.bonus}</Text>
+                </View>
+              </View>
             </View>
-          )}
-        </View>
+
+            {/* Bonuses */}
+            <View style={styles.bonusesSection}>
+              <Text style={styles.sectionTitle}>{t.bonuses.bonuses}</Text>
+              {bonusesData?.bonuses && bonusesData.bonuses.length > 0 ? (
+                bonusesData.bonuses.map((bonus, index) => (
+                  <View key={bonus.id || index} style={styles.couponCard}>
+                    <View style={styles.couponHeader}>
+                      <View style={styles.couponInfo}>
+                        <Text style={styles.couponTitle}>{bonus.title}</Text>
+                        <Text style={styles.couponDescription}>{bonus.subtitle}</Text>
+                        <Text style={styles.couponMeta}>
+                          {t.bonuses.achieved} {formatDate(bonus.achievedAt)}
+                        </Text>
+                      </View>
+                      <View style={styles.couponAmountContainer}>
+                        <Text style={styles.couponAmount}>₺{bonus.bonusAmount}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.couponFooter}>
+                      {bonus.isClaimed ? (
+                        <View style={styles.claimedBadge}>
+                          <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                          <Text style={styles.claimedText}>{t.bonuses.claimed}</Text>
+                        </View>
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => handleClaimBonus(bonus, index)}
+                          style={styles.claimButton}
+                          activeOpacity={0.8}
+                        >
+                          <Ionicons name="download" size={16} color="#fff" />
+                          <Text style={styles.claimButtonText}>{t.bonuses.claim}</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.emptyState}>
+                  <Ionicons name="gift-outline" size={48} color={COLORS.text.secondary} />
+                  <Text style={styles.emptyStateText}>
+                    {t.bonuses.noBonusesAvailable}
+                  </Text>
+                  <Text style={styles.emptyStateSubtext}>
+                    {t.bonuses.completeChallenges}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -35,6 +35,7 @@ export interface Translations {
     enterAmount: string;
     available: string;
     blocked: string;
+    blockedBalanceInfo: string;
     total: string;
     continue: string;
     receiverName: string;
@@ -82,6 +83,7 @@ export interface Translations {
   validation: {
     amountRequired: string;
     amountExceeded: string;
+    amountWithCommissionExceeded: (amount: string, commission: string, available: string) => string;
     receiverNameRequired: string;
     receiverNameMinLength: string;
     ibanRequired: string;
@@ -105,7 +107,9 @@ export interface Translations {
     loadingBankDetails: string;
     withdrawalAmount: string;
     confirmWithdrawal: string;
-      confirmMessage: (amount: string, receiverName: string) => string;
+    confirmMessage: (amount: string, receiverName: string) => string;
+    commissionFee: string;
+    commissionInfo: string;
   };
   
   // Withdrawal Success
@@ -246,6 +250,8 @@ export interface Translations {
     failedToClaimConnection: string;
     noBonusesAvailable: string;
     completeChallenges: string;
+    comingSoon: string;
+    comingSoonSubtitle: string;
   };
   
   // Challenges
@@ -272,6 +278,8 @@ export interface Translations {
     noCompetitionsAvailable: string;
     noLeaderboardData: string;
     you: string;
+    comingSoon: string;
+    comingSoonSubtitle: string;
   };
 }
 
@@ -288,7 +296,7 @@ export const translations: Record<Language, Translations> = {
       tryAgain: 'Tekrar Dene',
       logout: 'Çıkış Yap',
       bonuses: 'Bonuslar',
-      challenges: 'Görevler',
+      challenges: 'Kampaniyalar',
     },
     menu: {
       profile: 'Profil',
@@ -306,6 +314,7 @@ export const translations: Record<Language, Translations> = {
       enterAmount: 'Tutar Girin',
       available: 'Çekilebilir',
       blocked: 'Bloke',
+      blockedBalanceInfo: 'Yandex incelemesinde',
       total: 'Toplam',
       continue: 'Devam',
       receiverName: 'Alıcı Adı',
@@ -349,6 +358,7 @@ export const translations: Record<Language, Translations> = {
     validation: {
       amountRequired: 'Tutar gerekli',
       amountExceeded: 'Çekilebilir bakiyeyi aşamaz',
+      amountWithCommissionExceeded: (amount: string, commission: string, available: string) => `Tutar (₺${amount}) + komisyon ücreti (₺${commission}) çekilebilir bakiyeyi (₺${available}) aşamaz`,
       receiverNameRequired: 'Alıcı adı gerekli',
       receiverNameMinLength: 'Alıcı adı en az 2 karakter olmalıdır',
       ibanRequired: 'IBAN gerekli',
@@ -369,6 +379,8 @@ export const translations: Record<Language, Translations> = {
       withdrawalAmount: 'Para Çekme Tutarı',
       confirmWithdrawal: 'Para Çekmeyi Onayla',
       confirmMessage: (amount: string, receiverName: string) => `₺${amount} tutarını ${receiverName} adına para çekmek istediğinizden emin misiniz?`,
+      commissionFee: 'Komisyon Ücreti',
+      commissionInfo: 'Bu işlem için komisyon ücreti uygulanacaktır',
     },
     withdrawalSuccess: {
       title: 'Para Çekme Başarılı!',
@@ -488,17 +500,19 @@ export const translations: Record<Language, Translations> = {
       failedToClaim: 'Bonus kullanılamadı. Lütfen tekrar deneyin.',
       failedToClaimConnection: 'Bonus kullanılamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
       noBonusesAvailable: 'Mevcut bonus yok',
-      completeChallenges: 'Bonuslar kazanmak için görevleri ve referansları tamamlayın',
+      completeChallenges: 'Bonuslar kazanmak için kampaniyaları ve referansları tamamlayın',
+      comingSoon: 'Bu özellik yakında gelecek',
+      comingSoonSubtitle: 'Lütfen daha sonra tekrar kontrol edin',
     },
     challenges: {
-      goals: 'Görevler',
+      goals: 'Kampaniyalar',
       rankings: 'Sıralama',
-      activeGoals: 'Aktif Görevler',
-      loadingGoals: 'Görevler yükleniyor...',
-      failedToLoadGoals: 'Görevler yüklenemedi. Lütfen tekrar deneyin.',
-      noGoalsAvailable: 'Mevcut görev yok',
-      checkBackLater: 'Yeni görevler için daha sonra tekrar kontrol edin',
-      completed: 'Görev tamamlandı!',
+      activeGoals: 'Aktif Kampaniyalar',
+      loadingGoals: 'Kampaniyalar yükleniyor...',
+      failedToLoadGoals: 'Kampaniyalar yüklenemedi. Lütfen tekrar deneyin.',
+      noGoalsAvailable: 'Mevcut kampaniya yok',
+      checkBackLater: 'Yeni kampaniyalar için daha sonra tekrar kontrol edin',
+      completed: 'Kampaniya tamamlandı!',
       moreRidesToGo: ' daha yolculuk kaldı',
       left: ' kaldı',
       expired: 'Süresi doldu',
@@ -513,6 +527,8 @@ export const translations: Record<Language, Translations> = {
       noCompetitionsAvailable: 'Mevcut yarışma yok',
       noLeaderboardData: 'Liderlik tablosu verisi mevcut değil',
       you: 'Sen',
+      comingSoon: 'Bu özellik yakında gelecek',
+      comingSoonSubtitle: 'Lütfen daha sonra tekrar kontrol edin',
     },
   },
   en: {
@@ -545,6 +561,7 @@ export const translations: Record<Language, Translations> = {
       enterAmount: 'Enter Amount',
       available: 'Available',
       blocked: 'Blocked',
+      blockedBalanceInfo: 'Under Yandex review',
       total: 'Total',
       continue: 'Continue',
       receiverName: 'Receiver Name',
@@ -588,6 +605,7 @@ export const translations: Record<Language, Translations> = {
     validation: {
       amountRequired: 'Amount is required',
       amountExceeded: 'Cannot exceed available balance',
+      amountWithCommissionExceeded: (amount: string, commission: string, available: string) => `Amount (₺${amount}) + commission fee (₺${commission}) cannot exceed available balance (₺${available})`,
       receiverNameRequired: 'Receiver name is required',
       receiverNameMinLength: 'Receiver name must be at least 2 characters long',
       ibanRequired: 'IBAN is required',
@@ -608,6 +626,8 @@ export const translations: Record<Language, Translations> = {
       withdrawalAmount: 'Withdrawal Amount',
       confirmWithdrawal: 'Confirm Withdrawal',
       confirmMessage: (amount: string, receiverName: string) => `Are you sure you want to withdraw ₺${amount} to ${receiverName}?`,
+      commissionFee: 'Commission Fee',
+      commissionInfo: 'A commission fee will be applied for this transaction',
     },
     withdrawalSuccess: {
       title: 'Withdrawal Successful!',
@@ -727,6 +747,8 @@ export const translations: Record<Language, Translations> = {
       failedToClaim: 'Failed to claim bonus. Please try again.',
       failedToClaimConnection: 'Failed to claim bonus. Please check your connection and try again.',
       noBonusesAvailable: 'No bonuses available',
+      comingSoon: 'This Feature is Coming Soon',
+      comingSoonSubtitle: 'Please check back later',
       completeChallenges: 'Complete challenges and referrals to earn bonuses',
     },
     challenges: {
@@ -752,6 +774,8 @@ export const translations: Record<Language, Translations> = {
       noCompetitionsAvailable: 'No competitions available',
       noLeaderboardData: 'No leaderboard data available',
       you: 'You',
+      comingSoon: 'This Feature is Coming Soon',
+      comingSoonSubtitle: 'Please check back later',
     },
   },
 };

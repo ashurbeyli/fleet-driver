@@ -16,7 +16,7 @@ import { authService, Driver } from '../../services/authService';
 import { usersApi, type BalanceResponse, type UserMeResponse } from '../../api';
 import { useConfig } from '../../contexts/ConfigContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, InviteFriendWidget, WithdrawWidget } from './widgets';
+import { AgreementWidget, VehicleWidget, RankingsWidget, GoalWidget, BonusWidget, InviteFriendWidget, WithdrawWidget } from './widgets';
 import { AppHeader } from '../../components';
 // import { NewsWidget } from './widgets'; // Commented out - not implemented yet
 
@@ -208,8 +208,8 @@ const DashboardScreen: React.FC = () => {
         {/* Withdraw Widget - Always render to prevent reflow, widget handles feature flag internally */}
         <WithdrawWidget isRefreshing={isRefreshing} />
 
-        {/* Agreement Widget - Only show if not agreed */}
-        {driver && !driver.isAgreed && <AgreementWidget />}
+        {/* Agreement Widget - Only show if feature is enabled and not agreed */}
+        {features.agreement && driver && !driver.isAgreed && <AgreementWidget />}
 
         {/* Top Row - Vehicle and Rankings widgets side by side */}
         {(features.vehicle || features.rankings) && (
@@ -219,8 +219,11 @@ const DashboardScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Goal Challenge Widget */}
-        {features.challenges && <GoalWidget key={refreshKey} />}
+        {/* Bonus Widget - Show when bonusesComingSoon is enabled */}
+        {features.bonusesComingSoon && <BonusWidget />}
+
+        {/* Goal Challenge Widget - Show when challenges or challengesComingSoon is enabled */}
+        {(features.challenges || features.challengesComingSoon) && <GoalWidget key={refreshKey} />}
 
         {/* Second Row: Invitations */}
         {features.invitations && (

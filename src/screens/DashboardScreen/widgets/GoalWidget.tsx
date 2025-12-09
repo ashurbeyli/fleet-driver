@@ -11,6 +11,8 @@ import { useNavigation } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../../../constants';
 import { challengesApi, type Challenge } from '../../../api';
+import { useConfig } from '../../../contexts/ConfigContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 type TabParamList = {
   Home: undefined;
@@ -28,13 +30,19 @@ interface GoalWidgetProps {
 
 const GoalWidget: React.FC<GoalWidgetProps> = ({ onGoalPress }) => {
   const navigation = useNavigation<GoalWidgetNavigationProp>();
+  const { features } = useConfig();
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchChallenge();
-  }, []);
+    if (!features.challengesComingSoon) {
+      fetchChallenge();
+    } else {
+      setIsLoading(false);
+    }
+  }, [features.challengesComingSoon]);
 
   const fetchChallenge = async () => {
     try {
@@ -78,6 +86,23 @@ const GoalWidget: React.FC<GoalWidgetProps> = ({ onGoalPress }) => {
       return `${minutes}m`;
     }
   };
+
+  // Coming Soon state
+  if (features.challengesComingSoon) {
+    return (
+      <View style={styles.widget}>
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="flag-outline" size={20} color={COLORS.text.secondary} />
+          </View>
+          <Text style={styles.title}>{t.challenges.goals}</Text>
+        </View>
+        <View style={styles.comingSoonContainer}>
+          <Text style={styles.comingSoonText}>{t.challenges.comingSoon}</Text>
+        </View>
+      </View>
+    );
+  }
 
   // Loading state
   if (isLoading) {
@@ -314,6 +339,15 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.xs,
     color: COLORS.text.secondary,
     marginLeft: SPACING.xs,
+  },
+  comingSoonContainer: {
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+  },
+  comingSoonText: {
+    fontSize: TYPOGRAPHY.sizes.md,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.secondary,
   },
 });
 

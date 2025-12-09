@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,9 +16,11 @@ import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 import GoalsScreen from './GoalsScreen';
 import RankingsScreen from './RankingsScreen';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useConfig } from '../contexts/ConfigContext';
 
 const ChallengesScreen: React.FC = () => {
   const { t } = useLanguage();
+  const { features } = useConfig();
   const route = useRoute();
   const params = route.params as { openTab?: 'rankings' | 'challenges' } | undefined;
   const [activeTab, setActiveTab] = useState<'rankings' | 'challenges'>('challenges');
@@ -37,6 +40,29 @@ const ChallengesScreen: React.FC = () => {
       }
     }, [route.params])
   );
+
+  if (features.challengesComingSoon) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" backgroundColor={COLORS.backgroundDark} />
+        <AppHeader showBack={false} />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.emptyState}>
+            <Ionicons name="flag-outline" size={48} color={COLORS.text.secondary} />
+            <Text style={styles.emptyStateText}>
+              {t.challenges.comingSoon}
+            </Text>
+            <Text style={styles.emptyStateSubtext}>
+              {t.challenges.comingSoonSubtitle}
+            </Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -122,6 +148,28 @@ const styles = StyleSheet.create({
   },
   screenContainer: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: SPACING.lg,
+    paddingTop: SPACING.md,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xl,
+  },
+  emptyStateText: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: COLORS.text.primary,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+  emptyStateSubtext: {
+    fontSize: TYPOGRAPHY.sizes.sm,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.lg,
   },
 });
 
