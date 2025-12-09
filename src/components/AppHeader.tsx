@@ -33,7 +33,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     if (onLogoPress) {
       onLogoPress();
     } else {
-      navigation.navigate('Dashboard' as never);
+      // Navigate to Dashboard and ensure Home tab is selected
+      (navigation as any).navigate('Dashboard', { screen: 'Home' });
     }
   };
 
