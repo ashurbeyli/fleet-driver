@@ -130,17 +130,10 @@ const ProfileScreen: React.FC = () => {
                 </View>
               )}
 
-              {userInfo.licenseNumber && (
+              {userInfo.plateNumber && (
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t.profile.licenseNumber}</Text>
-                  <Text style={styles.detailValue}>{userInfo.licenseNumber}</Text>
-                </View>
-              )}
-
-              {userInfo.status && (
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>{t.profile.status}</Text>
-                  <Text style={styles.detailValue}>{userInfo.status}</Text>
+                  <Text style={styles.detailLabel}>{t.profile.plateNumber}</Text>
+                  <Text style={styles.detailValue}>{userInfo.plateNumber}</Text>
                 </View>
               )}
 

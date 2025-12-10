@@ -38,7 +38,6 @@ export interface WithdrawalHistoryItem {
   maskedIBAN: string;
   maskedPhone: string;
   receiverName: string;
-  yandexTransactionId: string;
   bankTransactionRefNo: string;
   bankPaymentNo: string;
   failureReason: string;
@@ -53,19 +52,14 @@ export interface WithdrawalHistoryResponse {
 
 export interface WithdrawalDetailResponse {
   id: string;
+  paymentReferenceId: string;
   amount: number; // Amount in Turkish Lira
+  commission: number; // Commission fee
   status: number;
-  statusDescription: string;
-  explanation: string;
   createdAt: string;
-  updatedAt: string;
   maskedIBAN: string;
-  maskedPhone: string;
   receiverName: string;
-  yandexTransactionId: string;
-  bankTransactionRefNo: string;
-  bankPaymentNo: string;
-  failureReason: string;
+  failureReason: string | null;
 }
 
 /**

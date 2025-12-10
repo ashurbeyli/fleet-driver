@@ -137,7 +137,7 @@ const MenuScreen: React.FC = () => {
         ...(features.agreement ? [{ id: '2', title: t.menu.agreement, icon: 'document-text-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'agreement' }] : []),
         ...(features.vehicle ? [{ id: '3', title: t.menu.vehicleChange, icon: 'car-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'vehicles' }] : []),
         ...(features.invitations ? [{ id: '5', title: t.menu.inviteFriend, icon: 'people-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'invite-friend' }] : []),
-        { id: '6', title: `${t.menu.language} (${language.toUpperCase()})`, icon: 'language-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'language' },
+        ...(features.language ? [{ id: '6', title: `${t.menu.language} (${language.toUpperCase()})`, icon: 'language-outline' as keyof typeof Ionicons.glyphMap, functional: true, action: 'language' }] : []),
         // { id: '7', title: 'News', icon: 'newspaper-outline', functional: false }, // Commented out - not implemented yet
         { id: '8', title: t.menu.logout, icon: 'log-out-outline', functional: true, action: 'logout' },
       ];

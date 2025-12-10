@@ -19,8 +19,7 @@ export interface BalanceResponse {
 export interface UserInfoResponse {
   hireDate: string;
   phone: string;
-  licenseNumber: string;
-  status: string;
+  plateNumber: string;
   city: string;
 }
 

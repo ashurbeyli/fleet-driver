@@ -94,7 +94,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 <View style={styles.liveDot} />
               </View>
             </View>
-            <Text style={styles.supportText}>{t.contact.support}</Text>
+            <Text style={styles.supportText}>{`${t.contact.support} 24/7`}</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.supportPlaceholder} />
@@ -110,6 +110,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
     ...DESIGN.shadows.sm,
+    zIndex: 10,
+    elevation: 6,
   },
   row: {
     flexDirection: 'row',

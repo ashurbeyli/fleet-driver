@@ -89,6 +89,7 @@ export interface Translations {
     ibanRequired: string;
     ibanInvalid: string;
     amountGreaterThanZero: string;
+    amountMinimumWithdrawal: (minimum: string) => string;
     otpInvalidLength: string;
   };
   
@@ -109,7 +110,6 @@ export interface Translations {
     confirmWithdrawal: string;
     confirmMessage: (amount: string, receiverName: string) => string;
     commissionFee: string;
-    commissionInfo: string;
   };
   
   // Withdrawal Success
@@ -199,7 +199,7 @@ export interface Translations {
     failedToLoadUserInfo: string;
     hireDate: string;
     phone: string;
-    licenseNumber: string;
+    plateNumber: string;
     status: string;
     city: string;
   };
@@ -313,8 +313,8 @@ export const translations: Record<Language, Translations> = {
       amount: 'Tutar',
       enterAmount: 'Tutar Girin',
       available: 'Çekilebilir',
-      blocked: 'Bloke',
-      blockedBalanceInfo: 'Yandex incelemesinde',
+      blocked: 'İncelemede',
+      blockedBalanceInfo: 'Yandex tarafından verilen bonuslar, yolculukların inceleme süreci tamamlandıktan sonra onaylanır.',
       total: 'Toplam',
       continue: 'Devam',
       receiverName: 'Alıcı Adı',
@@ -357,13 +357,14 @@ export const translations: Record<Language, Translations> = {
     },
     validation: {
       amountRequired: 'Tutar gerekli',
-      amountExceeded: 'Çekilebilir bakiyeyi aşamaz',
+      amountExceeded: 'Girilmiş tutar çekilebilir bakiyeyi aşamaz',
       amountWithCommissionExceeded: (amount: string, commission: string, available: string) => `Tutar (₺${amount}) + komisyon ücreti (₺${commission}) çekilebilir bakiyeyi (₺${available}) aşamaz`,
       receiverNameRequired: 'Alıcı adı gerekli',
       receiverNameMinLength: 'Alıcı adı en az 2 karakter olmalıdır',
       ibanRequired: 'IBAN gerekli',
       ibanInvalid: 'IBAN 26 karakter uzunluğunda olmalı, TR ile başlamalı ve geri kalanı rakam olmalıdır',
       amountGreaterThanZero: 'Tutar 0\'dan büyük olmalıdır',
+      amountMinimumWithdrawal: (minimum: string) => `Minimum para çekme tutarı ₺${minimum} olmalıdır`,
       otpInvalidLength: 'Lütfen geçerli bir 6 haneli doğrulama kodu girin.',
     },
     withdrawalStatus: {
@@ -380,7 +381,6 @@ export const translations: Record<Language, Translations> = {
       confirmWithdrawal: 'Para Çekmeyi Onayla',
       confirmMessage: (amount: string, receiverName: string) => `₺${amount} tutarını ${receiverName} adına para çekmek istediğinizden emin misiniz?`,
       commissionFee: 'Komisyon Ücreti',
-      commissionInfo: 'Bu işlem için komisyon ücreti uygulanacaktır',
     },
     withdrawalSuccess: {
       title: 'Para Çekme Başarılı!',
@@ -447,7 +447,7 @@ export const translations: Record<Language, Translations> = {
     profile: {
       driver: 'Sürücü',
       profileDetails: 'Profil Detayları',
-      parkName: 'Park Adı',
+      parkName: 'Şehir',
       agreement: 'Sözleşme',
       agreed: '✓ Kabul Edildi',
       notAgreed: '✗ Kabul Edilmedi',
@@ -456,7 +456,7 @@ export const translations: Record<Language, Translations> = {
       failedToLoadUserInfo: 'Kullanıcı bilgileri yüklenemedi',
       hireDate: 'İşe Alınma Tarihi',
       phone: 'Telefon',
-      licenseNumber: 'Ehliyet Numarası',
+      plateNumber: 'Araba plakası',
       status: 'Durum',
       city: 'Şehir',
     },
@@ -611,6 +611,7 @@ export const translations: Record<Language, Translations> = {
       ibanRequired: 'IBAN is required',
       ibanInvalid: 'IBAN must be 26 characters long, start with TR, and the rest must be numbers',
       amountGreaterThanZero: 'Amount must be greater than 0',
+      amountMinimumWithdrawal: (minimum: string) => `Minimum withdrawal amount must be ₺${minimum}`,
       otpInvalidLength: 'Please enter a valid 6-digit verification code.',
     },
     withdrawalStatus: {
@@ -627,7 +628,6 @@ export const translations: Record<Language, Translations> = {
       confirmWithdrawal: 'Confirm Withdrawal',
       confirmMessage: (amount: string, receiverName: string) => `Are you sure you want to withdraw ₺${amount} to ${receiverName}?`,
       commissionFee: 'Commission Fee',
-      commissionInfo: 'A commission fee will be applied for this transaction',
     },
     withdrawalSuccess: {
       title: 'Withdrawal Successful!',
@@ -703,7 +703,7 @@ export const translations: Record<Language, Translations> = {
       failedToLoadUserInfo: 'Failed to load user info',
       hireDate: 'Hire Date',
       phone: 'Phone',
-      licenseNumber: 'License Number',
+      plateNumber: 'Plate Number',
       status: 'Status',
       city: 'City',
     },

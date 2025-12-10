@@ -17,10 +17,12 @@ export interface ConfigFeatures {
   vehicle: boolean;
   withdrawal: boolean;
   agreement: boolean;
+  language?: boolean;
 }
 
 export interface WithdrawalSettings {
   faturamaticCommission: number;
+  faturamaticMinimumWithdrawal: number;
 }
 
 export interface AppConfig {

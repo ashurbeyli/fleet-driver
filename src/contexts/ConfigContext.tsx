@@ -21,6 +21,7 @@ const defaultFeatures: ConfigFeatures = {
   vehicle: false,
   withdrawal: false,
   agreement: false,
+  language: false,
 };
 
 const defaultLinks: ConfigLinks = {

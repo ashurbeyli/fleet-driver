@@ -186,30 +186,25 @@ const WithdrawScreen: React.FC = () => {
     if (normalizedAmount && !isNaN(numAmount)) {
       if (numAmount <= 0) {
         setAmountError(t.validation.amountGreaterThanZero);
-      } else if (balance) {
-        // Round to 2 decimal places to avoid floating point precision issues
+      } else {
         const roundedAmount = Math.round(numAmount * 100) / 100;
-        const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
-        const commission = withdrawalSettings?.faturamaticCommission || 0;
-        const roundedCommission = Math.round(commission * 100) / 100;
-        const totalWithCommission = roundedAmount + roundedCommission;
+        const minimumWithdrawal = withdrawalSettings?.faturamaticMinimumWithdrawal || 0;
         
-        if (totalWithCommission > roundedBalance) {
-          // Show error with commission fee included
-          if (commission > 0) {
-            setAmountError(t.validation.amountWithCommissionExceeded(
-              roundedAmount.toFixed(2),
-              roundedCommission.toFixed(2),
-              roundedBalance.toFixed(2)
-            ));
-          } else {
+        // Check minimum withdrawal amount
+        if (minimumWithdrawal > 0 && roundedAmount < minimumWithdrawal) {
+          setAmountError(t.validation.amountMinimumWithdrawal(minimumWithdrawal.toFixed(2)));
+        } else if (balance) {
+          // Round to 2 decimal places to avoid floating point precision issues
+          const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
+          
+          if (roundedAmount > roundedBalance) {
             setAmountError(t.validation.amountExceeded);
+          } else {
+            setAmountError('');
           }
         } else {
           setAmountError('');
         }
-      } else {
-        setAmountError('');
       }
     } else if (normalizedAmount === '') {
       setAmountError('');
@@ -235,24 +230,16 @@ const WithdrawScreen: React.FC = () => {
     // Use same rounded comparison as validation
     const roundedAmount = Math.round(amount * 100) / 100;
     const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
-    const commission = withdrawalSettings?.faturamaticCommission || 0;
-    const roundedCommission = Math.round(commission * 100) / 100;
-    const totalWithCommission = roundedAmount + roundedCommission;
+    const minimumWithdrawal = withdrawalSettings?.faturamaticMinimumWithdrawal || 0;
     
-    if (totalWithCommission > roundedBalance) {
-      // Show error with commission fee included
-      if (commission > 0) {
-    Alert.alert(
-          t.common.error,
-          t.validation.amountWithCommissionExceeded(
-            roundedAmount.toFixed(2),
-            roundedCommission.toFixed(2),
-            roundedBalance.toFixed(2)
-          )
-        );
-      } else {
-        Alert.alert('Insufficient Balance', `You don't have enough balance for this withdrawal. Available: ₺${balance.withdrawableBalance.toFixed(2)}`);
-      }
+    // Check minimum withdrawal amount
+    if (minimumWithdrawal > 0 && roundedAmount < minimumWithdrawal) {
+      Alert.alert(t.common.error, t.validation.amountMinimumWithdrawal(minimumWithdrawal.toFixed(2)));
+      return;
+    }
+    
+    if (roundedAmount > roundedBalance) {
+      Alert.alert('Insufficient Balance', `You don't have enough balance for this withdrawal. Available: ₺${balance.withdrawableBalance.toFixed(2)}`);
       return;
     }
 
@@ -453,19 +440,13 @@ const WithdrawScreen: React.FC = () => {
                   value={customAmount}
                   onChangeText={handleCustomAmountChange}
                   keyboardType="decimal-pad"
+                  returnKeyType="done"
+                  onSubmitEditing={handleWithdraw}
                 />
               </View>
             </View>
             {amountError && (
               <Text style={styles.amountErrorText}>{amountError}</Text>
-            )}
-            {withdrawalSettings?.faturamaticCommission && withdrawalSettings.faturamaticCommission > 0 && (
-              <View style={styles.commissionInfo}>
-                <Ionicons name="information-circle-outline" size={16} color={COLORS.text.secondary} />
-                <Text style={styles.commissionInfoText}>
-                  {t.withdrawalDetails.commissionFee}: ₺{withdrawalSettings.faturamaticCommission.toFixed(2)}
-                </Text>
-          </View>
             )}
           </View>
 
@@ -687,17 +668,6 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.sm,
     color: COLORS.error,
     marginTop: SPACING.xs,
-    fontWeight: TYPOGRAPHY.weights.medium,
-  },
-  commissionInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: SPACING.xs,
-    gap: SPACING.xs / 2,
-  },
-  commissionInfoText: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    color: COLORS.text.secondary,
     fontWeight: TYPOGRAPHY.weights.medium,
   },
   withdrawButton: {

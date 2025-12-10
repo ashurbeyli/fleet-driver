@@ -135,7 +135,7 @@ const ContactScreen: React.FC = () => {
               <Ionicons name="call" size={24} color="#4CAF50" />
             </View>
             <View style={styles.supportContent}>
-              <Text style={styles.supportTitle}>{t.contact.callSupport}</Text>
+              <Text style={styles.supportTitle}>{`${t.contact.callSupport} 24/7`}</Text>
               <Text style={styles.supportDescription}>{links.callCenterNumber || '+994 50 123 45 67'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} />
@@ -151,7 +151,7 @@ const ContactScreen: React.FC = () => {
               <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
             </View>
             <View style={styles.supportContent}>
-              <Text style={styles.supportTitle}>{t.contact.whatsAppChat}</Text>
+              <Text style={styles.supportTitle}>{`${t.contact.whatsAppChat} 24/7`}</Text>
               <Text style={styles.supportDescription}>{t.contact.whatsAppDescription}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.text.tertiary} />

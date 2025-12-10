@@ -9,6 +9,7 @@ import {
   Alert,
   TouchableOpacity,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,7 +30,9 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const { t } = useLanguage();
-  const logoSource = require('../../assets/react-logo.png');
+  const logoSource = require('../../assets/logo-with-title.png');
+  const { width: windowWidth } = useWindowDimensions();
+  const isLargeScreen = windowWidth >= 1200;
   const [parks, setParks] = useState<Park[]>([]);
   const [selectedPark, setSelectedPark] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('+90 ');
@@ -138,7 +141,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title="RidexGo" showBack={false} />
+      <AppHeader title="RidexGo" showBack={false} showSupport={true} />
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -146,11 +149,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       >
         {/* Logo Section */}
         <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
-            <Image source={logoSource} style={styles.logoImage} />
-          </View>
-          <Text style={styles.logo}>RidexGo</Text>
-          <Text style={styles.tagline}>{t.login.controlCentre}</Text>
+          <Image
+            source={logoSource}
+            style={[styles.logoWithTitle, isLargeScreen && styles.logoWithTitleLarge]}
+          />
         </View>
 
         {/* Login Form Card */}
@@ -177,6 +179,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             value={phoneNumber}
             onChangeText={handlePhoneChange}
             keyboardType="phone-pad"
+            returnKeyType="done"
+            onSubmitEditing={handlePhoneSubmit}
             inputStyle={{
               ...Platform.select({
                 web: {
@@ -212,36 +216,28 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.backgroundDark,
   },
   scrollContent: {
-    flexGrow: 1,
-    padding: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.lg,
+    flexGrow: 0,
   },
   // Logo Section
   logoSection: {
     alignItems: 'center',
     paddingTop: SPACING.md,
     paddingBottom: SPACING.lg,
-    marginBottom: SPACING.lg,
-  },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: SPACING.md,
-    ...DESIGN.shadows.md,
   },
-  logo: {
-    fontSize: TYPOGRAPHY.sizes.xxl,
-    fontWeight: TYPOGRAPHY.weights.bold,
-    color: COLORS.text.primary,
-    marginBottom: 4,
-  },
-  logoImage: {
-    width: 52,
-    height: 52,
+  logoWithTitle: {
+    width: 220,
+    height: 60,
     resizeMode: 'contain',
+    marginBottom: SPACING.md,
+    alignSelf: 'center',
+  },
+  logoWithTitleLarge: {
+    width: 300,
+    height: 82,
   },
   tagline: {
     fontSize: TYPOGRAPHY.sizes.sm,

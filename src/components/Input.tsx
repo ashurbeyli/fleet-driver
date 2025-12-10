@@ -15,6 +15,8 @@ interface InputProps {
   placeholder?: string;
   value: string;
   onChangeText: (text: string) => void;
+  onSubmitEditing?: () => void;
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   error?: string;
   helpText?: string;
   keyboardType?: 'default' | 'numeric' | 'phone-pad' | 'email-address';
@@ -31,6 +33,8 @@ const Input: React.FC<InputProps> = ({
   placeholder,
   value,
   onChangeText,
+  onSubmitEditing,
+  returnKeyType,
   error,
   helpText,
   keyboardType = 'default',
@@ -68,6 +72,8 @@ const Input: React.FC<InputProps> = ({
           editable={!disabled}
           multiline={multiline}
           numberOfLines={numberOfLines}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           {...Platform.select({

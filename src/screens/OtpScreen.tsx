@@ -27,6 +27,14 @@ const OtpScreen: React.FC = () => {
   const navigation = useNavigation<OtpScreenNavigationProp>();
   const route = useRoute<OtpScreenRouteProp>();
   const { t } = useLanguage();
+ 
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('Login');
+    }
+  };
   
   // Get data from route params
   const phoneNumber = route.params?.phoneNumber || '';
@@ -91,8 +99,8 @@ const OtpScreen: React.FC = () => {
         
         console.log('Authentication successful! Data saved to storage.');
         
-        // Navigate to dashboard
-        navigation.navigate('Dashboard');
+        // Navigate to dashboard Home tab
+        (navigation as any).navigate('Dashboard', { screen: 'Home' });
       } else {
         setError(response.message || t.loginOtp.invalidCode);
       }
@@ -107,17 +115,20 @@ const OtpScreen: React.FC = () => {
   const handleResendOtp = async () => {
     if (resendTimer > 0) return;
 
+    if (!phoneNumber || !parkId) {
+      setError(t.loginOtp.parkInfoMissing);
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
-      // Simulate resend API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call login endpoint again to resend OTP
+      await authApi.login(phoneNumber, parkId);
       
       setOtp('');
       setResendTimer(60);
-      // TODO: Implement resend OTP API call
-      console.log('Resending OTP to:', phoneNumber);
     } catch (error) {
       console.error('Resend OTP failed:', error);
       setError(t.loginOtp.resendFailed);
@@ -128,7 +139,7 @@ const OtpScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title={t.otp.title} showBack />
+      <AppHeader title={t.otp.title} showBack onBackPress={handleBack} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -138,15 +149,15 @@ const OtpScreen: React.FC = () => {
 
         {/* OTP Input Card */}
         <View style={styles.otpContainer}>
-          <OtpInputCard
-            phoneNumber={phoneNumber}
-            onComplete={handleOtpComplete}
-            onResend={handleResendOtp}
-            error={error}
-            disabled={isLoading}
-            resendTimer={resendTimer}
-            length={6}
-          />
+        <OtpInputCard
+          phoneNumber={phoneNumber}
+          onComplete={handleOtpComplete}
+          onResend={handleResendOtp}
+          error={error}
+          disabled={isLoading}
+          resendTimer={resendTimer}
+          length={6}
+        />
           
           {/* Loading Overlay */}
           {isLoading && (

@@ -15,6 +15,19 @@ export interface AuthData {
 }
 
 class AuthService {
+  private listeners: Array<(authenticated: boolean) => void> = [];
+
+  private notifyAuthChange(authenticated: boolean) {
+    this.listeners.forEach(listener => listener(authenticated));
+  }
+
+  addAuthListener(listener: (authenticated: boolean) => void) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
+  }
+
   /**
    * Save authentication data to storage
    */
@@ -23,6 +36,7 @@ class AuthService {
       await storage.setItem(STORAGE_KEYS.ACCESS_TOKEN, authData.accessToken);
       await storage.setObject(STORAGE_KEYS.DRIVER_DATA, authData.driver);
       console.log('Auth data saved successfully');
+      this.notifyAuthChange(true);
     } catch (error) {
       console.error('Failed to save auth data:', error);
       throw error;
@@ -97,6 +111,7 @@ class AuthService {
       await storage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
       await storage.removeItem(STORAGE_KEYS.DRIVER_DATA);
       console.log('Auth data cleared successfully');
+      this.notifyAuthChange(false);
     } catch (error) {
       console.error('Failed to clear auth data:', error);
       throw error;

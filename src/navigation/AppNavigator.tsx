@@ -30,6 +30,14 @@ const AppNavigator: React.FC = () => {
     checkAuthStatus();
   }, []);
 
+  // Listen for auth state changes (e.g., after OTP verification)
+  useEffect(() => {
+    const unsubscribe = authService.addAuthListener((authenticated) => {
+      setIsAuthenticated(authenticated);
+    });
+    return unsubscribe;
+  }, []);
+
   const checkAuthStatus = async () => {
     try {
       const authenticated = await authService.isAuthenticated();
@@ -56,15 +64,31 @@ const AppNavigator: React.FC = () => {
     );
   }
 
+  // When not authenticated, only expose auth flow screens to prevent direct navigation to Dashboard/Home
+  if (!isAuthenticated) {
+    return (
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Otp" component={OtpScreen} />
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="Contact" component={ContactScreen} />
+      </Stack.Navigator>
+    );
+  }
+
+  // Authenticated stack
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? 'Dashboard' : 'Login'}
+      initialRouteName="Dashboard"
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Otp" component={OtpScreen} />
       <Stack.Screen name="Dashboard" component={TabNavigator} />
       <Stack.Screen name="Vehicles" component={VehiclesScreen} />
       <Stack.Screen name="ProfileDetails" component={ProfileScreen} />
@@ -76,8 +100,6 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="WithdrawSuccess" component={WithdrawSuccessScreen} />
       <Stack.Screen name="WithdrawError" component={WithdrawErrorScreen} />
       <Stack.Screen name="WithdrawalDetail" component={WithdrawalDetailScreen} />
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      {/* Add more screens here as needed */}
     </Stack.Navigator>
   );
 };

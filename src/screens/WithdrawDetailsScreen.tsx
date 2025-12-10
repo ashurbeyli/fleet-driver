@@ -221,21 +221,6 @@ const WithdrawDetailsScreen: React.FC = () => {
           <Text style={styles.amountValue}>₺{amount.toFixed(2)}</Text>
         </View>
 
-        {/* Commission Fee Info */}
-        {withdrawalSettings?.faturamaticCommission && (
-          <View style={styles.commissionInfo}>
-            <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
-            <View style={styles.commissionContent}>
-              <Text style={styles.commissionText}>
-                {t.withdrawalDetails.commissionFee}: ₺{withdrawalSettings.faturamaticCommission.toFixed(2)}
-              </Text>
-              <Text style={styles.commissionSubtext}>
-                {t.withdrawalDetails.commissionInfo}
-              </Text>
-            </View>
-          </View>
-        )}
-
         {/* Bank Details Form */}
         <View style={styles.formSection}>
           <View style={styles.sectionHeader}>
@@ -285,7 +270,11 @@ const WithdrawDetailsScreen: React.FC = () => {
       <ConfirmationModal
         visible={showConfirmModal}
         title={t.withdrawalDetails.confirmWithdrawal}
-        message={t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName)}
+        message={
+          withdrawalSettings?.faturamaticCommission && withdrawalSettings.faturamaticCommission > 0
+            ? `${t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName)}\n\n${t.withdrawalDetails.commissionFee}: ₺${withdrawalSettings.faturamaticCommission.toFixed(2)}`
+            : t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName)
+        }
         confirmText={t.common.confirm}
         cancelText={t.common.cancel}
         onConfirm={handleConfirmWithdrawal}
@@ -325,29 +314,6 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.xxl,
     fontWeight: TYPOGRAPHY.weights.bold,
     color: '#FFFFFF',
-  },
-  commissionInfo: {
-    backgroundColor: COLORS.surface,
-    borderRadius: DESIGN.borderRadius.md,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: SPACING.sm,
-    ...DESIGN.shadows.sm,
-  },
-  commissionContent: {
-    flex: 1,
-  },
-  commissionText: {
-    fontSize: TYPOGRAPHY.sizes.sm,
-    fontWeight: TYPOGRAPHY.weights.semibold,
-    color: COLORS.text.primary,
-    marginBottom: SPACING.xs / 2,
-  },
-  commissionSubtext: {
-    fontSize: TYPOGRAPHY.sizes.xs,
-    color: COLORS.text.secondary,
   },
   formSection: {
     backgroundColor: COLORS.surface,
