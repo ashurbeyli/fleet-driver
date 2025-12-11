@@ -94,7 +94,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 <View style={styles.liveDot} />
               </View>
             </View>
-            <Text style={styles.supportText}>{`${t.contact.support} 24/7`}</Text>
+            <Text style={styles.supportText}>{`${t.contact.support} 7/24`}</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.supportPlaceholder} />

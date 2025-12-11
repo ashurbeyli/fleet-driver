@@ -95,13 +95,6 @@ const ProfileScreen: React.FC = () => {
             <Text style={styles.detailValue}>{driver?.parkName || '-'}</Text>
           </View>
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>{t.profile.agreement}</Text>
-            <Text style={styles.detailValue}>
-              {driver?.isAgreed ? t.profile.agreed : t.profile.notAgreed}
-            </Text>
-          </View>
-
         </View>
 
         {/* User Info Card */}
