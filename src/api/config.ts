@@ -1,6 +1,26 @@
 import { authService } from '../services/authService';
+import { Platform } from 'react-native';
 
-const API_BASE_URL = process.env.API_BASE_URL || 'https://test.com.az';
+// Get API base URL from environment variables
+// For Expo web: EXPO_PUBLIC_ prefix is needed for build-time replacement
+// For Fly.io: Set secret as EXPO_PUBLIC_API_BASE_URL
+const getApiBaseUrl = (): string => {
+  // Check for EXPO_PUBLIC_ prefixed variable (build-time for Expo, works with Fly.io secrets)
+  // This is the recommended approach for Expo web apps
+  if (process.env.EXPO_PUBLIC_API_BASE_URL) {
+    return process.env.EXPO_PUBLIC_API_BASE_URL;
+  }
+  
+  // Check for standard API_BASE_URL (runtime, e.g., Node.js/SSR)
+  if (process.env.API_BASE_URL) {
+    return process.env.API_BASE_URL;
+  }
+  
+  // Default fallback
+  return 'https://test.com.az';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface ApiResponse<T> {
   data: T;
