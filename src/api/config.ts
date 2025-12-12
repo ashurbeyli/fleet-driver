@@ -1,6 +1,6 @@
 import { authService } from '../services/authService';
 
-const API_BASE_URL = 'https://test.com.az';
+const API_BASE_URL = process.env.API_BASE_URL || 'https://test.com.az';
 
 export interface ApiResponse<T> {
   data: T;
