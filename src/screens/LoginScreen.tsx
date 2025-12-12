@@ -155,6 +155,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           />
         </View>
 
+        {/* Driver Panel Title */}
+        <Text style={[
+          styles.driverPanelTitle,
+          isLargeScreen ? styles.driverPanelTitleLarge : styles.driverPanelTitleSmall
+        ]}>SÜRÜCÜ PANELİ</Text>
+
         {/* Login Form Card */}
         <View style={styles.formCard}>
           <UnifiedSelectBox
@@ -225,14 +231,11 @@ const styles = StyleSheet.create({
   logoSection: {
     alignItems: 'center',
     paddingTop: SPACING.md,
-    paddingBottom: SPACING.lg,
-    marginBottom: SPACING.md,
   },
   logoWithTitle: {
     width: 220,
     height: 60,
     resizeMode: 'contain',
-    marginBottom: SPACING.md,
     alignSelf: 'center',
   },
   logoWithTitleLarge: {
@@ -243,6 +246,19 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.sizes.sm,
     fontWeight: TYPOGRAPHY.weights.medium,
     color: COLORS.text.secondary,
+  },
+  driverPanelTitle: {
+    fontWeight: TYPOGRAPHY.weights.bold,
+    color: '#000000',
+    textAlign: 'center',
+    marginBottom: SPACING.lg,
+    marginTop: SPACING.sm,
+  },
+  driverPanelTitleSmall: {
+    fontSize: TYPOGRAPHY.sizes.lg,
+  },
+  driverPanelTitleLarge: {
+    fontSize: TYPOGRAPHY.sizes.xxl,
   },
   // Form Card
   formCard: {

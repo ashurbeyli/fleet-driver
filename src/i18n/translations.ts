@@ -454,7 +454,7 @@ export const translations: Record<Language, Translations> = {
       userInfo: 'Kullanıcı Bilgileri',
       loadingUserInfo: 'Kullanıcı bilgileri yükleniyor...',
       failedToLoadUserInfo: 'Kullanıcı bilgileri yüklenemedi',
-      hireDate: 'İşe Alınma Tarihi',
+      hireDate: 'RidexGo\'da Başlama Tarihi',
       phone: 'Telefon',
       plateNumber: 'Araba plakası',
       status: 'Durum',
