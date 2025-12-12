@@ -90,6 +90,9 @@ export interface Translations {
     ibanInvalid: string;
     amountGreaterThanZero: string;
     amountMinimumWithdrawal: (minimum: string) => string;
+    amountMaximumWithdrawal: (maximum: string) => string;
+    amountExceedsDailyLimit: (limit: string) => string;
+    amountInvalid: string;
     otpInvalidLength: string;
   };
   
@@ -365,6 +368,9 @@ export const translations: Record<Language, Translations> = {
       ibanInvalid: 'IBAN 26 karakter uzunluğunda olmalı, TR ile başlamalı ve geri kalanı rakam olmalıdır',
       amountGreaterThanZero: 'Tutar 0\'dan büyük olmalıdır',
       amountMinimumWithdrawal: (minimum: string) => `Minimum para çekme tutarı ₺${minimum} olmalıdır`,
+      amountMaximumWithdrawal: (maximum: string) => `Maksimum para çekme tutarı ₺${maximum} olmalıdır`,
+      amountExceedsDailyLimit: (limit: string) => `Günlük kalan çekilebilir limitiniz ₺${limit}`,
+      amountInvalid: 'Lütfen geçerli bir tutar girin',
       otpInvalidLength: 'Lütfen geçerli bir 6 haneli doğrulama kodu girin.',
     },
     withdrawalStatus: {
@@ -612,6 +618,9 @@ export const translations: Record<Language, Translations> = {
       ibanInvalid: 'IBAN must be 26 characters long, start with TR, and the rest must be numbers',
       amountGreaterThanZero: 'Amount must be greater than 0',
       amountMinimumWithdrawal: (minimum: string) => `Minimum withdrawal amount must be ₺${minimum}`,
+      amountMaximumWithdrawal: (maximum: string) => `Maximum withdrawal amount must be ₺${maximum}`,
+      amountExceedsDailyLimit: (limit: string) => `Your remaining daily withdrawal limit is ₺${limit}`,
+      amountInvalid: 'Please enter a valid amount',
       otpInvalidLength: 'Please enter a valid 6-digit verification code.',
     },
     withdrawalStatus: {

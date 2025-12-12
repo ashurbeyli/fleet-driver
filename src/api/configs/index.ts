@@ -21,8 +21,8 @@ export interface ConfigFeatures {
 }
 
 export interface WithdrawalSettings {
-  faturamaticCommission: number;
-  faturamaticMinimumWithdrawal: number;
+  minimumAmount: number;
+  maximumAmount: number;
 }
 
 export interface AppConfig {

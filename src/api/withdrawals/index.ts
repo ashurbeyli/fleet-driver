@@ -62,6 +62,12 @@ export interface WithdrawalDetailResponse {
   failureReason: string | null;
 }
 
+export interface WithdrawalCommissionResponse {
+  requestedAmount: number;
+  commissionAmount: number;
+  netAmount: number;
+}
+
 /**
  * Create a withdrawal request
  * Returns 202 Accepted status
@@ -143,12 +149,29 @@ export const resendWithdrawalOtp = async (withdrawalId: string): Promise<void> =
   }
 };
 
+/**
+ * Calculate withdrawal commission based on the requested amount
+ * Returns detailed breakdown including commission and net amount
+ */
+export const getWithdrawalCommission = async (amount: number): Promise<WithdrawalCommissionResponse> => {
+  try {
+    const response = await apiClient.request<WithdrawalCommissionResponse>(`/api/v1/Withdrawals/commission?amount=${amount}`, {
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    console.error('Failed to fetch withdrawal commission:', error);
+    throw error;
+  }
+};
+
 const withdrawalsApi = {
   createWithdrawal,
   verifyWithdrawalOtp,
   getWithdrawalHistory,
   getWithdrawalById,
   resendWithdrawalOtp,
+  getWithdrawalCommission,
 };
 
 export default withdrawalsApi;

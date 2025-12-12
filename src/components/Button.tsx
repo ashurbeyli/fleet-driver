@@ -6,6 +6,7 @@ import {
   ViewStyle,
   TextStyle,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
 
@@ -15,6 +16,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
+  loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
 }
@@ -25,6 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'medium',
   disabled = false,
+  loading = false,
   style,
   textStyle,
 }) => {
@@ -44,14 +47,25 @@ const Button: React.FC<ButtonProps> = ({
     textStyle,
   ];
 
+  const getSpinnerColor = () => {
+    if (variant === 'outline') {
+      return COLORS.primary;
+    }
+    return COLORS.text.inverse;
+  };
+
   return (
     <TouchableOpacity
       style={buttonStyle}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       activeOpacity={0.8}
     >
-      <Text style={textStyleCombined}>{title}</Text>
+      {loading ? (
+        <ActivityIndicator size="small" color={getSpinnerColor()} />
+      ) : (
+        <Text style={textStyleCombined}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 };

@@ -14,6 +14,7 @@ export interface BalanceResponse {
   blockedBalance: number;
   withdrawableBalance: number;
   balanceDetails: BalanceDetails;
+  remainingWithdrawalLimit?: number;
 }
 
 export interface UserInfoResponse {

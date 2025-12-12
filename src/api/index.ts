@@ -20,5 +20,5 @@ export type { LeaderboardEntry, LeaderboardCompetition, LeaderboardsResponse } f
 export type { RankingResponse } from './ranking';
 export type { InvitationPlatform, InvitationsPlatformsResponse, Invitation, SendInvitationRequest, SendInvitationResponse } from './invitations';
 export type { AppConfig, ConfigLinks, ConfigFeatures, WithdrawalSettings } from './configs';
-export type { WithdrawalRequest, WithdrawalResponse, WithdrawalHistoryItem, WithdrawalDetailResponse } from './withdrawals';
+export type { WithdrawalRequest, WithdrawalResponse, WithdrawalHistoryItem, WithdrawalDetailResponse, WithdrawalCommissionResponse } from './withdrawals';
 export { WithdrawalStatus } from './withdrawals';

@@ -25,7 +25,7 @@ import { useConfig } from '../contexts/ConfigContext';
 const WithdrawScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { t } = useLanguage();
-  const { withdrawalSettings } = useConfig();
+  const { withdrawalSettings, isLoading: isConfigLoading } = useConfig();
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
@@ -169,9 +169,12 @@ const WithdrawScreen: React.FC = () => {
   };
 
   const handleCustomAmountChange = (amount: string) => {
+    // Only allow numbers, comma, or dot - filter out any other characters
+    const filteredAmount = amount.replace(/[^0-9,.]/g, '');
+    
     // Normalize comma to dot for decimal separator (iOS locale issue)
     // Replace all commas with dots, then ensure only one decimal point
-    let normalizedAmount = amount.replace(/,/g, '.');
+    let normalizedAmount = filteredAmount.replace(/,/g, '.');
     
     // Ensure only one decimal point (keep the first one)
     const parts = normalizedAmount.split('.');
@@ -184,16 +187,22 @@ const WithdrawScreen: React.FC = () => {
     // Validate amount
     const numAmount = parseFloat(normalizedAmount);
     if (normalizedAmount && !isNaN(numAmount)) {
-      if (numAmount <= 0) {
-        setAmountError(t.validation.amountGreaterThanZero);
-      } else {
-        const roundedAmount = Math.round(numAmount * 100) / 100;
-        const minimumWithdrawal = withdrawalSettings?.faturamaticMinimumWithdrawal || 0;
-        
-        // Check minimum withdrawal amount
-        if (minimumWithdrawal > 0 && roundedAmount < minimumWithdrawal) {
-          setAmountError(t.validation.amountMinimumWithdrawal(minimumWithdrawal.toFixed(2)));
-        } else if (balance) {
+      const roundedAmount = Math.round(numAmount * 100) / 100;
+      const minimumAmount = withdrawalSettings?.minimumAmount ?? 0;
+      const maximumAmount = withdrawalSettings?.maximumAmount ?? 0;
+      
+      // Check minimum amount
+      if (minimumAmount > 0 && roundedAmount < minimumAmount) {
+        setAmountError(t.validation.amountMinimumWithdrawal(minimumAmount.toFixed(2)));
+      } else if (maximumAmount > 0 && roundedAmount > maximumAmount) {
+        // Check maximum amount
+        setAmountError(t.validation.amountMaximumWithdrawal(maximumAmount.toFixed(2)));
+      } else if (balance) {
+        // Check daily withdrawal limit
+        const remainingLimit = balance.remainingWithdrawalLimit;
+        if (remainingLimit !== undefined && remainingLimit > 0 && roundedAmount > remainingLimit) {
+          setAmountError(t.validation.amountExceedsDailyLimit(remainingLimit.toFixed(2)));
+        } else {
           // Round to 2 decimal places to avoid floating point precision issues
           const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
           
@@ -202,14 +211,14 @@ const WithdrawScreen: React.FC = () => {
           } else {
             setAmountError('');
           }
-        } else {
-          setAmountError('');
         }
+      } else {
+        setAmountError('');
       }
     } else if (normalizedAmount === '') {
       setAmountError('');
     } else {
-      setAmountError('Please enter a valid amount');
+      setAmountError(t.validation.amountInvalid);
     }
   };
 
@@ -217,8 +226,8 @@ const WithdrawScreen: React.FC = () => {
     const amount = parseFloat(customAmount);
     
     // Validation
-    if (!amount || amount <= 0 || isNaN(amount)) {
-      Alert.alert('Invalid Amount', 'Please enter a valid amount');
+    if (!customAmount || isNaN(amount)) {
+      Alert.alert(t.common.error, t.validation.amountInvalid);
       return;
     }
     
@@ -230,11 +239,25 @@ const WithdrawScreen: React.FC = () => {
     // Use same rounded comparison as validation
     const roundedAmount = Math.round(amount * 100) / 100;
     const roundedBalance = Math.round(balance.withdrawableBalance * 100) / 100;
-    const minimumWithdrawal = withdrawalSettings?.faturamaticMinimumWithdrawal || 0;
+    const minimumAmount = withdrawalSettings?.minimumAmount ?? 0;
+    const maximumAmount = withdrawalSettings?.maximumAmount ?? 0;
     
-    // Check minimum withdrawal amount
-    if (minimumWithdrawal > 0 && roundedAmount < minimumWithdrawal) {
-      Alert.alert(t.common.error, t.validation.amountMinimumWithdrawal(minimumWithdrawal.toFixed(2)));
+    // Check minimum amount
+    if (minimumAmount > 0 && roundedAmount < minimumAmount) {
+      Alert.alert(t.common.error, t.validation.amountMinimumWithdrawal(minimumAmount.toFixed(2)));
+      return;
+    }
+    
+    // Check maximum amount
+    if (maximumAmount > 0 && roundedAmount > maximumAmount) {
+      Alert.alert(t.common.error, t.validation.amountMaximumWithdrawal(maximumAmount.toFixed(2)));
+      return;
+    }
+    
+    // Check daily withdrawal limit
+    const remainingLimit = balance.remainingWithdrawalLimit;
+    if (remainingLimit !== undefined && remainingLimit > 0 && roundedAmount > remainingLimit) {
+      Alert.alert(t.common.error, t.validation.amountExceedsDailyLimit(remainingLimit.toFixed(2)));
       return;
     }
     
@@ -430,6 +453,7 @@ const WithdrawScreen: React.FC = () => {
             <View style={[
               styles.amountInputWrapper,
               amountError && styles.amountInputWrapperError,
+              (isLoadingBalance || isConfigLoading) && styles.amountInputWrapperDisabled,
             ]}>
               <Text style={styles.currencySymbol}>₺</Text>
               <View style={styles.amountInputInner}>
@@ -442,6 +466,7 @@ const WithdrawScreen: React.FC = () => {
                   keyboardType="decimal-pad"
                   returnKeyType="done"
                   onSubmitEditing={handleWithdraw}
+                  editable={!isLoadingBalance && !isConfigLoading}
                 />
               </View>
             </View>
@@ -457,7 +482,7 @@ const WithdrawScreen: React.FC = () => {
             variant="primary"
             size="medium"
             style={styles.withdrawButton}
-            disabled={!customAmount || !!amountError}
+            disabled={!customAmount || !!amountError || isLoadingBalance || isConfigLoading}
           />
         </View>
 
@@ -663,6 +688,10 @@ const styles = StyleSheet.create({
   amountInputWrapperError: {
     borderColor: COLORS.error,
     borderWidth: 1.5,
+  },
+  amountInputWrapperDisabled: {
+    backgroundColor: COLORS.backgroundDark,
+    opacity: 0.7,
   },
   amountErrorText: {
     fontSize: TYPOGRAPHY.sizes.sm,

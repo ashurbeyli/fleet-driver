@@ -14,7 +14,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Header, Button, Input, ConfirmationModal, AppHeader } from '../components';
 import { COLORS, TYPOGRAPHY, SPACING, DESIGN } from '../constants';
-import { withdrawalsApi, usersApi, type WithdrawalRequest, WithdrawalStatus } from '../api';
+import { withdrawalsApi, usersApi, type WithdrawalRequest, WithdrawalStatus, type WithdrawalCommissionResponse } from '../api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useConfig } from '../contexts/ConfigContext';
 
@@ -32,6 +32,8 @@ const WithdrawDetailsScreen: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingBankDetails, setIsLoadingBankDetails] = useState(true);
+  const [isLoadingCommission, setIsLoadingCommission] = useState(false);
+  const [commissionData, setCommissionData] = useState<WithdrawalCommissionResponse | null>(null);
   const [receiverName, setReceiverName] = useState<string>('');
   const [receiverNameError, setReceiverNameError] = useState<string>('');
   const [iban, setIban] = useState<string>('');
@@ -42,6 +44,13 @@ const WithdrawDetailsScreen: React.FC = () => {
   useEffect(() => {
     loadBankDetails();
   }, []);
+
+  // Fetch commission when amount is available
+  useEffect(() => {
+    if (amount > 0) {
+      loadCommission();
+    }
+  }, [amount]);
 
   const loadBankDetails = async () => {
     try {
@@ -60,6 +69,20 @@ const WithdrawDetailsScreen: React.FC = () => {
       // Don't show error to user, just allow manual entry
     } finally {
       setIsLoadingBankDetails(false);
+    }
+  };
+
+  const loadCommission = async () => {
+    try {
+      setIsLoadingCommission(true);
+      const commission = await withdrawalsApi.getWithdrawalCommission(amount);
+      setCommissionData(commission);
+    } catch (error) {
+      console.error('Failed to load commission:', error);
+      // Don't show error to user, just allow proceeding without commission info
+      setCommissionData(null);
+    } finally {
+      setIsLoadingCommission(false);
     }
   };
 
@@ -153,6 +176,16 @@ const WithdrawDetailsScreen: React.FC = () => {
     setShowConfirmModal(true);
   };
 
+  const getConfirmationMessage = (): string => {
+    let message = t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName);
+    
+    if (commissionData) {
+      message += `\n\n${t.withdrawalDetails.commissionFee || 'Commission Fee'}: ₺${commissionData.commissionAmount.toFixed(2)}`;
+    }
+    
+    return message;
+  };
+
   const handleConfirmWithdrawal = async () => {
     setShowConfirmModal(false);
     
@@ -225,11 +258,6 @@ const WithdrawDetailsScreen: React.FC = () => {
         <View style={styles.formSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t.withdrawalDetails.bankDetails}</Text>
-            {isLoadingBankDetails && (
-              <View style={styles.loadingIndicator}>
-                <ActivityIndicator size="small" color={COLORS.primary} />
-              </View>
-            )}
           </View>
 
           <View style={styles.formFields}>
@@ -256,25 +284,22 @@ const WithdrawDetailsScreen: React.FC = () => {
         </View>
 
         {/* Submit Button */}
-          <Button
-            title={isSubmitting ? t.common.loading : t.withdrawalDetails.confirmWithdrawal}
-            onPress={handleSubmit}
-            variant="primary"
-            size="medium"
-            style={styles.submitButton}
-            disabled={isSubmitting || isLoadingBankDetails || !receiverName.trim() || !iban.trim() || !!ibanError || !!receiverNameError}
-          />
+        <Button
+          title={t.withdrawalDetails.confirmWithdrawal}
+          onPress={handleSubmit}
+          variant="primary"
+          size="medium"
+          style={styles.submitButton}
+          loading={isSubmitting || isLoadingCommission}
+          disabled={isSubmitting || isLoadingBankDetails || isLoadingCommission || !receiverName.trim() || !iban.trim() || !!ibanError || !!receiverNameError}
+        />
       </ScrollView>
 
       {/* Confirmation Modal */}
       <ConfirmationModal
         visible={showConfirmModal}
         title={t.withdrawalDetails.confirmWithdrawal}
-        message={
-          withdrawalSettings?.faturamaticCommission && withdrawalSettings.faturamaticCommission > 0
-            ? `${t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName)}\n\n${t.withdrawalDetails.commissionFee}: ₺${withdrawalSettings.faturamaticCommission.toFixed(2)}`
-            : t.withdrawalDetails.confirmMessage(amount.toFixed(2), receiverName)
-        }
+        message={getConfirmationMessage()}
         confirmText={t.common.confirm}
         cancelText={t.common.cancel}
         onConfirm={handleConfirmWithdrawal}
@@ -338,9 +363,6 @@ const styles = StyleSheet.create({
   },
   formInput: {
     outlineWidth: 0
-  },
-  loadingIndicator: {
-    marginLeft: SPACING.sm,
   },
   submitButton: {
     marginTop: SPACING.sm,
